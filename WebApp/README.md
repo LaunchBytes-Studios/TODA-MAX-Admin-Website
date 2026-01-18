@@ -1,73 +1,75 @@
-# React + TypeScript + Vite
+# TODA-MAX Admin WebApp
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React + TypeScript app powered by Vite, with first-class linting (ESLint flat config) and Git hooks (Husky) to keep code quality consistent.
 
-Currently, two official plugins are available:
+## Tech Stack
+- **Build tool**: Vite
+- **UI**: React + TypeScript
+- **Linting**: ESLint (flat config with `typescript-eslint`, React, Hooks, React Refresh)
+- **Editor/Build lint**: `vite-plugin-eslint` (auto-fix enabled)
+- **Git hooks**: Husky (optional: lint-staged)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Getting Started
+- **Install**
+  - npm: `npm install`
 
-## React Compiler
+- **Development**
+  - `npm run dev` — start Vite dev server with HMR
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Build**
+  - `npm run build` — build for production
+  - `npm run preview` — preview the production build locally
 
-## Expanding the ESLint configuration
+## Linting
+- ESLint is configured via `eslint.config.js` (flat config) using `typescript-eslint`, `eslint-plugin-react`, `eslint-plugin-react-hooks`, and `eslint-plugin-react-refresh`.
+- Vite runs ESLint through `vite-plugin-eslint` and applies safe auto-fixes on-the-fly:
+  - `vite.config.ts` includes `eslint({ fix: true })`.
+- Run lint manually:
+  - `npm run lint` (if defined) or `npx eslint .`.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### TypeScript note (Vite config)
+Some versions of `vite-plugin-eslint` ship types that aren’t resolved via package exports. A local shim is included:
+- `types/vite-plugin-eslint.d.ts`
+- `tsconfig.node.json` includes `types/**/*.d.ts`
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Husky (Git hooks)
+Husky v9 uses the `prepare` script and plain hook files.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+1) Install Husky
+- `npm i -D husky`
+- `npm pkg set scripts.prepare="husky"`
+- `npm run prepare` (creates `.husky/`)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2) Add a pre-commit hook
+Create `.husky/pre-commit`:
+```sh
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+npm run lint
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Optional: lint only staged files
+- `npm i -D lint-staged`
+- Add to `package.json`:
+```json
+{
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "eslint --fix"
+  }
+}
 ```
+- Update `.husky/pre-commit` to run `npx lint-staged`.
+
+## Project Scripts (typical)
+- `dev`: start dev server
+- `build`: build for production
+- `preview`: preview built app
+- `lint`: run eslint
+
+## Troubleshooting
+- Husky on Windows requires Git Bash (installed with Git), because hooks are shell scripts.
+- If TypeScript reports missing types for `vite-plugin-eslint`, ensure the shim and `tsconfig.node.json` include are present.
+
+## License
+MIT
