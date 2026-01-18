@@ -6,24 +6,34 @@ import pluginReactHooks from 'eslint-plugin-react-hooks';
 import pluginReactRefresh from 'eslint-plugin-react-refresh';
 
 export default tseslint.config(
-  { ignores: ['dist'] },
+  { ignores: ['dist', 'eslint.config.js'] },
   {
     files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     languageOptions: {
       globals: globals.browser,
-      parserOptions: { project: './tsconfig.json' }
+      parserOptions: {
+        projectService: {
+          allowDefaultProject: ['eslint.config.js']
+        }
+      }
     },
     plugins: {
       react: pluginReact,
       'react-hooks': pluginReactHooks,
       'react-refresh': pluginReactRefresh
     },
+    settings: {
+      react: {
+        version: 'detect'
+      }
+    },
     rules: {
       ...pluginReact.configs.recommended.rules,
       ...pluginReactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': 'warn',
-      '@typescript-eslint/no-unused-vars': 'warn'
+      '@typescript-eslint/no-unused-vars': 'warn',
+      'react/react-in-jsx-scope': 'off'
     }
   }
 );
