@@ -6,7 +6,7 @@ import pluginReactHooks from 'eslint-plugin-react-hooks';
 import pluginReactRefresh from 'eslint-plugin-react-refresh';
 
 export default tseslint.config(
-  { ignores: ['dist', 'eslint.config.js'] },
+  { ignores: ['dist', 'eslint.config.js', 'postcss.config.js', 'tailwind.config.js'] },
   {
     files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
@@ -14,7 +14,7 @@ export default tseslint.config(
       globals: globals.browser,
       parserOptions: {
         projectService: {
-          allowDefaultProject: ['eslint.config.js']
+          allowDefaultProject: ['eslint.config.js', 'postcss.config.js', 'tailwind.config.js']
         }
       }
     },
