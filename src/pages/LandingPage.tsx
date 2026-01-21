@@ -28,7 +28,7 @@ const LandingPage = () => {
           </span>
         </p>
         <Button
-          className="mt-10 inline-flex h-auto items-center gap-3 rounded-full px-10 py-6 text-lg font-semibold  bg-[#1447E6] hover:bg-blue-900 text-white"
+          className="mt-10 inline-flex h-auto items-center gap-3 rounded-full px-10 py-6 text-lg font-semibold bg-[#1447E6] hover:bg-blue-900 text-white"
           onClick={() => navigate("/login")}
         >
           Get Started
