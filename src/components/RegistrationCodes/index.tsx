@@ -1,30 +1,30 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { ChevronRight, Clock } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { ChevronRight, Clock } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
-import { toast } from "sonner";
-import { registrationCodes } from "@/data/registrationCodes";
-import { RegistrationCodesTable } from "./RegistrationCodeTable";
-import { calculateTimeRemaining, isExpiringSoon } from "@/lib/time-utils";
-import type { RegistrationCode } from "./types";
+} from '../ui/dialog';
+import { toast } from 'sonner';
+import { registrationCodes } from '@/data/registrationCodes';
+import { RegistrationCodesTable } from './RegistrationCodeTable';
+import { calculateTimeRemaining, isExpiringSoon } from '@/lib/time-utils';
+import type { RegistrationCode } from './types';
 
 // Get end of day for countdown
 function getEndOfDayExpiry() {
   const today = new Date();
   return {
-    date: today.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
+    date: today.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
     }),
-    time: "23:59:59",
+    time: '23:59:59',
   };
 }
 
@@ -60,16 +60,16 @@ export function RegistrationCodes() {
     const newCode: RegistrationCode = {
       id: Date.now().toString(),
       code: `CODE-${Math.random().toString(36).substring(2, 9).toUpperCase()}`,
-      expiryDate: endOfDay.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
+      expiryDate: endOfDay.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
       }),
-      expiryTime: "23:59:59",
+      expiryTime: '23:59:59',
       isExpired: false,
     };
     setCodes([newCode, ...codes]);
-    toast.success("New registration code generated!");
+    toast.success('New registration code generated!');
   };
 
   const expiringSoon = isExpiringSoon(timeRemaining);
@@ -86,7 +86,7 @@ export function RegistrationCodes() {
             <span className="text-gray-500">Expires in:</span>
             <span
               className={`font-medium ${
-                expiringSoon ? "text-red-600" : "text-green-600"
+                expiringSoon ? 'text-red-600' : 'text-green-600'
               }`}
             >
               {timeRemaining}

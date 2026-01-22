@@ -1,6 +1,6 @@
-import { RegistrationCodeItem } from "./RegistrationCodeItem";
-import { cn } from "@/lib/utils";
-import type { RegistrationCodesTableProps } from "@/components/RegistrationCodes/types";
+import { RegistrationCodeItem } from './RegistrationCodeItem';
+import { cn } from '@/lib/utils';
+import type { RegistrationCodesTableProps } from '@/components/RegistrationCodes/types';
 
 export function RegistrationCodesTable({
   codes,
@@ -11,7 +11,7 @@ export function RegistrationCodesTable({
   const displayedCodes = showAll ? codes : codes.slice(0, 5);
 
   return (
-    <div className={cn("overflow-x-auto", className)}>
+    <div className={cn('overflow-x-auto', className)}>
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>

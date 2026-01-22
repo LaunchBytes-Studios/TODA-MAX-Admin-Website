@@ -6,22 +6,29 @@
  */
 export function calculateTimeRemaining(
   expiryDate: string,
-  expiryTime: string
+  expiryTime: string,
 ): string {
   // Parse the expiry date and time (supports both - and / separators)
-  const dateParts = expiryDate.includes("-")
-    ? expiryDate.split("-").map(Number)
-    : expiryDate.split("/").map(Number);
+  const dateParts = expiryDate.includes('-')
+    ? expiryDate.split('-').map(Number)
+    : expiryDate.split('/').map(Number);
   const [month, day, year] = dateParts;
-  const [hours, minutes, seconds] = expiryTime.split(":").map(Number);
+  const [hours, minutes, seconds] = expiryTime.split(':').map(Number);
 
-  const expiryDateTime = new Date(year, month - 1, day, hours, minutes, seconds);
+  const expiryDateTime = new Date(
+    year,
+    month - 1,
+    day,
+    hours,
+    minutes,
+    seconds,
+  );
   const now = new Date();
 
   const diffMs = expiryDateTime.getTime() - now.getTime();
 
   if (diffMs <= 0) {
-    return "Expired";
+    return 'Expired';
   }
 
   const diffSeconds = Math.floor(diffMs / 1000);
@@ -49,15 +56,15 @@ export function calculateTimeRemaining(
  * @returns true if expiring soon, false otherwise
  */
 export function isExpiringSoon(timeRemaining: string): boolean {
-  if (timeRemaining === "Expired") return false;
+  if (timeRemaining === 'Expired') return false;
 
   // Expiring soon if only minutes or seconds remain (no days or hours)
   const hasOnlyMinutes =
-    timeRemaining.includes("m") &&
-    !timeRemaining.includes("d") &&
-    !timeRemaining.includes("h");
+    timeRemaining.includes('m') &&
+    !timeRemaining.includes('d') &&
+    !timeRemaining.includes('h');
   const hasOnlySeconds =
-    timeRemaining.includes("s") && !timeRemaining.includes("m");
+    timeRemaining.includes('s') && !timeRemaining.includes('m');
 
   return hasOnlyMinutes || hasOnlySeconds;
 }
@@ -69,11 +76,11 @@ export function isExpiringSoon(timeRemaining: string): boolean {
  * @returns Date object
  */
 export function parseExpiryDateTime(dateStr: string, timeStr: string): Date {
-  const dateParts = dateStr.includes("-")
-    ? dateStr.split("-").map(Number)
-    : dateStr.split("/").map(Number);
+  const dateParts = dateStr.includes('-')
+    ? dateStr.split('-').map(Number)
+    : dateStr.split('/').map(Number);
   const [month, day, year] = dateParts;
-  const [hours, minutes, seconds] = timeStr.split(":").map(Number);
+  const [hours, minutes, seconds] = timeStr.split(':').map(Number);
   return new Date(year, month - 1, day, hours, minutes, seconds);
 }
 

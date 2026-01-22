@@ -1,12 +1,12 @@
-import { Copy } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import type { RegistrationCodeItemProps } from "@/components/RegistrationCodes/types";
+import { Copy } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import type { RegistrationCodeItemProps } from '@/components/RegistrationCodes/types';
 
 export function RegistrationCodeItem({ code }: RegistrationCodeItemProps) {
   const handleCopyCode = () => {
     navigator.clipboard.writeText(code.code);
-    toast.success("Code copied to clipboard!");
+    toast.success('Code copied to clipboard!');
   };
 
   return (
@@ -16,7 +16,7 @@ export function RegistrationCodeItem({ code }: RegistrationCodeItemProps) {
           <div className="flex-1">
             <span
               className={
-                code.isExpired ? "line-through text-gray-400" : "font-medium"
+                code.isExpired ? 'line-through text-gray-400' : 'font-medium'
               }
             >
               {code.code}
@@ -30,7 +30,7 @@ export function RegistrationCodeItem({ code }: RegistrationCodeItemProps) {
         </div>
       </td>
       <td className="px-4 py-3">
-        <div className={`text-sm ${code.isExpired ? "text-gray-400" : ""}`}>
+        <div className={`text-sm ${code.isExpired ? 'text-gray-400' : ''}`}>
           {code.expiryDate}
         </div>
       </td>

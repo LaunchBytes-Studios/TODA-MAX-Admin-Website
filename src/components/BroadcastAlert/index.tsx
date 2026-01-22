@@ -1,22 +1,22 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
-import { Label } from "../ui/label";
-import { Megaphone, Send } from "lucide-react";
-import { toast } from "sonner";
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Textarea } from '../ui/textarea';
+import { Label } from '../ui/label';
+import { Megaphone, Send } from 'lucide-react';
+import { toast } from 'sonner';
 
 export function BroadcastAlert() {
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState('');
 
   const handleBroadcast = () => {
     if (!message.trim()) {
-      toast.error("Please enter a message to broadcast");
+      toast.error('Please enter a message to broadcast');
       return;
     }
 
-    toast.success("Alert broadcast to all users!");
-    setMessage("");
+    toast.success('Alert broadcast to all users!');
+    setMessage('');
   };
 
   return (

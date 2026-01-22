@@ -9,7 +9,6 @@
     "skipLibCheck": true,
 
     /* Resolve aliased imports like @/components/Button */
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
