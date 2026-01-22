@@ -1,7 +1,7 @@
-import { StatsCards } from "./StatsCard";
-import { LowStockTable } from "./LowStock";
-import { RegistrationCodes } from "./RegistrationCodes";
-import { BroadcastAlert } from "./BroadcastAlert";
+import { StatsCards } from './StatsCard';
+import { LowStockTable } from './LowStock';
+import { RegistrationCodes } from './RegistrationCodes';
+import { BroadcastAlert } from './BroadcastAlert';
 
 export function Dashboard() {
   return (

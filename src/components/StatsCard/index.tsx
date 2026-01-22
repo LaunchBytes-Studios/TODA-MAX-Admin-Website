@@ -1,5 +1,5 @@
-import { Card, CardContent } from "../ui/card";
-import { stats } from "@/data/stats";
+import { Card, CardContent } from '../ui/card';
+import { stats } from '@/data/stats';
 
 export function StatsCards() {
   return (

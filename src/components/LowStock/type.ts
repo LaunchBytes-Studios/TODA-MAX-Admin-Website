@@ -1,8 +1,7 @@
-
 export interface LowStockItem {
   medicine: string;
   category: string;
   current: number;
   minStock: number;
-  status: "Low" | "Very Low";
+  status: 'Low' | 'Very Low';
 }
