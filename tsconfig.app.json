@@ -9,7 +9,6 @@
     "skipLibCheck": true,
 
     /* Resolve aliased imports like @/components/Button */
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
@@ -30,5 +29,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src", "src/types"]
 }

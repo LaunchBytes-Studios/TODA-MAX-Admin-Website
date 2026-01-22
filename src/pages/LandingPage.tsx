@@ -1,6 +1,7 @@
-import { useNavigate } from "react-router-dom";
-import logo from "../assets/logo.png";
-import { Button } from "../components/ui/button";
+import { useNavigate } from 'react-router-dom';
+import logo from '../assets/logo.png';
+import { Button } from '../components/ui/button';
+import { ArrowRight } from 'lucide-react';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -28,13 +29,11 @@ const LandingPage = () => {
           </span>
         </p>
         <Button
-          className="mt-10 inline-flex h-auto items-center gap-3 rounded-full px-10 py-6 text-lg font-semibold  bg-[#1447E6] hover:bg-blue-900 text-white"
-          onClick={() => navigate("/login")}
+          className="mt-10 inline-flex h-auto items-center gap-3 rounded-full px-10 py-6 text-lg font-semibold bg-[#1447E6] hover:bg-blue-900 text-white"
+          onClick={() => navigate('/dashboard')}
         >
           Get Started
-          <span aria-hidden="true" className="text-xl leading-none">
-            -&gt;
-          </span>
+          <ArrowRight className="stroke-[3] scale-140" />
         </Button>
       </div>
     </section>

@@ -19,14 +19,14 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between h-16">
           {/* Logo Section */}
           <div className="flex items-center space-x-3">
-            <img 
-              src={logo} 
-              alt="TODA MAX Logo" 
+            <img
+              src={logo}
+              alt="TODA MAX Logo"
               className="h-10 w-10 object-contain"
             />
             <h1 className="text-xl font-bold text-gray-900">TODA MAX</h1>
           </div>
-          
+
           <div className="flex items-center">
             <div className="flex items-center space-x-1">
               {NAV_ITEMS.map((item) => (
@@ -40,9 +40,9 @@ const Navbar: React.FC = () => {
                 />
               ))}
             </div>
-            
+
             <div className="h-6 w-px bg-gray-300 mx-2"></div>
-            
+
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition"

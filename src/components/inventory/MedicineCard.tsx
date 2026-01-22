@@ -42,24 +42,26 @@ const MedicineCard: React.FC<MedicineCardProps> = ({
           </div>
           <p className="text-gray-600">{description}</p>
           <div className="space-y-1 text-sm">
-            <p><span className="font-medium">Dosage:</span> {dosage}</p>
+            <p>
+              <span className="font-medium">Dosage:</span> {dosage}
+            </p>
             <p className={isLowStock ? 'text-black' : 'text-black-700'}>
               <span className="font-medium">Current Stock:</span> {stock}
             </p>
           </div>
         </div>
-        
+
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="icon"
             onClick={() => onEdit(id)}
             className="bg-blue-600 border-blue-600 text-white hover:bg-blue-700 hover:text-white"
           >
             <Pencil className="w-4 h-4" />
           </Button>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="icon"
             onClick={() => onDelete(id)}
             className="bg-gray-100 border-gray-300 text-gray-600 hover:bg-gray-200"

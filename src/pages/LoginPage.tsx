@@ -13,7 +13,7 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       if (email && password) {
         localStorage.setItem('isAuthenticated', 'true');

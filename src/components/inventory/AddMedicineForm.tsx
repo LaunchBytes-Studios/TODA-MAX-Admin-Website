@@ -20,10 +20,10 @@ interface AddMedicineFormProps {
   onAddMedicine: (medicine: Medicine) => void;
 }
 
-const AddMedicineForm: React.FC<AddMedicineFormProps> = ({ 
-  isOpen, 
-  onClose, 
-  onAddMedicine 
+const AddMedicineForm: React.FC<AddMedicineFormProps> = ({
+  isOpen,
+  onClose,
+  onAddMedicine,
 }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -31,20 +31,25 @@ const AddMedicineForm: React.FC<AddMedicineFormProps> = ({
     category: '',
     stock: 0,
     lowStockThreshold: 0,
-    dosage: ''
+    dosage: '',
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: name === 'stock' || name === 'lowStockThreshold' ? parseInt(value) || 0 : value
+      [name]:
+        name === 'stock' || name === 'lowStockThreshold'
+          ? parseInt(value) || 0
+          : value,
     }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name.trim()) {
       toast.error('Please enter medicine name');
       return;
@@ -63,26 +68,26 @@ const AddMedicineForm: React.FC<AddMedicineFormProps> = ({
       dosage: formData.dosage,
       stock: formData.stock,
       lowStockThreshold: formData.lowStockThreshold,
-      isLowStock: formData.stock <= formData.lowStockThreshold
+      isLowStock: formData.stock <= formData.lowStockThreshold,
     };
 
     onAddMedicine(newMedicine);
     onClose();
-    
+
     setFormData({
       name: '',
       description: '',
       category: '',
       stock: 0,
       lowStockThreshold: 0,
-      dosage: ''
+      dosage: '',
     });
   };
 
   if (!isOpen) return null;
 
   return (
-   <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-xl font-semibold">Add New Medicine</h2>

@@ -21,11 +21,11 @@ interface EditMedicineFormProps {
   onUpdateMedicine: (id: number, updatedData: Partial<Medicine>) => void;
 }
 
-const EditMedicineForm: React.FC<EditMedicineFormProps> = ({ 
-  isOpen, 
-  onClose, 
+const EditMedicineForm: React.FC<EditMedicineFormProps> = ({
+  isOpen,
+  onClose,
   medicine,
-  onUpdateMedicine 
+  onUpdateMedicine,
 }) => {
   const [stockValue, setStockValue] = useState(medicine?.stock || 0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,12 +38,12 @@ const EditMedicineForm: React.FC<EditMedicineFormProps> = ({
 
   const handleDecrement = () => {
     if (stockValue > 0) {
-      setStockValue(prev => prev - 1);
+      setStockValue((prev) => prev - 1);
     }
   };
 
   const handleIncrement = () => {
-    setStockValue(prev => prev + 1);
+    setStockValue((prev) => prev + 1);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,23 +55,23 @@ const EditMedicineForm: React.FC<EditMedicineFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!medicine) return;
-    
+
     setIsSubmitting(true);
-    
+
     try {
       const updatedData = {
         stock: stockValue,
-        isLowStock: stockValue <= medicine.lowStockThreshold
+        isLowStock: stockValue <= medicine.lowStockThreshold,
       };
 
       onUpdateMedicine(medicine.id, updatedData);
-      
+
       toast.success('Stock updated successfully', {
         description: `Stock for ${medicine.name} has been updated to ${stockValue}`,
       });
-      
+
       onClose();
     } catch {
       toast.error('Failed to update stock');
@@ -89,7 +89,8 @@ const EditMedicineForm: React.FC<EditMedicineFormProps> = ({
           <div>
             <h2 className="text-xl font-semibold">Adjust Stock</h2>
             <p className="text-sm text-gray-600 mt-1">
-              Adjust stock for &quot;<span className="font-medium">{medicine.name}</span>&quot;
+              Adjust stock for &quot;
+              <span className="font-medium">{medicine.name}</span>&quot;
             </p>
           </div>
           <button
@@ -120,8 +121,12 @@ const EditMedicineForm: React.FC<EditMedicineFormProps> = ({
                 </button>
 
                 <div className="min-w-30">
-                  <div className="text-4xl font-bold text-gray-900">{stockValue}</div>
-                  <div className="text-sm text-gray-500 mt-1">Current stock</div>
+                  <div className="text-4xl font-bold text-gray-900">
+                    {stockValue}
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">
+                    Current stock
+                  </div>
                 </div>
 
                 <button
@@ -154,13 +159,18 @@ const EditMedicineForm: React.FC<EditMedicineFormProps> = ({
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Change:</span>
-                  <span className={`font-medium ${stockValue - medicine.stock >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {stockValue - medicine.stock >= 0 ? '+' : ''}{stockValue - medicine.stock}
+                  <span
+                    className={`font-medium ${stockValue - medicine.stock >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                  >
+                    {stockValue - medicine.stock >= 0 ? '+' : ''}
+                    {stockValue - medicine.stock}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Low stock threshold:</span>
-                  <span className="font-medium">{medicine.lowStockThreshold}</span>
+                  <span className="font-medium">
+                    {medicine.lowStockThreshold}
+                  </span>
                 </div>
                 {stockValue <= medicine.lowStockThreshold && (
                   <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">

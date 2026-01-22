@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import StatsCard from '../components/inventory/InventoryStatsCard';
 import MedicineCard from '../components/inventory/MedicineCard';
 import AddMedicineForm from '../components/inventory/AddMedicineForm';
-import EditMedicineForm from '../components/inventory/EditMedicineForm'; 
+import EditMedicineForm from '../components/inventory/EditMedicineForm';
 import { Button } from '../components/ui/button';
 
 interface Medicine {
@@ -23,7 +23,9 @@ const InventoryPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
-  const [selectedMedicine, setSelectedMedicine] = useState<Medicine | null>(null);
+  const [selectedMedicine, setSelectedMedicine] = useState<Medicine | null>(
+    null,
+  );
   const [medicines, setMedicines] = useState<Medicine[]>([
     {
       id: 1,
@@ -53,16 +55,17 @@ const InventoryPage: React.FC = () => {
     { id: 'diabetes', label: 'Diabetes' },
   ];
 
-  const filteredMedicines = medicines.filter(medicine => {
-    const matchesSearch = medicine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         medicine.description.toLowerCase().includes(searchTerm.toLowerCase());
-    
+  const filteredMedicines = medicines.filter((medicine) => {
+    const matchesSearch =
+      medicine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      medicine.description.toLowerCase().includes(searchTerm.toLowerCase());
+
     if (activeTab === 'all') return matchesSearch;
     return medicine.category.toLowerCase() === activeTab && matchesSearch;
   });
 
   const handleEdit = (id: number) => {
-    const medicine = medicines.find(m => m.id === id);
+    const medicine = medicines.find((m) => m.id === id);
     if (medicine) {
       setSelectedMedicine(medicine);
       setIsEditFormOpen(true);
@@ -70,23 +73,25 @@ const InventoryPage: React.FC = () => {
   };
 
   const handleUpdateMedicine = (id: number, updatedData: Partial<Medicine>) => {
-    setMedicines(prev => prev.map(medicine => {
-      if (medicine.id === id) {
-        return { ...medicine, ...updatedData };
-      }
-      return medicine;
-    }));
+    setMedicines((prev) =>
+      prev.map((medicine) => {
+        if (medicine.id === id) {
+          return { ...medicine, ...updatedData };
+        }
+        return medicine;
+      }),
+    );
   };
 
   const handleDelete = (id: number) => {
-    const medicine = medicines.find(m => m.id === id);
-    
+    const medicine = medicines.find((m) => m.id === id);
+
     toast('Are you sure you want to delete this medicine?', {
       description: `This will permanently delete ${medicine?.name}`,
       action: {
         label: 'Delete',
         onClick: () => {
-          setMedicines(prev => prev.filter(m => m.id !== id));
+          setMedicines((prev) => prev.filter((m) => m.id !== id));
           toast.success('Medicine deleted successfully', {
             description: `${medicine?.name} has been removed from inventory`,
           });
@@ -104,17 +109,20 @@ const InventoryPage: React.FC = () => {
   const handleAddMedicine = (newMedicine: Medicine) => {
     const medicineWithId: Medicine = {
       ...newMedicine,
-      id: medicines.length > 0 ? Math.max(...medicines.map(m => m.id)) + 1 : 1,
+      id:
+        medicines.length > 0 ? Math.max(...medicines.map((m) => m.id)) + 1 : 1,
     };
 
-    setMedicines(prev => [...prev, medicineWithId]);
-    
+    setMedicines((prev) => [...prev, medicineWithId]);
+
     toast.success('Medicine added successfully', {
       description: `${medicineWithId.name} has been added to inventory`,
       action: {
         label: 'Undo',
         onClick: () => {
-          setMedicines(prev => prev.filter(m => m.id !== medicineWithId.id));
+          setMedicines((prev) =>
+            prev.filter((m) => m.id !== medicineWithId.id),
+          );
           toast.info('Addition undone', {
             description: 'Medicine has been removed',
           });
@@ -124,8 +132,8 @@ const InventoryPage: React.FC = () => {
   };
 
   const totalMedicines = medicines.length;
-  const lowStockCount = medicines.filter(m => m.isLowStock).length;
-  const noStockCount = medicines.filter(m => m.stock === 0).length;
+  const lowStockCount = medicines.filter((m) => m.isLowStock).length;
+  const noStockCount = medicines.filter((m) => m.stock === 0).length;
   const totalStock = medicines.reduce((sum, m) => sum + m.stock, 0);
 
   return (
@@ -135,26 +143,26 @@ const InventoryPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <StatsCard 
-          title="Total Medicines" 
-          value={totalMedicines} 
+        <StatsCard
+          title="Total Medicines"
+          value={totalMedicines}
           description="Different types of medicines"
         />
-        <StatsCard 
-          title="Low Stock" 
-          value={lowStockCount} 
-          isWarning 
+        <StatsCard
+          title="Low Stock"
+          value={lowStockCount}
+          isWarning
           description="Below threshold"
         />
-        <StatsCard 
-          title="Out of Stock" 
-          value={noStockCount} 
-          isDanger 
+        <StatsCard
+          title="Out of Stock"
+          value={noStockCount}
+          isDanger
           description="Zero stock items"
         />
-        <StatsCard 
-          title="Total Stock" 
-          value={totalStock} 
+        <StatsCard
+          title="Total Stock"
+          value={totalStock}
           description="Total units in inventory"
         />
       </div>
@@ -174,7 +182,7 @@ const InventoryPage: React.FC = () => {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {tabs.map(tab => (
+              {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
@@ -190,7 +198,7 @@ const InventoryPage: React.FC = () => {
             </div>
           </div>
 
-          <Button 
+          <Button
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2"
             onClick={() => setIsAddFormOpen(true)}
           >
@@ -202,7 +210,7 @@ const InventoryPage: React.FC = () => {
 
       <div className="space-y-4">
         {filteredMedicines.length > 0 ? (
-          filteredMedicines.map(medicine => (
+          filteredMedicines.map((medicine) => (
             <MedicineCard
               key={medicine.id}
               id={medicine.id}
@@ -221,14 +229,16 @@ const InventoryPage: React.FC = () => {
             <div className="text-gray-400 mb-2">
               <Search className="w-12 h-12 mx-auto" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No medicines found</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No medicines found
+            </h3>
             <p className="text-gray-600">
-              {searchTerm 
+              {searchTerm
                 ? `No medicines found for "${searchTerm}"`
                 : 'No medicines in this category. Add your first medicine!'}
             </p>
             {!searchTerm && (
-              <Button 
+              <Button
                 className="mt-4 bg-blue-600 hover:bg-blue-700"
                 onClick={() => setIsAddFormOpen(true)}
               >
