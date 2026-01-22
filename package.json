@@ -6,9 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "lint": "eslint \"**/*.{js,jsx,ts,tsx}\" && prettier -c \"**/*.{js,jsx,ts,tsx,json}\"",
+    "format": "eslint \"**/*.{js,jsx,ts,tsx}\" --fix && prettier \"**/*.{js,jsx,ts,tsx,json}\" --write",
+    "typecheck": "tsc --noEmit",
     "preview": "vite preview",
-    "prepare": "husky"
+    "prepare": "husky",
+    "lint-staged": "prettier \"**/*.{js,jsx,ts,tsx,json}\" --write && git add . && eslint \"**/*.{js,jsx,ts,tsx}\" && tsc --noEmit"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",
@@ -31,12 +34,15 @@
     "@vitejs/plugin-react": "^5.1.1",
     "autoprefixer": "^10.4.23",
     "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.26",
     "globals": "^16.5.0",
     "husky": "^9.1.7",
     "postcss": "^8.5.6",
+    "prettier": "^3.8.1",
     "tailwindcss": "^4.1.18",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.53.0",
