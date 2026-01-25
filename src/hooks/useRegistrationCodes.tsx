@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import type { RegistrationCode } from '../components/RegistrationCodes/types';
 
@@ -83,7 +83,13 @@ export function useRegistrationCodes() {
       }
     } catch (err) {
       let message = 'Failed to fetch registration codes.';
-      if (err instanceof Error) {
+      if (axios.isAxiosError(err)) {
+        if (err.response && err.response.data && err.response.data.error) {
+          message = err.response.data.error;
+        } else if (err.message) {
+          message = err.message;
+        }
+      } else if (err instanceof Error) {
         message = err.message;
       } else if (typeof err === 'object' && err !== null && 'message' in err) {
         message = String((err as { message: unknown }).message);
@@ -112,7 +118,13 @@ export function useRegistrationCodes() {
       await fetchRegistrationCodes();
     } catch (err) {
       let message = 'Failed to generate registration code.';
-      if (err instanceof Error) {
+      if (axios.isAxiosError(err)) {
+        if (err.response && err.response.data && err.response.data.error) {
+          message = err.response.data.error;
+        } else if (err.message) {
+          message = err.message;
+        }
+      } else if (err instanceof Error) {
         message = err.message;
       } else if (typeof err === 'object' && err !== null && 'message' in err) {
         message = String((err as { message: unknown }).message);

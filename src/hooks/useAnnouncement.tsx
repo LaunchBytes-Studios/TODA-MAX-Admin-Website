@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { toast } from 'sonner';
 
 export interface Announcement {
@@ -40,7 +40,13 @@ export function useAnnouncement() {
       return data;
     } catch (err) {
       let message = 'Failed to fetch announcements.';
-      if (err instanceof Error) {
+      if (axios.isAxiosError(err)) {
+        if (err.response && err.response.data && err.response.data.error) {
+          message = err.response.data.error;
+        } else if (err.message) {
+          message = err.message;
+        }
+      } else if (err instanceof Error) {
         message = err.message;
       } else if (typeof err === 'object' && err !== null && 'message' in err) {
         message = String((err as { message: unknown }).message);
@@ -67,7 +73,7 @@ export function useAnnouncement() {
           try {
             const user = JSON.parse(userStr);
             resolvedEnavId = user?.enav_id || user?.userId;
-          } catch (e) {
+          } catch (err) {
             // ignore JSON parse error
           }
         }
@@ -101,7 +107,13 @@ export function useAnnouncement() {
         return response.data.announcement;
       } catch (err) {
         let message = 'Failed to post announcement.';
-        if (err instanceof Error) {
+        if (axios.isAxiosError(err)) {
+          if (err.response && err.response.data && err.response.data.error) {
+            message = err.response.data.error;
+          } else if (err.message) {
+            message = err.message;
+          }
+        } else if (err instanceof Error) {
           message = err.message;
         } else if (
           typeof err === 'object' &&
