@@ -1,5 +1,5 @@
 import { TrendingUp, Package, Clock, AlertTriangle } from 'lucide-react';
-import { lowStockItems } from './lowStock';
+import { lowStockItems } from '@/data/lowStock';
 
 export const stats = [
   {

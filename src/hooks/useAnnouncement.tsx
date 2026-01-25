@@ -55,12 +55,33 @@ export function useAnnouncement() {
 
   // Post a new announcement
   const postAnnouncement = useCallback(
-    async (message: string, enavId: string) => {
+    async (message: string, enavId?: string) => {
       setLoading(true);
       setError(null);
       const token = localStorage.getItem('token');
+      // Try to get enavId from localStorage user if not provided
+      let resolvedEnavId = enavId;
+      if (!resolvedEnavId) {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          try {
+            const user = JSON.parse(userStr);
+            resolvedEnavId = user?.enav_id || user?.userId;
+          } catch (e) {
+            // ignore JSON parse error
+          }
+        }
+      }
+      console.log('Posting announcement with enavId:', resolvedEnavId); // Debug log
       if (!token) {
         const message = 'Access token is missing. Please log in again.';
+        setError(message);
+        toast.error(message);
+        setLoading(false);
+        return null;
+      }
+      if (!resolvedEnavId) {
+        const message = 'enavId is missing. Cannot post announcement.';
         setError(message);
         toast.error(message);
         setLoading(false);
@@ -70,7 +91,7 @@ export function useAnnouncement() {
         const url = import.meta.env.VITE_API_URL;
         const headers = { Authorization: `Bearer ${token}` };
         const response = await axios.post(
-          `${url}/enavigator/post/Announcement?enavId=${enavId}`,
+          `${url}/enavigator/post/Announcement?enavId=${resolvedEnavId}`,
           { message, type: 'general' },
           { headers: { ...headers, 'Content-Type': 'application/json' } },
         );
