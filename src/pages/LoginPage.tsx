@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
+import { toast } from 'sonner';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -13,14 +14,31 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await fetch('http://localhost:3000/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contact: email, password }),
+      });
 
-      if (email && password) {
-        localStorage.setItem('isAuthenticated', 'true');
-        navigate('/dashboard');
+      if (!response.ok) {
+        const error = await response.json();
+        toast.error(error.error || 'Login failed');
+        return;
       }
+
+      const data = await response.json();
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      toast.success('Login successful! Redirecting...');
+
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 500);
+      navigate('/dashboard');
     } catch (err) {
       console.error('Login failed:', err);
+      alert('Connection error. Is the backend running?');
     } finally {
       setIsLoading(false);
     }
