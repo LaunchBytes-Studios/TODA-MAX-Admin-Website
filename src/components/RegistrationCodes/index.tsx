@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { ChevronRight, Clock } from 'lucide-react';
@@ -9,69 +9,47 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../ui/dialog';
-import { toast } from 'sonner';
-import { registrationCodes } from '@/data/registrationCodes';
 import { RegistrationCodesTable } from './RegistrationCodeTable';
 import { calculateTimeRemaining, isExpiringSoon } from '@/lib/time-utils';
-import type { RegistrationCode } from './types';
-
-// Get end of day for countdown
-function getEndOfDayExpiry() {
-  const today = new Date();
-  return {
-    date: today.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    }),
-    time: '23:59:59',
-  };
-}
+import { Loader2 } from 'lucide-react';
+import { useRegistrationCodes } from '@/hooks/useRegistrationCodes';
 
 export function RegistrationCodes() {
-  const [codes, setCodes] = useState<RegistrationCode[]>(registrationCodes);
+  const {
+    codes,
+    loading,
+    error,
+    generateRegistrationCode,
+    fetchRegistrationCodes,
+  } = useRegistrationCodes();
+
+  useEffect(() => {
+    fetchRegistrationCodes();
+  }, [fetchRegistrationCodes]);
+
+  // Countdown logic can be kept or adjusted as needed
+  function getEndOfDayExpiry() {
+    const today = new Date();
+    return {
+      date: today.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }),
+      time: '23:59:59',
+    };
+  }
   const [timeRemaining, setTimeRemaining] = useState(() => {
     const { date, time } = getEndOfDayExpiry();
     return calculateTimeRemaining(date, time);
   });
-
-  // Update countdown every second
   useEffect(() => {
     const interval = setInterval(() => {
       const { date, time } = getEndOfDayExpiry();
       setTimeRemaining(calculateTimeRemaining(date, time));
     }, 1000);
-
     return () => clearInterval(interval);
   }, []);
-
-  const generateCode = () => {
-    // Set expiry to end of today (23:59:59)
-    const today = new Date();
-    const endOfDay = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate(),
-      23,
-      59,
-      59,
-    );
-
-    const newCode: RegistrationCode = {
-      id: Date.now().toString(),
-      code: `CODE-${Math.random().toString(36).substring(2, 9).toUpperCase()}`,
-      expiryDate: endOfDay.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      }),
-      expiryTime: '23:59:59',
-      isExpired: false,
-    };
-    setCodes([newCode, ...codes]);
-    toast.success('New registration code generated!');
-  };
-
   const expiringSoon = isExpiringSoon(timeRemaining);
 
   return (
@@ -103,16 +81,29 @@ export function RegistrationCodes() {
               <DialogHeader>
                 <DialogTitle>All Registration Codes</DialogTitle>
               </DialogHeader>
-              <RegistrationCodesTable codes={codes} showAll />
+              <RegistrationCodesTable
+                codes={Array.isArray(codes) ? codes : []}
+                showAll
+              />
             </DialogContent>
           </Dialog>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <RegistrationCodesTable codes={codes} />
-
+        {loading && (
+          <div className="flex justify-center items-center py-4">
+            <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
+            <span className="ml-2 text-gray-500">
+              Loading registration codes...
+            </span>
+          </div>
+        )}
+        {error && <div className="text-red-600">{error}</div>}
+        {!loading && (
+          <RegistrationCodesTable codes={Array.isArray(codes) ? codes : []} />
+        )}
         <Button
-          onClick={generateCode}
+          onClick={generateRegistrationCode}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white"
         >
           GENERATE CODE
