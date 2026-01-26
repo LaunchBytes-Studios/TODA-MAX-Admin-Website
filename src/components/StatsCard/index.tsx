@@ -1,10 +1,25 @@
 import { Card, CardContent } from '../ui/card';
+
 import { stats } from '@/data/stats';
+import { useAlertMedication } from '@/hooks/useAlertMedication';
 
 export function StatsCards() {
+  const { medications, loading } = useAlertMedication();
+
+  // Replace the value for 'Low Stock Items' with the live count
+  const statsWithLiveLowStock = stats.map((stat) => {
+    if (stat.title === 'Low Stock Items') {
+      return {
+        ...stat,
+        value: loading ? '...' : medications.length.toString(),
+      };
+    }
+    return stat;
+  });
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      {stats.map((stat) => {
+      {statsWithLiveLowStock.map((stat) => {
         const Icon = stat.icon;
         return (
           <Card key={stat.title}>

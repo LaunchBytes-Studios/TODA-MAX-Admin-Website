@@ -18,7 +18,16 @@ import {
 } from '../ui/dialog';
 import { ChevronRight } from 'lucide-react';
 import type { LowStockItem } from './type';
-import { lowStockItems } from '@/data/lowStock';
+import { useAlertMedication } from '@/hooks/useAlertMedication';
+
+interface Medication {
+  name: string;
+  price: number;
+  type: string;
+  stock_qty: number;
+  threshold_qty: number;
+  category?: string;
+}
 
 function getStatusBadgeStyles(status: LowStockItem['status']) {
   if (status === 'Very Low') {
@@ -67,6 +76,17 @@ function LowStockTableContent({ items }: { items: LowStockItem[] }) {
 }
 
 export function LowStockTable() {
+  const { medications, loading, error } = useAlertMedication();
+
+  // Map medications to LowStockItem[]
+  const lowStockItems: LowStockItem[] = medications.map((med: Medication) => ({
+    medicine: med.name ?? '',
+    category: med.category ?? '',
+    current: med.stock_qty ?? 0,
+    minStock: med.threshold_qty ?? 0,
+    status: med.stock_qty <= (med.threshold_qty ?? 0) / 2 ? 'Very Low' : 'Low',
+  }));
+
   // Show only first 5 items in the card
   const previewItems = lowStockItems.slice(0, 5);
   const veryLowCount = lowStockItems.filter(
@@ -102,13 +122,33 @@ export function LowStockTable() {
                   )}
                 </DialogTitle>
               </DialogHeader>
-              <LowStockTableContent items={lowStockItems} />
+              {loading ? (
+                <div className="text-center py-8">Loading...</div>
+              ) : error ? (
+                <div className="text-center text-red-500 py-8">{error}</div>
+              ) : lowStockItems.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">
+                  No low stock items.
+                </div>
+              ) : (
+                <LowStockTableContent items={lowStockItems} />
+              )}
             </DialogContent>
           </Dialog>
         </div>
       </CardHeader>
       <CardContent>
-        <LowStockTableContent items={previewItems} />
+        {loading ? (
+          <div className="text-center py-8">Loading...</div>
+        ) : error ? (
+          <div className="text-center text-red-500 py-8">{error}</div>
+        ) : previewItems.length === 0 ? (
+          <div className="text-center text-gray-500 py-8">
+            No low stock items.
+          </div>
+        ) : (
+          <LowStockTableContent items={previewItems} />
+        )}
       </CardContent>
     </Card>
   );

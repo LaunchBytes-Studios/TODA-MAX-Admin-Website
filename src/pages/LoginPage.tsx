@@ -2,6 +2,21 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import { toast } from 'sonner';
+import axios, { AxiosError } from 'axios';
+
+// Define the response type
+interface LoginResponse {
+  token: string;
+  user: {
+    id: string;
+    email: string;
+  };
+}
+
+// Define the error response type
+interface ErrorResponse {
+  error: string;
+}
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -14,19 +29,19 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3000/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contact: email, password }),
-      });
+      const url = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const response = await axios.post<LoginResponse>(
+        `${url}/auth/login`,
+        {
+          contact: email,
+          password,
+        },
+        {
+          headers: { 'Content-Type': 'application/json' },
+        },
+      );
 
-      if (!response.ok) {
-        const error = await response.json();
-        toast.error(error.error || 'Login failed');
-        return;
-      }
-
-      const data = await response.json();
+      const data = response.data;
       localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
@@ -35,10 +50,15 @@ const LoginPage: React.FC = () => {
       setTimeout(() => {
         navigate('/dashboard');
       }, 500);
-      navigate('/dashboard');
     } catch (err) {
-      console.error('Login failed:', err);
-      alert('Connection error. Is the backend running?');
+      const error = err as AxiosError<ErrorResponse>;
+
+      if (error.response && error.response.data && error.response.data.error) {
+        toast.error(error.response.data.error || 'Login failed');
+      } else {
+        toast.error('Connection error. Is the backend running?');
+      }
+      console.error('Login failed:', error);
     } finally {
       setIsLoading(false);
     }
