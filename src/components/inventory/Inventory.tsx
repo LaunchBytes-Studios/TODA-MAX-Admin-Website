@@ -1,11 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo, useEffect, useRef, useDeferredValue } from 'react';
 import { toast } from 'sonner';
 import { InventoryStats } from './InventoryStats';
 import { SearchAndFilterBar } from './SearchAndFilterBar';
 import { MedicinesList } from './MedicinesList';
 import AddMedicineForm from './AddMedicineForm';
 import EditMedicineForm from './EditMedicineForm';
-import { useMemo, useEffect } from 'react';
 
 import {
   useMedications,
@@ -28,14 +27,10 @@ export function Inventory() {
     useState<FrontendMedicine | null>(null);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
 
-  useEffect(() => {
-    const id = setTimeout(() => {
-      setDebouncedSearch(searchTerm);
-    }, 300);
-    return () => clearTimeout(id);
-  }, [searchTerm]);
+  const deferredSearch = useDeferredValue(searchTerm);
+
+  const hasLoadedOnce = useRef(false);
 
   const filters = useMemo(() => {
     const isCategory = activeTab !== 'all' && activeTab !== 'low-stock';
@@ -44,14 +39,30 @@ export function Inventory() {
       ? activeTab.charAt(0).toUpperCase() + activeTab.slice(1)
       : undefined;
 
+    const trimmedSearch = deferredSearch.trim();
+
     return {
-      search: debouncedSearch || undefined,
+      search: trimmedSearch ? trimmedSearch : undefined,
       lowStockOnly: activeTab === 'low-stock' ? true : undefined,
       type: normalizedType,
     };
-  }, [debouncedSearch, activeTab]);
+  }, [deferredSearch, activeTab]);
 
-  const { medications, loading, refetch } = useMedications(filters);
+  const {
+    medications,
+    loading: isLoadingMedications,
+    refetch,
+  } = useMedications(filters);
+
+  useEffect(() => {
+    if (!isLoadingMedications && medications.length > 0) {
+      hasLoadedOnce.current = true;
+    }
+  }, [isLoadingMedications, medications.length]);
+
+  const isSearching = searchTerm.trim() !== '' && searchTerm !== deferredSearch;
+
+  const isContentLoading = isLoadingMedications || isSearching;
 
   const { createMedication } = useCreateMedication();
   const { updateStock } = useUpdateStock();
@@ -75,9 +86,7 @@ export function Inventory() {
         updatedData.stock !== undefined
       ) {
         const result = await updateStock(id, updatedData.stock);
-        if (result.success) {
-          refetch();
-        }
+        if (result.success) refetch();
       }
     } catch {
       /* empty */
@@ -93,16 +102,12 @@ export function Inventory() {
         label: 'Delete',
         onClick: async () => {
           const result = await deleteMedication(id);
-          if (result.success) {
-            refetch();
-          }
+          if (result.success) refetch();
         },
       },
       cancel: {
         label: 'Cancel',
-        onClick: () => {
-          toast.info('Deletion cancelled');
-        },
+        onClick: () => toast.info('Deletion cancelled'),
       },
     });
   };
@@ -117,43 +122,28 @@ export function Inventory() {
     }
   };
 
-  const handleSearch = async (search: string) => {
-    setSearchTerm(search);
-  };
-
-  if (loading && medications.length === 0) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-gray-500">Loading medications...</div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
-      {/* Stats - uses its own hook */}
       <InventoryStats />
 
-      {/* Search and Filter */}
       <SearchAndFilterBar
         searchTerm={searchTerm}
-        onSearchChange={handleSearch}
+        onSearchChange={setSearchTerm}
         activeTab={activeTab}
         onTabChange={setActiveTab}
         onAddClick={() => setIsAddFormOpen(true)}
+        isLoading={isSearching}
       />
 
-      {/* Medicines List */}
       <MedicinesList
         medicines={medications as CompatibleMedicine[]}
-        loading={loading}
+        loading={isContentLoading}
         searchTerm={searchTerm}
         onEdit={handleEdit}
         onDelete={handleDelete}
         onAddClick={() => setIsAddFormOpen(true)}
       />
 
-      {/* Forms */}
       <AddMedicineForm
         isOpen={isAddFormOpen}
         onClose={() => setIsAddFormOpen(false)}
@@ -168,11 +158,7 @@ export function Inventory() {
         }}
         medicine={
           selectedMedicine
-            ? {
-                ...selectedMedicine,
-                description: '',
-                dosage: 0,
-              }
+            ? { ...selectedMedicine, description: '', dosage: 0 }
             : null
         }
         onUpdateMedicine={handleUpdateMedicine}

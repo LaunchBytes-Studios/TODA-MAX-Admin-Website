@@ -2,6 +2,7 @@ import { Search, Plus } from 'lucide-react';
 import { Button } from '../ui/button';
 import type { Medicine } from '@/data/medicines';
 import MedicineCard from './MedicineCard';
+import MedicineCardSkeleton from './MedicineCardSkeleton';
 
 interface MedicinesListProps {
   medicines: Medicine[];
@@ -20,13 +21,26 @@ export function MedicinesList({
   onDelete,
   onAddClick,
 }: MedicinesListProps) {
-  if (loading && medicines.length === 0) {
+  if (loading && medicines.length > 0) {
     return (
-      <div className="bg-white rounded-lg border p-8 text-center">
-        <p className="text-gray-500">Loading medicines...</p>
+      <div className="space-y-4">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <MedicineCardSkeleton key={`skeleton-${index}`} />
+        ))}
       </div>
     );
   }
+
+  if (loading && medicines.length === 0) {
+    return (
+      <div className="space-y-4">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <MedicineCardSkeleton key={`skeleton-${index}`} />
+        ))}
+      </div>
+    );
+  }
+
   if (medicines.length === 0) {
     return (
       <div className="bg-white rounded-lg border p-8 text-center">
