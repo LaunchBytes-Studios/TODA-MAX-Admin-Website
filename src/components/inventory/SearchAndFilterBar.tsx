@@ -1,4 +1,4 @@
-import { Search, Plus } from 'lucide-react';
+import { Search, Plus, Loader2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { TABS } from '../../constants/tabs';
 
@@ -8,6 +8,7 @@ interface SearchAndFilterBarProps {
   activeTab: string;
   onTabChange: (tabId: string) => void;
   onAddClick: () => void;
+  isLoading?: boolean;
 }
 
 export function SearchAndFilterBar({
@@ -16,13 +17,18 @@ export function SearchAndFilterBar({
   activeTab,
   onTabChange,
   onAddClick,
+  isLoading = false,
 }: SearchAndFilterBarProps) {
   return (
     <div className="bg-white rounded-lg border p-4">
       <div className="flex flex-col md:flex-row md:items-center gap-4">
         <div className="flex flex-col md:flex-row md:items-center gap-4 flex-1">
           <div className="relative md:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            {isLoading ? (
+              <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 animate-spin" />
+            ) : (
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            )}
             <input
               type="text"
               placeholder="Search medicines..."
@@ -37,11 +43,12 @@ export function SearchAndFilterBar({
               <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
+                disabled={isLoading}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   activeTab === tab.id
                     ? 'bg-blue-100 text-blue-700 border border-blue-300'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-transparent'
-                }`}
+                } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 {tab.label}
               </button>
@@ -52,6 +59,7 @@ export function SearchAndFilterBar({
         <Button
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2"
           onClick={onAddClick}
+          disabled={isLoading}
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Medicine

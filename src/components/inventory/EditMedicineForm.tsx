@@ -9,7 +9,7 @@ interface Medicine {
   name: string;
   category: string;
   description: string;
-  dosage: string;
+  dosage: number;
   stock: number;
   lowStockThreshold: number;
   isLowStock: boolean;

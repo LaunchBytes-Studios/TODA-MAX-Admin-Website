@@ -7,7 +7,7 @@ interface MedicineCardProps {
   name: string;
   category: string;
   description?: string;
-  dosage?: string;
+  dosage?: number;
   stock: number;
   isLowStock?: boolean;
   onEdit: (id: number) => void;

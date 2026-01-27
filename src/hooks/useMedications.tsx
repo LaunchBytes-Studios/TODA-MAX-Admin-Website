@@ -12,7 +12,7 @@ export interface BackendMedication {
   enav_id?: string;
   created_at?: string;
   description?: string;
-  dosage?: string;
+  dosage?: number;
 }
 
 export interface FrontendMedicine {
@@ -23,6 +23,8 @@ export interface FrontendMedicine {
   stock: number;
   lowStockThreshold: number;
   isLowStock: boolean;
+  description?: string;
+  dosage: number;
 }
 
 const API_BASE_URL = 'http://localhost:3000';
@@ -37,6 +39,8 @@ const mapBackendToFrontend = (
   stock: backendMed.stock_qty,
   lowStockThreshold: backendMed.threshold_qty,
   isLowStock: backendMed.stock_qty <= backendMed.threshold_qty,
+  description: backendMed.description ?? '',
+  dosage: backendMed.dosage ?? 0,
 });
 
 interface ApiResponse<T = unknown> {
@@ -182,6 +186,7 @@ export function useCreateMedication() {
     'id' | 'isLowStock'
   > {
     price: number;
+    dosage: number;
   }
 
   const createMedication = async (medicationData: CreateMedicationData) => {
@@ -195,14 +200,16 @@ export function useCreateMedication() {
         type: medicationData.category,
         stock_qty: medicationData.stock,
         threshold_qty: medicationData.lowStockThreshold,
+        description: medicationData.description,
+        dosage: medicationData.dosage,
         enav_id: '5e619edc-487a-42d6-af08-880c70a13a86',
       };
-
+      console.log('Sending data to backend:', backendData);
       const response = await axios.post<ApiResponse<BackendMedication>>(
         `${API_BASE_URL}/medications`,
         backendData,
       );
-
+      console.log('✅ Backend response:', response.data);
       if (response.data.success) {
         toast.success('Medicine added successfully');
         return {
@@ -239,6 +246,7 @@ export function useUpdateMedication() {
     category?: string;
     stock?: number;
     lowStockThreshold?: number;
+    dosage?: number;
   }
 
   const updateMedication = async (
@@ -257,6 +265,8 @@ export function useUpdateMedication() {
         backendData.stock_qty = updateData.stock;
       if (updateData.lowStockThreshold !== undefined)
         backendData.threshold_qty = updateData.lowStockThreshold;
+      if (updateData.dosage !== undefined)
+        backendData.dosage = updateData.dosage;
 
       const response = await axios.put<ApiResponse<BackendMedication>>(
         `${API_BASE_URL}/medications/${id}`,
