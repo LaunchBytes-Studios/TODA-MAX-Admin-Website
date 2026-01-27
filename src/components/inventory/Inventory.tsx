@@ -5,61 +5,81 @@ import { SearchAndFilterBar } from './SearchAndFilterBar';
 import { MedicinesList } from './MedicinesList';
 import AddMedicineForm from './AddMedicineForm';
 import EditMedicineForm from './EditMedicineForm';
-import type { Medicine } from '@/data/medicines';
-import { initialMedicines } from '@/data/medicines';
+import {
+  useMedications,
+  useCreateMedication,
+  useUpdateStock,
+  useDeleteMedication,
+  type FrontendMedicine,
+} from '@/hooks/useMedications';
+
+type CompatibleMedicine = FrontendMedicine & {
+  description: string;
+  dosage: string;
+};
 
 export function Inventory() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
-  const [selectedMedicine, setSelectedMedicine] = useState<Medicine | null>(
-    null,
-  );
-  const [medicines, setMedicines] = useState<Medicine[]>(initialMedicines);
+  const [selectedMedicine, setSelectedMedicine] =
+    useState<FrontendMedicine | null>(null);
 
-  // Filter medicines
-  const filteredMedicines = medicines.filter((medicine) => {
-    const matchesSearch =
-      medicine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      medicine.description.toLowerCase().includes(searchTerm.toLowerCase());
-
-    if (activeTab === 'all') return matchesSearch;
-    return medicine.category.toLowerCase() === activeTab && matchesSearch;
+  const { medications, loading, refetch } = useMedications({
+    search: searchTerm || undefined,
+    lowStockOnly: activeTab === 'low-stock' ? true : undefined,
   });
 
-  // Handlers
+  const { createMedication } = useCreateMedication();
+  const { updateStock } = useUpdateStock();
+  const { deleteMedication } = useDeleteMedication();
+
+  const filteredMedicines = medications.filter((medicine) => {
+    if (activeTab === 'all') return true;
+    if (activeTab === 'low-stock') return medicine.isLowStock;
+    return medicine.category.toLowerCase() === activeTab;
+  });
+
   const handleEdit = (id: number) => {
-    const medicine = medicines.find((m) => m.id === id);
+    const medicine = medications.find((m) => m.id === id);
     if (medicine) {
       setSelectedMedicine(medicine);
       setIsEditFormOpen(true);
     }
   };
 
-  const handleUpdateMedicine = (id: number, updatedData: Partial<Medicine>) => {
-    setMedicines((prev) =>
-      prev.map((medicine) => {
-        if (medicine.id === id) {
-          return { ...medicine, ...updatedData };
+  const handleUpdateMedicine = async (
+    id: number,
+    updatedData: Partial<FrontendMedicine>,
+  ) => {
+    try {
+      if (
+        Object.keys(updatedData).length === 1 &&
+        updatedData.stock !== undefined
+      ) {
+        const result = await updateStock(id, updatedData.stock);
+        if (result.success) {
+          refetch();
         }
-        return medicine;
-      }),
-    );
+      }
+    } catch {
+      /* empty */
+    }
   };
 
-  const handleDelete = (id: number) => {
-    const medicine = medicines.find((m) => m.id === id);
+  const handleDelete = async (id: number) => {
+    const medicine = medications.find((m) => m.id === id);
 
     toast('Are you sure you want to delete this medicine?', {
       description: `This will permanently delete ${medicine?.name}`,
       action: {
         label: 'Delete',
-        onClick: () => {
-          setMedicines((prev) => prev.filter((m) => m.id !== id));
-          toast.success('Medicine deleted successfully', {
-            description: `${medicine?.name} has been removed from inventory`,
-          });
+        onClick: async () => {
+          const result = await deleteMedication(id);
+          if (result.success) {
+            refetch();
+          }
         },
       },
       cancel: {
@@ -71,48 +91,37 @@ export function Inventory() {
     });
   };
 
-  const handleAddMedicine = (newMedicine: Medicine) => {
-    const medicineWithId: Medicine = {
-      ...newMedicine,
-      id:
-        medicines.length > 0 ? Math.max(...medicines.map((m) => m.id)) + 1 : 1,
-    };
-
-    setMedicines((prev) => [...prev, medicineWithId]);
-
-    toast.success('Medicine added successfully', {
-      description: `${medicineWithId.name} has been added to inventory`,
-      action: {
-        label: 'Undo',
-        onClick: () => {
-          setMedicines((prev) =>
-            prev.filter((m) => m.id !== medicineWithId.id),
-          );
-          toast.info('Addition undone', {
-            description: 'Medicine has been removed',
-          });
-        },
-      },
-    });
+  const handleAddMedicine = async (
+    newMedicine: Omit<FrontendMedicine, 'id' | 'isLowStock'>,
+  ) => {
+    const result = await createMedication(newMedicine);
+    if (result.success) {
+      refetch();
+      setIsAddFormOpen(false);
+    }
   };
 
-  // Calculate stats
-  const stats = {
-    total: medicines.length,
-    lowStock: medicines.filter((m) => m.isLowStock).length,
-    outOfStock: medicines.filter((m) => m.stock === 0).length,
-    totalStock: medicines.reduce((sum, m) => sum + m.stock, 0),
+  const handleSearch = async (search: string) => {
+    setSearchTerm(search);
   };
+
+  if (loading && medications.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-gray-500">Loading medications...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Stats */}
-      <InventoryStats {...stats} />
+      {/* Stats - uses its own hook */}
+      <InventoryStats />
 
       {/* Search and Filter */}
       <SearchAndFilterBar
         searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
+        onSearchChange={handleSearch}
         activeTab={activeTab}
         onTabChange={setActiveTab}
         onAddClick={() => setIsAddFormOpen(true)}
@@ -120,7 +129,7 @@ export function Inventory() {
 
       {/* Medicines List */}
       <MedicinesList
-        medicines={filteredMedicines}
+        medicines={filteredMedicines as CompatibleMedicine[]}
         searchTerm={searchTerm}
         onEdit={handleEdit}
         onDelete={handleDelete}
@@ -131,7 +140,7 @@ export function Inventory() {
       <AddMedicineForm
         isOpen={isAddFormOpen}
         onClose={() => setIsAddFormOpen(false)}
-        onAddMedicine={handleAddMedicine}
+        onAddMedicine={handleAddMedicine as never}
       />
 
       <EditMedicineForm
@@ -140,7 +149,15 @@ export function Inventory() {
           setIsEditFormOpen(false);
           setSelectedMedicine(null);
         }}
-        medicine={selectedMedicine}
+        medicine={
+          selectedMedicine
+            ? {
+                ...selectedMedicine,
+                description: '',
+                dosage: '',
+              }
+            : null
+        }
         onUpdateMedicine={handleUpdateMedicine}
       />
     </div>

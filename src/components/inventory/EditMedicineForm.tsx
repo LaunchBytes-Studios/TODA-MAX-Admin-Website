@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Minus, Plus, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import { toast } from 'sonner';
+import { useUpdateStock } from '@/hooks/useMedications';
 
 interface Medicine {
   id: number;
@@ -28,7 +29,8 @@ const EditMedicineForm: React.FC<EditMedicineFormProps> = ({
   onUpdateMedicine,
 }) => {
   const [stockValue, setStockValue] = useState(medicine?.stock || 0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { updateStock, loading: isSubmitting } = useUpdateStock();
 
   React.useEffect(() => {
     if (medicine) {
@@ -58,25 +60,26 @@ const EditMedicineForm: React.FC<EditMedicineFormProps> = ({
 
     if (!medicine) return;
 
-    setIsSubmitting(true);
-
     try {
-      const updatedData = {
-        stock: stockValue,
-        isLowStock: stockValue <= medicine.lowStockThreshold,
-      };
+      const result = await updateStock(medicine.id, stockValue);
 
-      onUpdateMedicine(medicine.id, updatedData);
+      if (result.success) {
+        toast.success('Stock updated successfully', {
+          description: `Stock for ${medicine.name} has been updated to ${stockValue}`,
+        });
 
-      toast.success('Stock updated successfully', {
-        description: `Stock for ${medicine.name} has been updated to ${stockValue}`,
-      });
+        onUpdateMedicine(medicine.id, {
+          stock: stockValue,
+          isLowStock: stockValue <= medicine.lowStockThreshold,
+        });
 
-      onClose();
-    } catch {
+        onClose();
+      } else {
+        toast.error(result.error || 'Failed to update stock');
+      }
+    } catch (error) {
+      console.error('Error updating stock:', error);
       toast.error('Failed to update stock');
-    } finally {
-      setIsSubmitting(false);
     }
   };
 

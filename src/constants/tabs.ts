@@ -1,5 +1,5 @@
 export const TABS = [
   { id: 'all', label: 'All' },
-  { id: 'cardiovascular', label: 'Cardiovascular' },
+  { id: 'hypertension', label: 'Hypertension' },
   { id: 'diabetes', label: 'Diabetes' },
 ];
