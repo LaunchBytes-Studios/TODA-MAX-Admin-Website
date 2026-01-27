@@ -15,12 +15,11 @@ export function useAlertMedication() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const url = import.meta.env.VITE_API_URL;
     const token = localStorage.getItem('token');
     const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
     axios
-      .get(`${url}/enavigator/alert/Medication`, { headers }) // Update this URL to match your backend route
+      .get(`http://localhost:3000/enavigator/alert/medication`, { headers }) // Update this URL to match your backend route
       .then((res) => {
         setMedications(res.data);
         setError(null);

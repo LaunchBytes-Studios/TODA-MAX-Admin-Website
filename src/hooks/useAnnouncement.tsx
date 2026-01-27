@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { toast } from 'sonner';
 
 export interface Announcement {
@@ -27,11 +27,13 @@ export function useAnnouncement() {
       return null;
     }
     try {
-      const url = import.meta.env.VITE_API_URL;
       const headers = { Authorization: `Bearer ${token}` };
-      const response = await axios.get(`${url}/enavigator/get/Announcement`, {
-        headers,
-      });
+      const response = await axios.get(
+        `http://localhost:3000/enavigator/get/announcement`,
+        {
+          headers,
+        },
+      );
       let data = response.data;
       if (data && !Array.isArray(data)) {
         data = [data];
@@ -74,7 +76,7 @@ export function useAnnouncement() {
             const user = JSON.parse(userStr);
             resolvedEnavId = user?.enav_id || user?.userId;
           } catch (err) {
-            // ignore JSON parse error
+            console.error('Failed to parse user from localStorage:', err);
           }
         }
       }
@@ -94,10 +96,9 @@ export function useAnnouncement() {
         return null;
       }
       try {
-        const url = import.meta.env.VITE_API_URL;
         const headers = { Authorization: `Bearer ${token}` };
         const response = await axios.post(
-          `${url}/enavigator/post/Announcement?enavId=${resolvedEnavId}`,
+          `http://localhost:3000/enavigator/post/announcement?enavId=${resolvedEnavId}`,
           { message, type: 'general' },
           { headers: { ...headers, 'Content-Type': 'application/json' } },
         );
