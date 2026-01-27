@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { toast } from 'sonner';
 import type { RegistrationCode } from '../components/RegistrationCodes/types';
 
@@ -13,11 +13,10 @@ export function useRegistrationCodes() {
     setLoading(true);
     setError(null);
     try {
-      const url = import.meta.env.VITE_API_URL;
       const token = localStorage.getItem('token');
       const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
       const response = await axios.get(
-        `${url}/enavigator/get/RegistrationCode`,
+        `http://localhost:3000/enavigator/get/registrationCode`,
         { headers },
       );
 
@@ -68,12 +67,18 @@ export function useRegistrationCodes() {
       if (expiredCodes.length > 0) {
         for (const expired of expiredCodes) {
           try {
-            await axios.delete(`${url}/enavigator/delete/RegistrationCode`, {
-              params: { codeId: expired.id },
-              headers,
-            });
+            await axios.delete(
+              `http://localhost:3000/enavigator/delete/registrationCode`,
+              {
+                params: { codeId: expired.id },
+                headers,
+              },
+            );
           } catch (deleteErr) {
-            // Optionally handle delete error
+            console.error(
+              `Failed to delete expired code ${expired.id}:`,
+              deleteErr,
+            );
           }
         }
         // Remove expired codes from the list
@@ -106,11 +111,10 @@ export function useRegistrationCodes() {
     setLoading(true);
     setError(null);
     try {
-      const url = import.meta.env.VITE_API_URL;
       const token = localStorage.getItem('token');
       const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
       await axios.post(
-        `${url}/enavigator/generate/RegistrationCode`,
+        `http://localhost:3000/enavigator/generate/registrationCode`,
         {},
         { headers },
       );
