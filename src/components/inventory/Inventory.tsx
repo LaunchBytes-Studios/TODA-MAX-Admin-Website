@@ -5,6 +5,8 @@ import { SearchAndFilterBar } from './SearchAndFilterBar';
 import { MedicinesList } from './MedicinesList';
 import AddMedicineForm from './AddMedicineForm';
 import EditMedicineForm from './EditMedicineForm';
+import { useMemo, useEffect } from 'react';
+
 import {
   useMedications,
   useCreateMedication,
@@ -15,31 +17,45 @@ import {
 
 type CompatibleMedicine = FrontendMedicine & {
   description: string;
-  dosage: string;
+  dosage: number;
 };
 
 export function Inventory() {
-  const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [selectedMedicine, setSelectedMedicine] =
     useState<FrontendMedicine | null>(null);
 
-  const { medications, loading, refetch } = useMedications({
-    search: searchTerm || undefined,
-    lowStockOnly: activeTab === 'low-stock' ? true : undefined,
-  });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  useEffect(() => {
+    const id = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 300);
+    return () => clearTimeout(id);
+  }, [searchTerm]);
+
+  const filters = useMemo(() => {
+    const isCategory = activeTab !== 'all' && activeTab !== 'low-stock';
+
+    const normalizedType = isCategory
+      ? activeTab.charAt(0).toUpperCase() + activeTab.slice(1)
+      : undefined;
+
+    return {
+      search: debouncedSearch || undefined,
+      lowStockOnly: activeTab === 'low-stock' ? true : undefined,
+      type: normalizedType,
+    };
+  }, [debouncedSearch, activeTab]);
+
+  const { medications, loading, refetch } = useMedications(filters);
 
   const { createMedication } = useCreateMedication();
   const { updateStock } = useUpdateStock();
   const { deleteMedication } = useDeleteMedication();
-
-  const filteredMedicines = medications.filter((medicine) => {
-    if (activeTab === 'all') return true;
-    if (activeTab === 'low-stock') return medicine.isLowStock;
-    return medicine.category.toLowerCase() === activeTab;
-  });
 
   const handleEdit = (id: number) => {
     const medicine = medications.find((m) => m.id === id);
@@ -129,7 +145,8 @@ export function Inventory() {
 
       {/* Medicines List */}
       <MedicinesList
-        medicines={filteredMedicines as CompatibleMedicine[]}
+        medicines={medications as CompatibleMedicine[]}
+        loading={loading}
         searchTerm={searchTerm}
         onEdit={handleEdit}
         onDelete={handleDelete}
@@ -154,7 +171,7 @@ export function Inventory() {
             ? {
                 ...selectedMedicine,
                 description: '',
-                dosage: '',
+                dosage: 0,
               }
             : null
         }

@@ -8,7 +8,7 @@ interface Medicine {
   name: string;
   category: string;
   description: string;
-  dosage: string;
+  dosage: number;
   stock: number;
   lowStockThreshold: number;
   isLowStock: boolean;
@@ -31,7 +31,7 @@ const AddMedicineForm: React.FC<AddMedicineFormProps> = ({
     category: '',
     stock: 0,
     lowStockThreshold: 10,
-    dosage: '',
+    dosage: 0,
     price: 0,
   });
 
@@ -49,8 +49,11 @@ const AddMedicineForm: React.FC<AddMedicineFormProps> = ({
     setFormData((prev) => ({
       ...prev,
       [name]:
-        name === 'stock' || name === 'lowStockThreshold' || name === 'price'
-          ? parseInt(value) || 0
+        name === 'stock' ||
+        name === 'lowStockThreshold' ||
+        name === 'price' ||
+        name === 'dosage'
+          ? Number(value)
           : value,
     }));
   };
@@ -98,7 +101,7 @@ const AddMedicineForm: React.FC<AddMedicineFormProps> = ({
         category: '',
         stock: 0,
         lowStockThreshold: 10,
-        dosage: '',
+        dosage: 0,
         price: 0,
       });
     } catch {
@@ -230,7 +233,7 @@ const AddMedicineForm: React.FC<AddMedicineFormProps> = ({
               Dosage
             </label>
             <input
-              type="text"
+              type="number"
               name="dosage"
               value={formData.dosage}
               onChange={handleChange}

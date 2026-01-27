@@ -5,6 +5,7 @@ import MedicineCard from './MedicineCard';
 
 interface MedicinesListProps {
   medicines: Medicine[];
+  loading: boolean;
   searchTerm: string;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
@@ -13,11 +14,19 @@ interface MedicinesListProps {
 
 export function MedicinesList({
   medicines,
+  loading,
   searchTerm,
   onEdit,
   onDelete,
   onAddClick,
 }: MedicinesListProps) {
+  if (loading && medicines.length === 0) {
+    return (
+      <div className="bg-white rounded-lg border p-8 text-center">
+        <p className="text-gray-500">Loading medicines...</p>
+      </div>
+    );
+  }
   if (medicines.length === 0) {
     return (
       <div className="bg-white rounded-lg border p-8 text-center">
