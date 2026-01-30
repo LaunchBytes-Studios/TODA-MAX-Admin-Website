@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { DashboardCard } from './DashboardCard';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import {
@@ -17,7 +17,7 @@ import {
   DialogTrigger,
 } from '../ui/dialog';
 import { ChevronRight } from 'lucide-react';
-import type { LowStockItem } from './type';
+import type { LowStockItem } from './LowStock.type';
 import { useAlertMedication } from '@/hooks/useAlertMedication';
 
 interface Medication {
@@ -75,7 +75,7 @@ function LowStockTableContent({ items }: { items: LowStockItem[] }) {
   );
 }
 
-export function LowStockTable() {
+export function LowStockCard() {
   const { medications, loading, error } = useAlertMedication();
 
   // Map medications to LowStockItem[]
@@ -94,62 +94,61 @@ export function LowStockTable() {
   ).length;
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CardTitle>Low Stock Items</CardTitle>
-            {veryLowCount > 0 && (
-              <Badge variant="destructive" className="text-xs">
-                {veryLowCount} Very Low
-              </Badge>
-            )}
-          </div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-blue-600">
-                View All ({lowStockItems.length})
-                <ChevronRight className="ml-1 size-4" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  Low Stock Items
-                  <Badge variant="outline">{lowStockItems.length} items</Badge>
-                  {veryLowCount > 0 && (
-                    <Badge variant="destructive">{veryLowCount} Very Low</Badge>
-                  )}
-                </DialogTitle>
-              </DialogHeader>
-              {loading ? (
-                <div className="text-center py-8">Loading...</div>
-              ) : error ? (
-                <div className="text-center text-red-500 py-8">{error}</div>
-              ) : lowStockItems.length === 0 ? (
-                <div className="text-center text-gray-500 py-8">
-                  No low stock items.
-                </div>
-              ) : (
-                <LowStockTableContent items={lowStockItems} />
-              )}
-            </DialogContent>
-          </Dialog>
+    <DashboardCard
+      title={
+        <div className="flex items-center gap-2">
+          Low Stock Items
+          {veryLowCount > 0 && (
+            <Badge variant="destructive" className="text-xs">
+              {veryLowCount} Very Low
+            </Badge>
+          )}
         </div>
-      </CardHeader>
-      <CardContent>
-        {loading ? (
-          <div className="text-center py-8">Loading...</div>
-        ) : error ? (
-          <div className="text-center text-red-500 py-8">{error}</div>
-        ) : previewItems.length === 0 ? (
-          <div className="text-center text-gray-500 py-8">
-            No low stock items.
-          </div>
-        ) : (
-          <LowStockTableContent items={previewItems} />
-        )}
-      </CardContent>
-    </Card>
+      }
+      headerActions={
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="sm" className="text-blue-600">
+              View All ({lowStockItems.length})
+              <ChevronRight className="ml-1 size-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                Low Stock Items
+                <Badge variant="outline">{lowStockItems.length} items</Badge>
+                {veryLowCount > 0 && (
+                  <Badge variant="destructive">{veryLowCount} Very Low</Badge>
+                )}
+              </DialogTitle>
+            </DialogHeader>
+            {loading ? (
+              <div className="text-center py-8">Loading...</div>
+            ) : error ? (
+              <div className="text-center text-red-500 py-8">{error}</div>
+            ) : lowStockItems.length === 0 ? (
+              <div className="text-center text-gray-500 py-8">
+                No low stock items.
+              </div>
+            ) : (
+              <LowStockTableContent items={lowStockItems} />
+            )}
+          </DialogContent>
+        </Dialog>
+      }
+    >
+      {loading ? (
+        <div className="text-center py-8">Loading...</div>
+      ) : error ? (
+        <div className="text-center text-red-500 py-8">{error}</div>
+      ) : previewItems.length === 0 ? (
+        <div className="text-center text-gray-500 py-8">
+          No low stock items.
+        </div>
+      ) : (
+        <LowStockTableContent items={previewItems} />
+      )}
+    </DashboardCard>
   );
 }
