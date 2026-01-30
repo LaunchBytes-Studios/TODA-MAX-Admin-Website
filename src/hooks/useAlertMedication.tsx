@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { api } from '@/api/client';
 
 export interface Medication {
   name: string;
@@ -18,8 +18,8 @@ export function useAlertMedication() {
     const token = localStorage.getItem('token');
     const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
-    axios
-      .get(`http://localhost:3000/enavigator/alert/medication`, { headers }) // Update this URL to match your backend route
+    api
+      .get(`enavigator/alert/medication`, { headers }) // Update this URL to match your backend route
       .then((res) => {
         setMedications(res.data);
         setError(null);

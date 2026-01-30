@@ -1,10 +1,11 @@
 import { useCallback, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
-import type { RegistrationCode } from '../components/RegistrationCodes/types';
+import type { RegistrationCodesProps } from '../components/dashboard/RegistrationCodesCard';
+import { api } from '@/api/client';
 
 export function useRegistrationCodes() {
-  const [codes, setCodes] = useState<RegistrationCode[]>([]);
+  const [codes, setCodes] = useState<RegistrationCodesProps[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,10 +16,9 @@ export function useRegistrationCodes() {
     try {
       const token = localStorage.getItem('token');
       const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-      const response = await axios.get(
-        `http://localhost:3000/enavigator/get/registrationCode`,
-        { headers },
-      );
+      const response = await api.get(`/enavigator/get/registrationCode`, {
+        headers,
+      });
 
       let data = response.data;
       if (data && !Array.isArray(data)) {
@@ -51,12 +51,19 @@ export function useRegistrationCodes() {
                       day: '2-digit',
                     })
                   : '',
-                status: item.status,
+                status: item.status ?? '',
                 enavId: item.enav_id,
                 createdAt: item.created_at,
                 usedAt: item.used_at,
                 expiryTime,
                 isExpired,
+                expires_at: item.expires_at
+                  ? new Date(item.expires_at)
+                  : new Date(0),
+                created_at: item.created_at
+                  ? new Date(item.created_at)
+                  : new Date(0),
+                used_at: item.used_at ? new Date(item.used_at) : null,
               };
             },
           )
@@ -67,13 +74,10 @@ export function useRegistrationCodes() {
       if (expiredCodes.length > 0) {
         for (const expired of expiredCodes) {
           try {
-            await axios.delete(
-              `http://localhost:3000/enavigator/delete/registrationCode`,
-              {
-                params: { codeId: expired.id },
-                headers,
-              },
-            );
+            await api.delete(`/enavigator/delete/registrationCode`, {
+              params: { codeId: expired.id },
+              headers,
+            });
           } catch (deleteErr) {
             console.error(
               `Failed to delete expired code ${expired.id}:`,
@@ -113,11 +117,7 @@ export function useRegistrationCodes() {
     try {
       const token = localStorage.getItem('token');
       const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-      await axios.post(
-        `http://localhost:3000/enavigator/generate/registrationCode`,
-        {},
-        { headers },
-      );
+      await api.post(`enavigator/generate/registrationCode`, {}, { headers });
       toast.success('Registration code generated successfully!');
       await fetchRegistrationCodes();
     } catch (err) {

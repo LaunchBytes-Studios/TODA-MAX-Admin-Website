@@ -1,4 +1,4 @@
-import { Card, CardContent } from '../ui/card';
+import { StatsCard } from '../ui/stats-card';
 import { useMedicationStats } from '@/hooks/useMedications';
 import { InventoryStatsSkeleton } from './InventoryStatsSkeleton';
 
@@ -11,43 +11,30 @@ export function InventoryStats() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <Card>
-        <CardContent className="p-6">
-          <p className="text-sm text-gray-600">Total Medicines</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">{stats.total}</p>
-          <p className="text-xs text-gray-500 mt-1">Different types</p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="p-6">
-          <p className="text-sm text-gray-600">Low Stock</p>
-          <p className="text-3xl font-bold text-orange-600 mt-2">
-            {stats.lowStock}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">Below threshold</p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="p-6">
-          <p className="text-sm text-gray-600">Out of Stock</p>
-          <p className="text-3xl font-bold text-red-600 mt-2">
-            {stats.outOfStock}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">Zero stock items</p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="p-6">
-          <p className="text-sm text-gray-600">Total Stock</p>
-          <p className="text-3xl font-bold text-green-600 mt-2">
-            {stats.totalStock}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">Total units</p>
-        </CardContent>
-      </Card>
+      <StatsCard
+        title="Total Medicines"
+        value={stats.total}
+        description="Different types"
+      />
+      <StatsCard
+        title="Low Stock"
+        value={stats.lowStock}
+        className=""
+        description="Below threshold"
+        // Optionally add iconColorClassName or iconBgClassName if you want to style
+      />
+      <StatsCard
+        title="Out of Stock"
+        value={stats.outOfStock}
+        className=""
+        description="Zero stock items"
+      />
+      <StatsCard
+        title="Total Stock"
+        value={stats.totalStock}
+        className=""
+        description="Total units"
+      />
     </div>
   );
 }

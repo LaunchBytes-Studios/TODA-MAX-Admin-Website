@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
-import axios from 'axios';
+import { api } from '@/api/client';
 import { toast } from 'sonner';
+import axios, { isAxiosError } from 'axios';
 
 export interface Announcement {
   announce_id: string;
@@ -28,12 +29,9 @@ export function useAnnouncement() {
     }
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const response = await axios.get(
-        `http://localhost:3000/enavigator/get/announcement`,
-        {
-          headers,
-        },
-      );
+      const response = await api.get(`/enavigator/get/announcement`, {
+        headers,
+      });
       let data = response.data;
       if (data && !Array.isArray(data)) {
         data = [data];
@@ -42,7 +40,7 @@ export function useAnnouncement() {
       return data;
     } catch (err) {
       let message = 'Failed to fetch announcements.';
-      if (axios.isAxiosError(err)) {
+      if (isAxiosError(err)) {
         if (err.response && err.response.data && err.response.data.error) {
           message = err.response.data.error;
         } else if (err.message) {
@@ -97,8 +95,8 @@ export function useAnnouncement() {
       }
       try {
         const headers = { Authorization: `Bearer ${token}` };
-        const response = await axios.post(
-          `http://localhost:3000/enavigator/post/announcement?enavId=${resolvedEnavId}`,
+        const response = await api.post(
+          `/enavigator/post/announcement?enavId=${resolvedEnavId}`,
           { message, type: 'general' },
           { headers: { ...headers, 'Content-Type': 'application/json' } },
         );
