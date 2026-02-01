@@ -1,4 +1,4 @@
-import type { LowStockItem } from '../components/LowStock/type';
+import type { LowStockItem } from '../components/dashboard/LowStock.type';
 
 export const lowStockItems: LowStockItem[] = [
   // Hypertension Medications
