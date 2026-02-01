@@ -1,68 +1,10 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import logo from '../assets/logo.png';
-import { toast } from 'sonner';
-import axios, { AxiosError } from 'axios';
-
-// Define the response type
-interface LoginResponse {
-  token: string;
-  user: {
-    id: string;
-    email: string;
-  };
-}
-
-// Define the error response type
-interface ErrorResponse {
-  error: string;
-}
+import { useLogin } from '../hooks/useLogin';
 
 const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const url = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-      const response = await axios.post<LoginResponse>(
-        `${url}/auth/login`,
-        {
-          contact: email,
-          password,
-        },
-        {
-          headers: { 'Content-Type': 'application/json' },
-        },
-      );
-
-      const data = response.data;
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      toast.success('Login successful! Redirecting...');
-
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 500);
-    } catch (err) {
-      const error = err as AxiosError<ErrorResponse>;
-
-      if (error.response && error.response.data && error.response.data.error) {
-        toast.error(error.response.data.error || 'Login failed');
-      } else {
-        toast.error('Connection error. Is the backend running?');
-      }
-      console.error('Login failed:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { email, setEmail, password, setPassword, isLoading, handleSubmit } =
+    useLogin();
 
   return (
     <main className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
