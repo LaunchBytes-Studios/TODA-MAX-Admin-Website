@@ -23,7 +23,7 @@ export interface FrontendMedicine {
   stock: number;
   lowStockThreshold: number;
   isLowStock: boolean;
-  description?: string;
+  description: string;
   dosage: number;
 }
 
@@ -247,6 +247,8 @@ export function useUpdateMedication() {
     stock?: number;
     lowStockThreshold?: number;
     dosage?: number;
+    price?: number;
+    description?: string;
   }
 
   const updateMedication = async (
@@ -267,6 +269,9 @@ export function useUpdateMedication() {
         backendData.threshold_qty = updateData.lowStockThreshold;
       if (updateData.dosage !== undefined)
         backendData.dosage = updateData.dosage;
+      if (updateData.price !== undefined) backendData.price = updateData.price;
+      if (updateData.description !== undefined)
+        backendData.description = updateData.description;
 
       const response = await axios.put<ApiResponse<BackendMedication>>(
         `${API_BASE_URL}/medications/${id}`,

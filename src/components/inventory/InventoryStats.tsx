@@ -1,9 +1,20 @@
+import { useEffect } from 'react';
 import { StatsCard } from '../ui/stats-card';
 import { useMedicationStats } from '@/hooks/useMedications';
-import { InventoryStatsSkeleton } from './InventoryStatsSkeleton';
+import { InventoryStatsSkeleton } from '../skeleton/InventoryStatsSkeleton';
 
-export function InventoryStats() {
-  const { stats, loading } = useMedicationStats();
+interface InventoryStatsProps {
+  refreshTrigger?: number;
+}
+
+export function InventoryStats({ refreshTrigger }: InventoryStatsProps) {
+  const { stats, loading, refetch } = useMedicationStats();
+
+  useEffect(() => {
+    if (refreshTrigger !== undefined) {
+      refetch();
+    }
+  }, [refreshTrigger, refetch]);
 
   if (loading) {
     return <InventoryStatsSkeleton />;
@@ -21,7 +32,6 @@ export function InventoryStats() {
         value={stats.lowStock}
         className=""
         description="Below threshold"
-        // Optionally add iconColorClassName or iconBgClassName if you want to style
       />
       <StatsCard
         title="Out of Stock"
