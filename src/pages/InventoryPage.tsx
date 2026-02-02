@@ -5,6 +5,7 @@ import { SearchAndFilterBar } from '@/components/inventory/SearchAndFilterBar';
 import { MedicinesList } from '@/components/inventory/MedicinesList';
 import AddMedicineForm from '@/components/inventory/AddMedicineForm';
 import EditMedicineForm from '@/components/inventory/EditMedicineForm';
+import DeleteMedicineModal from '@/components/inventory/DeleteMedicineModal';
 
 import {
   useMedications,
@@ -20,6 +21,10 @@ export function InventoryPage() {
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [selectedMedicine, setSelectedMedicine] =
     useState<FrontendMedicine | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [medicineToDelete, setMedicineToDelete] =
+    useState<FrontendMedicine | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -84,25 +89,39 @@ export function InventoryPage() {
 
   const handleDelete = async (id: number) => {
     const medicine = medications.find((m) => m.id === id);
+    if (medicine) {
+      setMedicineToDelete(medicine);
+      setIsDeleteModalOpen(true);
+    }
+  };
 
-    toast('Are you sure you want to delete this medicine?', {
-      description: `This will permanently delete ${medicine?.name}`,
-      action: {
-        label: 'Delete',
-        onClick: async () => {
-          const result = await deleteMedication(id);
-          if (result.success) {
-            refetch();
-            refetchStats();
-            setRefreshTrigger((prev) => prev + 1);
-          }
-        },
-      },
-      cancel: {
-        label: 'Cancel',
-        onClick: () => toast.info('Deletion cancelled'),
-      },
-    });
+  const handleConfirmDelete = async () => {
+    if (!medicineToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const result = await deleteMedication(medicineToDelete.id);
+      if (result.success) {
+        toast.success('Medicine deleted successfully');
+        refetch();
+        refetchStats();
+        setRefreshTrigger((prev) => prev + 1);
+      } else {
+        toast.error(result.error || 'Failed to delete medicine');
+      }
+    } catch (error) {
+      console.error('Error deleting medicine:', error);
+      toast.error('Failed to delete medicine');
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteModalOpen(false);
+      setMedicineToDelete(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteModalOpen(false);
+    setMedicineToDelete(null);
   };
 
   const handleAddMedicine = async (
@@ -157,6 +176,14 @@ export function InventoryPage() {
           }}
           medicine={selectedMedicine}
           onUpdateMedicine={handleUpdateMedicine}
+        />
+
+        <DeleteMedicineModal
+          isOpen={isDeleteModalOpen}
+          medicineName={medicineToDelete?.name || null}
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
+          isDeleting={isDeleting}
         />
       </div>
     </div>

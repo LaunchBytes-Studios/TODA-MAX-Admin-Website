@@ -32,7 +32,7 @@ const EditMedicineForm: React.FC<EditMedicineFormProps> = ({
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    category: '',
+    category: 'Hypertension',
     stock: 0,
     lowStockThreshold: 10,
     dosage: 0,
@@ -198,7 +198,6 @@ const EditMedicineForm: React.FC<EditMedicineFormProps> = ({
               required
               disabled={isSubmitting || loading}
             >
-              <option value="">Select a category</option>
               {CATEGORIES.map((category) => (
                 <option key={category} value={category}>
                   {category}
@@ -209,7 +208,7 @@ const EditMedicineForm: React.FC<EditMedicineFormProps> = ({
 
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-1">
-              Price *
+              Price (PHP) *
             </label>
             <input
               type="number"
@@ -219,6 +218,7 @@ const EditMedicineForm: React.FC<EditMedicineFormProps> = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="0.00"
               min="0"
+              max="10000"
               step="0.01"
               required
               disabled={isSubmitting || loading}
@@ -236,6 +236,7 @@ const EditMedicineForm: React.FC<EditMedicineFormProps> = ({
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               min="0"
+              max="10000"
               disabled={isSubmitting || loading}
             />
           </div>
@@ -251,13 +252,14 @@ const EditMedicineForm: React.FC<EditMedicineFormProps> = ({
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               min="0"
+              max="1000"
               disabled={isSubmitting || loading}
             />
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-1">
-              Dosage
+              Dosage (mg)
             </label>
             <input
               type="number"
@@ -265,7 +267,9 @@ const EditMedicineForm: React.FC<EditMedicineFormProps> = ({
               value={formData.dosage}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g., 50mg"
+              placeholder="e.g., 50"
+              min="0"
+              max="1000"
               disabled={isSubmitting || loading}
             />
           </div>
