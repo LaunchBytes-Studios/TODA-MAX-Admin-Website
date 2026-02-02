@@ -147,7 +147,14 @@ export function LowStockCard() {
           No low stock items.
         </div>
       ) : (
-        <LowStockTableContent items={previewItems} />
+        <>
+          <LowStockTableContent items={previewItems} />
+          {lowStockItems.length > 5 && (
+            <p className="text-center text-sm text-muted-foreground mt-4">
+              Showing 5 of {lowStockItems.length} items
+            </p>
+          )}
+        </>
       )}
     </DashboardCard>
   );
