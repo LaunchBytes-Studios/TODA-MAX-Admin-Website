@@ -68,28 +68,24 @@ export function useRegistrationCodes() {
             },
           )
         : [];
-
       // Delete expired codes
       const expiredCodes = mappedCodes.filter((code) => code.isExpired);
       if (expiredCodes.length > 0) {
-        for (const expired of expiredCodes) {
-          try {
-            await api.delete(`/enavigator/delete/registrationCode`, {
-              params: { codeId: expired.id },
-              headers,
-            });
-          } catch (deleteErr) {
-            console.error(
-              `Failed to delete expired code ${expired.id}:`,
-              deleteErr,
-            );
-          }
+        try {
+          await api.delete(`/enavigator/delete/registrationCode`, { headers });
+        } catch (deleteErr) {
+          console.error('Bulk delete of expired codes failed:', deleteErr);
         }
-        // Remove expired codes from the list
-        setCodes(mappedCodes.filter((code) => !code.isExpired));
-      } else {
-        setCodes(mappedCodes);
       }
+
+      // Only set active and unused codes
+      const activeUnusedCodes = mappedCodes.filter(
+        (code) =>
+          code.status === 'active' &&
+          !code.isExpired &&
+          (code.used_at === null || code.used_at === undefined),
+      );
+      setCodes(activeUnusedCodes);
     } catch (err) {
       let message = 'Failed to fetch registration codes.';
       if (axios.isAxiosError(err)) {
