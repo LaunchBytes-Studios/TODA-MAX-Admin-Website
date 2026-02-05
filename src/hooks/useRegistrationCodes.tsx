@@ -16,6 +16,20 @@ export function useRegistrationCodes() {
     try {
       const token = localStorage.getItem('token');
       const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+      // Trigger backend maintenance to expire/delete old codes before fetching
+      try {
+        await api.post(
+          `/enavigator/maintenance/registrationCode`,
+          {},
+          {
+            headers,
+            params: { confirm: true },
+          },
+        );
+      } catch (maintenanceErr) {
+        // Non-blocking: proceed even if maintenance fails
+        console.warn('Maintenance endpoint failed:', maintenanceErr);
+      }
       const response = await api.get(`/enavigator/get/registrationCode`, {
         headers,
       });
@@ -68,15 +82,7 @@ export function useRegistrationCodes() {
             },
           )
         : [];
-      // Delete expired codes
-      const expiredCodes = mappedCodes.filter((code) => code.isExpired);
-      if (expiredCodes.length > 0) {
-        try {
-          await api.delete(`/enavigator/delete/registrationCode`, { headers });
-        } catch (deleteErr) {
-          console.error('Bulk delete of expired codes failed:', deleteErr);
-        }
-      }
+      // Do not delete from client automatically; backend handles cleanup
 
       // Only set active and unused codes
       const activeUnusedCodes = mappedCodes.filter(
