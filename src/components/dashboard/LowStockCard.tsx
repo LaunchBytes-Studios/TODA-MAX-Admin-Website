@@ -12,6 +12,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -122,6 +123,10 @@ export function LowStockCard() {
                   <Badge variant="destructive">{veryLowCount} Very Low</Badge>
                 )}
               </DialogTitle>
+              <DialogDescription>
+                Detailed list of all medications that are low in stock. Consider
+                restocking soon.
+              </DialogDescription>
             </DialogHeader>
             {loading ? (
               <div className="text-center py-8">Loading...</div>

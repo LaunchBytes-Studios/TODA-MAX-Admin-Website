@@ -16,20 +16,6 @@ export function useRegistrationCodes() {
     try {
       const token = localStorage.getItem('token');
       const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-      // Trigger backend maintenance to expire/delete old codes before fetching
-      try {
-        await api.post(
-          `/enavigator/maintenance/registrationCode`,
-          {},
-          {
-            headers,
-            params: { confirm: true },
-          },
-        );
-      } catch (maintenanceErr) {
-        // Non-blocking: proceed even if maintenance fails
-        console.warn('Maintenance endpoint failed:', maintenanceErr);
-      }
       const response = await api.get(`/enavigator/get/registrationCode`, {
         headers,
       });
@@ -82,14 +68,10 @@ export function useRegistrationCodes() {
             },
           )
         : [];
-      // Do not delete from client automatically; backend handles cleanup
-
-      // Only set active and unused codes
+      // Backend maintenance handles cleanup; filter defensively for display
       const activeUnusedCodes = mappedCodes.filter(
         (code) =>
-          code.status === 'active' &&
-          !code.isExpired &&
-          (code.used_at === null || code.used_at === undefined),
+          code.status === 'active' && !code.isExpired && code.used_at === null,
       );
       setCodes(activeUnusedCodes);
     } catch (err) {
@@ -119,6 +101,18 @@ export function useRegistrationCodes() {
     try {
       const token = localStorage.getItem('token');
       const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+
+      // Run maintenance before generating to clean up old codes
+      try {
+        await api.post(
+          `/enavigator/maintenance/registrationCode`,
+          {},
+          { headers, params: { confirm: true } },
+        );
+      } catch (maintenanceErr) {
+        console.warn('Maintenance failed:', maintenanceErr);
+      }
+
       await api.post(`enavigator/generate/registrationCode`, {}, { headers });
       toast.success('Registration code generated successfully!');
       await fetchRegistrationCodes();

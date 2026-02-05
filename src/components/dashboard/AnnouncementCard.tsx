@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '../ui/dialog';
 import { ChevronRight } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -53,6 +54,9 @@ export const AnnouncementCard = () => {
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>All Announcements</DialogTitle>
+              <DialogDescription>
+                View all previously broadcasted announcements to users.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               {announcements.length === 0 ? (

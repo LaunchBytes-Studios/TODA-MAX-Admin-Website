@@ -21,6 +21,7 @@ import { ChevronRight, Clock, Copy, Loader2, AlertCircle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -188,7 +189,10 @@ export function RegistrationCodes() {
             </DialogTrigger>
             <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>All Registration Codes</DialogTitle>
+                <DialogTitle>Generate Code</DialogTitle>
+                <DialogDescription>
+                  Create a new registration code for patient sign-up
+                </DialogDescription>
               </DialogHeader>
               <div className="overflow-x-auto">{renderTable(true)}</div>
             </DialogContent>
