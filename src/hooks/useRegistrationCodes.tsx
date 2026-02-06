@@ -113,7 +113,7 @@ export function useRegistrationCodes() {
         console.warn('Maintenance failed:', maintenanceErr);
       }
 
-      await api.post(`enavigator/generate/registrationCode`, {}, { headers });
+      await api.post(`/enavigator/generate/registrationCode`, {}, { headers });
       toast.success('Registration code generated successfully!');
       await fetchRegistrationCodes();
     } catch (err) {

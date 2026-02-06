@@ -189,9 +189,9 @@ export function RegistrationCodes() {
             </DialogTrigger>
             <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Generate Code</DialogTitle>
+                <DialogTitle>All Registration Codes</DialogTitle>
                 <DialogDescription>
-                  Create a new registration code for patient sign-up
+                  View all registration codes and their status
                 </DialogDescription>
               </DialogHeader>
               <div className="overflow-x-auto">{renderTable(true)}</div>
