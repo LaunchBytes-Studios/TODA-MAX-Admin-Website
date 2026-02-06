@@ -7,13 +7,11 @@ import AddMedicineForm from '@/components/inventory/AddMedicineForm';
 import EditMedicineForm from '@/components/inventory/EditMedicineForm';
 import DeleteMedicineModal from '@/components/inventory/DeleteMedicineModal';
 
-import {
-  useMedications,
-  useCreateMedication,
-  useDeleteMedication,
-  useMedicationStats,
-  type FrontendMedicine,
-} from '@/hooks/useMedications';
+import { useCreateMedication } from '@/hooks/medications/useCreateMedication';
+import { useDeleteMedication } from '@/hooks/medications/useDeleteMedication';
+import { useFetchMedications } from '@/hooks/medications/useFetchMedications';
+import { useMedicationStats } from '@/hooks/medications/useMedicationStats';
+import type { FrontendMedicine } from '@/hooks/medications/types';
 
 export function InventoryPage() {
   const [activeTab, setActiveTab] = useState('all');
@@ -52,7 +50,7 @@ export function InventoryPage() {
     medications,
     loading: isLoadingMedications,
     refetch,
-  } = useMedications(filters);
+  } = useFetchMedications(filters);
 
   const { refetch: refetchStats } = useMedicationStats();
 

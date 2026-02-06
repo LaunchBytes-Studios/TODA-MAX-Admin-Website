@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '../ui/button';
 import { toast } from 'sonner';
-import { useUpdateMedication } from '@/hooks/useMedications';
+import { useUpdateMedication } from '@/hooks/medications/useUpdateMedication';
 
 interface Medicine {
   id: number;

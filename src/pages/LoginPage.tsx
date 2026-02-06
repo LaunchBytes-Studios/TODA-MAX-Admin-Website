@@ -1,10 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { toast } from 'sonner';
 import logo from '../assets/logo.png';
 import { useLogin } from '../hooks/useLogin';
 
 const LoginPage: React.FC = () => {
-  const { email, setEmail, password, setPassword, isLoading, handleSubmit } =
-    useLogin();
+  const { isLoading, handleSubmit } = useLogin();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const submitError = await handleSubmit(email, password);
+
+    if (submitError) {
+      toast.error(submitError.message);
+      return;
+    }
+
+    toast.success('Login successful! Redirecting...');
+  };
 
   return (
     <main className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
@@ -22,7 +36,7 @@ const LoginPage: React.FC = () => {
       </header>
 
       <form
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
         className="w-full max-w-md bg-white rounded-lg shadow-sm p-8 space-y-6"
       >
         <div>

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Package, AlertTriangle, AlertCircle, BoxesIcon } from 'lucide-react';
 import { StatsCard } from '../ui/stats-card';
-import { useMedicationStats } from '@/hooks/useMedications';
+import { useMedicationStats } from '@/hooks/medications/useMedicationStats';
 import { InventoryStatsSkeleton } from '../skeleton/InventoryStatsSkeleton';
 
 interface InventoryStatsProps {
