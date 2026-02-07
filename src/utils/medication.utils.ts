@@ -1,4 +1,4 @@
-import type { BackendMedication, FrontendMedicine } from './types';
+import type { BackendMedication, FrontendMedicine } from '@/types/medication';
 
 export const API_BASE_URL = 'http://localhost:3000';
 

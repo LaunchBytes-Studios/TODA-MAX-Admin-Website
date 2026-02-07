@@ -6,8 +6,11 @@ import type {
   BackendMedication,
   FrontendMedicine,
   MedicationFilters,
-} from './types';
-import { API_BASE_URL, mapBackendToFrontend } from './utils';
+} from '@/types/medication';
+import {
+  API_BASE_URL,
+  mapBackendToFrontend,
+} from '../../utils/medication.utils';
 
 export function useFetchMedications(filters?: MedicationFilters) {
   const [medications, setMedications] = useState<FrontendMedicine[]>([]);

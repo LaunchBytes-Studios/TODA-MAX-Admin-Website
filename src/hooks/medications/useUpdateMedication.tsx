@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import axios, { AxiosError } from 'axios';
 import { toast } from 'sonner';
-import type { ApiResponse, BackendMedication } from './types';
-import { API_BASE_URL, mapBackendToFrontend } from './utils';
+import type { ApiResponse, BackendMedication } from '@/types/medication';
+import {
+  API_BASE_URL,
+  mapBackendToFrontend,
+} from '../../utils/medication.utils';
 
 interface UpdateMedicationData {
   name?: string;

@@ -11,7 +11,7 @@ import { useCreateMedication } from '@/hooks/medications/useCreateMedication';
 import { useDeleteMedication } from '@/hooks/medications/useDeleteMedication';
 import { useFetchMedications } from '@/hooks/medications/useFetchMedications';
 import { useMedicationStats } from '@/hooks/medications/useMedicationStats';
-import type { FrontendMedicine } from '@/hooks/medications/types';
+import type { FrontendMedicine } from '@/types/medication';
 
 export function InventoryPage() {
   const [activeTab, setActiveTab] = useState('all');
