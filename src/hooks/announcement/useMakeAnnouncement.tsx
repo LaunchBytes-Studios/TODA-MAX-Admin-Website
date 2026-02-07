@@ -1,67 +1,19 @@
 import { useCallback, useState } from 'react';
 import { api } from '@/api/client';
 import { toast } from 'sonner';
-import axios, { isAxiosError } from 'axios';
+import axios from 'axios';
 
-export interface Announcement {
-  announce_id: string;
-  message: string;
-  announce_date: string;
-  type: string;
-  enav_id: string;
-}
-
-export function useAnnouncement() {
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+export function useMakeAnnouncement() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAnnouncements = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    const token = localStorage.getItem('token');
-    if (!token) {
-      const message = 'Access token is missing. Please log in again.';
-      setError(message);
-      toast.error(message);
-      setLoading(false);
-      return null;
-    }
-    try {
-      const headers = { Authorization: `Bearer ${token}` };
-      const response = await api.get(`/enavigator/get/announcement`, {
-        headers,
-      });
-      let data = response.data;
-      if (data && !Array.isArray(data)) {
-        data = [data];
-      }
-      setAnnouncements(data);
-      return data;
-    } catch (err) {
-      let message = 'Failed to fetch announcements.';
-      if (isAxiosError(err)) {
-        if (err.response && err.response.data && err.response.data.error) {
-          message = err.response.data.error;
-        } else if (err.message) {
-          message = err.message;
-        }
-      } else if (err instanceof Error) {
-        message = err.message;
-      } else if (typeof err === 'object' && err !== null && 'message' in err) {
-        message = String((err as { message: unknown }).message);
-      }
-      setError(message);
-      toast.error(message);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   // Post a new announcement
   const postAnnouncement = useCallback(
-    async (message: string, enavId?: string) => {
+    async (
+      message: string,
+      enavId?: string,
+      onSuccess?: () => void | Promise<void>,
+    ) => {
       setLoading(true);
       setError(null);
       const token = localStorage.getItem('token');
@@ -96,13 +48,17 @@ export function useAnnouncement() {
       try {
         const headers = { Authorization: `Bearer ${token}` };
         const response = await api.post(
-          `/enavigator/post/announcement?enavId=${resolvedEnavId}`,
+          `/enavigator/announcements?enavId=${resolvedEnavId}`,
           { message, type: 'general' },
           { headers: { ...headers, 'Content-Type': 'application/json' } },
         );
         toast.success('Announcement posted successfully!');
-        // Optionally refresh announcements after posting
-        await fetchAnnouncements();
+
+        // Call the success callback if provided (e.g., to refetch announcements)
+        if (onSuccess) {
+          await onSuccess();
+        }
+
         return response.data.announcement;
       } catch (err) {
         let message = 'Failed to post announcement.';
@@ -128,14 +84,12 @@ export function useAnnouncement() {
         setLoading(false);
       }
     },
-    [fetchAnnouncements],
+    [],
   );
 
   return {
-    announcements,
     loading,
     error,
-    fetchAnnouncements,
     postAnnouncement,
   };
 }

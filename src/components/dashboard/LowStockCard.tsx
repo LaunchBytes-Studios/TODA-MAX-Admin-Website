@@ -19,7 +19,7 @@ import {
 } from '../ui/dialog';
 import { ChevronRight } from 'lucide-react';
 import type { LowStockItem } from './LowStock.type';
-import { useAlertMedication } from '@/hooks/useAlertMedication';
+import { useAlertMedication } from '@/hooks/medication/useAlertMedication';
 
 interface Medication {
   name: string;

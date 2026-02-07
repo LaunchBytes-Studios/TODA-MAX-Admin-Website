@@ -13,16 +13,29 @@ import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Label } from '../ui/label';
 import { Megaphone, Send } from 'lucide-react';
-import { useAnnouncement } from '@/hooks/useAnnouncement';
+import { useFetchAnnouncement } from '@/hooks/announcement/useFetchAnnouncement';
+import { useMakeAnnouncement } from '@/hooks/announcement/useMakeAnnouncement';
 
 export const AnnouncementCard = () => {
   const [message, setMessage] = useState('');
   const [open, setOpen] = useState(false);
-  const { postAnnouncement, loading, announcements, fetchAnnouncements } =
-    useAnnouncement();
+
+  const {
+    announcements,
+    loading: fetchLoading,
+    fetchAnnouncements,
+  } = useFetchAnnouncement();
+
+  const { loading: postLoading, postAnnouncement } = useMakeAnnouncement();
+
+  const loading = fetchLoading || postLoading;
 
   const handleBroadcast = async () => {
-    const result = await postAnnouncement(message);
+    const result = await postAnnouncement(
+      message,
+      undefined,
+      fetchAnnouncements,
+    );
     if (result) {
       setMessage('');
     }
