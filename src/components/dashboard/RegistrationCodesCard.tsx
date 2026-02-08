@@ -199,9 +199,9 @@ export function RegistrationCodes() {
             </DialogTrigger>
             <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>All Registration Codes</DialogTitle>
+                <DialogTitle>All Active Registration Codes</DialogTitle>
                 <DialogDescription>
-                  View all registration codes and their status
+                  View all active registration codes that are available for use
                 </DialogDescription>
               </DialogHeader>
               <div className="overflow-x-auto">{renderTable(codes)}</div>
