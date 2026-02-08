@@ -12,13 +12,14 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '../ui/dialog';
 import { ChevronRight } from 'lucide-react';
 import type { LowStockItem } from './LowStock.type';
-import { useAlertMedication } from '@/hooks/useAlertMedication';
+import { useAlertMedication } from '@/hooks/medication/useAlertMedication';
 
 interface Medication {
   name: string;
@@ -122,6 +123,10 @@ export function LowStockCard() {
                   <Badge variant="destructive">{veryLowCount} Very Low</Badge>
                 )}
               </DialogTitle>
+              <DialogDescription>
+                Detailed list of all medications that are low in stock. Consider
+                restocking soon.
+              </DialogDescription>
             </DialogHeader>
             {loading ? (
               <div className="text-center py-8">Loading...</div>
@@ -147,7 +152,14 @@ export function LowStockCard() {
           No low stock items.
         </div>
       ) : (
-        <LowStockTableContent items={previewItems} />
+        <>
+          <LowStockTableContent items={previewItems} />
+          {lowStockItems.length > 5 && (
+            <p className="text-center text-sm text-muted-foreground mt-4">
+              Showing 5 of {lowStockItems.length} items
+            </p>
+          )}
+        </>
       )}
     </DashboardCard>
   );
