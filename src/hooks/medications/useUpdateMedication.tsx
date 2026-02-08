@@ -1,11 +1,7 @@
 import { useState } from 'react';
 import axios, { AxiosError } from 'axios';
-import { toast } from 'sonner';
 import type { ApiResponse, BackendMedication } from '@/types/medication';
-import {
-  API_BASE_URL,
-  mapBackendToFrontend,
-} from '../../utils/medication.utils';
+import { API_BASE_URL, mapBackendToFrontend } from '@/utils/medication.utils';
 
 interface UpdateMedicationData {
   name?: string;
@@ -49,7 +45,6 @@ export function useUpdateMedication() {
       );
 
       if (response.data.success) {
-        toast.success('Medicine updated successfully');
         return {
           success: true,
           data: mapBackendToFrontend(response.data.data),
@@ -62,7 +57,6 @@ export function useUpdateMedication() {
       const errorMsg =
         axiosError.response?.data?.message || 'Failed to update medication';
       setError(errorMsg);
-      toast.error(errorMsg);
       return {
         success: false,
         error: errorMsg,

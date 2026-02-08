@@ -2,10 +2,7 @@ import { useState } from 'react';
 import axios, { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import type { ApiResponse, BackendMedication } from '@/types/medication';
-import {
-  API_BASE_URL,
-  mapBackendToFrontend,
-} from '../../utils/medication.utils';
+import { API_BASE_URL, mapBackendToFrontend } from '@/utils/medication.utils';
 
 export function useUpdateStock() {
   const [loading, setLoading] = useState(false);

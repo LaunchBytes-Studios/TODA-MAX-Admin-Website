@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import axios, { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import type { ApiResponse, StatsData } from '@/types/medication';
-import { API_BASE_URL } from '../../utils/medication.utils';
+import { API_BASE_URL } from '@/utils/medication.utils';
 
 export function useMedicationStats() {
   const [stats, setStats] = useState<StatsData>({

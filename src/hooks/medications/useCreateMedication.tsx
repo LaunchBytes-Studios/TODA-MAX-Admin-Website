@@ -6,10 +6,7 @@ import type {
   BackendMedication,
   FrontendMedicine,
 } from '@/types/medication';
-import {
-  API_BASE_URL,
-  mapBackendToFrontend,
-} from '../../utils/medication.utils';
+import { API_BASE_URL, mapBackendToFrontend } from '@/utils/medication.utils';
 
 interface CreateMedicationData extends Omit<
   FrontendMedicine,
@@ -28,6 +25,17 @@ export function useCreateMedication() {
       setLoading(true);
       setError(null);
 
+      let resolvedEnavId: string | undefined;
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          resolvedEnavId = user?.enav_id || user?.userId;
+        } catch (err) {
+          console.error('Failed to parse user from localStorage:', err);
+        }
+      }
+
       const backendData = {
         name: medicationData.name,
         price: medicationData.price,
@@ -36,14 +44,12 @@ export function useCreateMedication() {
         threshold_qty: medicationData.lowStockThreshold,
         description: medicationData.description,
         dosage: medicationData.dosage,
-        enav_id: '5e619edc-487a-42d6-af08-880c70a13a86',
+        ...(resolvedEnavId ? { enav_id: resolvedEnavId } : {}),
       };
-      console.log('Sending data to backend:', backendData);
       const response = await axios.post<ApiResponse<BackendMedication>>(
         `${API_BASE_URL}/medications`,
         backendData,
       );
-      console.log('Backend response:', response.data);
       if (response.data.success) {
         toast.success('Medicine added successfully');
         return {

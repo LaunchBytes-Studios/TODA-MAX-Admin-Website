@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef, useDeferredValue } from 'react';
+import { useState, useMemo, useDeferredValue } from 'react';
 import { toast } from 'sonner';
 import { InventoryStats } from '@/components/inventory/InventoryStats';
 import { SearchAndFilterBar } from '@/components/inventory/SearchAndFilterBar';
@@ -10,7 +10,6 @@ import DeleteMedicineModal from '@/components/inventory/DeleteMedicineModal';
 import { useCreateMedication } from '@/hooks/medications/useCreateMedication';
 import { useDeleteMedication } from '@/hooks/medications/useDeleteMedication';
 import { useFetchMedications } from '@/hooks/medications/useFetchMedications';
-import { useMedicationStats } from '@/hooks/medications/useMedicationStats';
 import type { FrontendMedicine } from '@/types/medication';
 
 export function InventoryPage() {
@@ -27,8 +26,6 @@ export function InventoryPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const deferredSearch = useDeferredValue(searchTerm);
-
-  const hasLoadedOnce = useRef(false);
 
   const filters = useMemo(() => {
     const isCategory = activeTab !== 'all' && activeTab !== 'low-stock';
@@ -52,14 +49,6 @@ export function InventoryPage() {
     refetch,
   } = useFetchMedications(filters);
 
-  const { refetch: refetchStats } = useMedicationStats();
-
-  useEffect(() => {
-    if (!isLoadingMedications && medications.length > 0) {
-      hasLoadedOnce.current = true;
-    }
-  }, [isLoadingMedications, medications.length]);
-
   const isSearching = searchTerm.trim() !== '' && searchTerm !== deferredSearch;
 
   const isContentLoading = isLoadingMedications || isSearching;
@@ -77,11 +66,11 @@ export function InventoryPage() {
 
   const handleUpdateMedicine = async () => {
     try {
-      refetch();
-      refetchStats();
+      await refetch();
       setRefreshTrigger((prev) => prev + 1);
-    } catch {
-      /* empty */
+    } catch (error) {
+      console.error('Error refreshing medications:', error);
+      toast.error('Failed to refresh medications');
     }
   };
 
@@ -102,7 +91,6 @@ export function InventoryPage() {
       if (result.success) {
         toast.success('Medicine deleted successfully');
         refetch();
-        refetchStats();
         setRefreshTrigger((prev) => prev + 1);
       } else {
         toast.error(result.error || 'Failed to delete medicine');
@@ -128,7 +116,6 @@ export function InventoryPage() {
     const result = await createMedication(newMedicine);
     if (result.success) {
       refetch();
-      refetchStats();
       setRefreshTrigger((prev) => prev + 1);
       setIsAddFormOpen(false);
     }
@@ -163,7 +150,7 @@ export function InventoryPage() {
         <AddMedicineForm
           isOpen={isAddFormOpen}
           onClose={() => setIsAddFormOpen(false)}
-          onAddMedicine={handleAddMedicine as never}
+          onAddMedicine={handleAddMedicine}
         />
 
         <EditMedicineForm

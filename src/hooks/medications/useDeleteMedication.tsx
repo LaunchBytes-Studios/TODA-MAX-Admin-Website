@@ -2,7 +2,7 @@ import { useState } from 'react';
 import axios, { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import type { ApiResponse } from '@/types/medication';
-import { API_BASE_URL } from '../../utils/medication.utils';
+import { API_BASE_URL } from '@/utils/medication.utils';
 
 export function useDeleteMedication() {
   const [loading, setLoading] = useState(false);

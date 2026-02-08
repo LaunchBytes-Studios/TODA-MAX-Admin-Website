@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Package, AlertTriangle, AlertCircle, BoxesIcon } from 'lucide-react';
 import { StatsCard } from '../ui/stats-card';
 import { useMedicationStats } from '@/hooks/medications/useMedicationStats';
@@ -10,8 +10,13 @@ interface InventoryStatsProps {
 
 export function InventoryStats({ refreshTrigger }: InventoryStatsProps) {
   const { stats, loading, refetch } = useMedicationStats();
+  const hasMounted = useRef(false);
 
   useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return;
+    }
     if (refreshTrigger !== undefined) {
       refetch();
     }

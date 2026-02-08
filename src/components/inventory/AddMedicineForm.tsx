@@ -2,22 +2,14 @@ import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '../ui/button';
 import { toast } from 'sonner';
-
-interface Medicine {
-  id: number;
-  name: string;
-  category: string;
-  description: string;
-  dosage: number;
-  stock: number;
-  lowStockThreshold: number;
-  isLowStock: boolean;
-}
+import type { FrontendMedicine } from '@/types/medication';
 
 interface AddMedicineFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddMedicine: (medicine: Omit<Medicine, 'id' | 'isLowStock'>) => void;
+  onAddMedicine: (
+    medicine: Omit<FrontendMedicine, 'id' | 'isLowStock'>,
+  ) => void;
 }
 
 const AddMedicineForm: React.FC<AddMedicineFormProps> = ({
