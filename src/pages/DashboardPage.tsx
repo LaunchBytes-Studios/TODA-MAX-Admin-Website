@@ -4,7 +4,7 @@ import { LowStockCard } from '../components/dashboard/LowStockCard';
 import { RegistrationCodes } from '../components/dashboard/RegistrationCodesCard';
 import { AnnouncementCard } from '../components/dashboard/AnnouncementCard';
 import { useState, useEffect } from 'react';
-import { useAlertMedication } from '@/hooks/useAlertMedication';
+import { useAlertMedication } from '@/hooks/medication/useAlertMedication';
 import { DashboardSkeleton } from '../components/skeleton/DashboardSkeleton';
 
 export function DashboardPage() {

@@ -19,7 +19,7 @@ export function useAlertMedication() {
     const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
     api
-      .get(`enavigator/alert/medication`, { headers }) // Update this URL to match your backend route
+      .get(`enavigator/medications/alerts`, { headers })
       .then((res) => {
         setMedications(res.data);
         setError(null);
