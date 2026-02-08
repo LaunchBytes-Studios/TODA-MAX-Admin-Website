@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 import logo from '../assets/logo.png';
-import { useLogin } from '../hooks/useLogin';
+import { useLogin } from '../hooks/auth/useLogin';
 
 const LoginPage: React.FC = () => {
   const { isLoading, handleSubmit } = useLogin();
