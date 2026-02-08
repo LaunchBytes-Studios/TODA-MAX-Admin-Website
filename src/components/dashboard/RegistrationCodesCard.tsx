@@ -17,7 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '../ui/tooltip';
-import { ChevronRight, Clock, Copy, Loader2, AlertCircle } from 'lucide-react';
+import { ChevronRight, Clock, Copy, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
