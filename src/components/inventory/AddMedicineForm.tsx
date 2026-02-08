@@ -1,270 +1,305 @@
-import React, { useState } from 'react';
-import { X } from 'lucide-react';
-import { Button } from '../ui/button';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
-interface Medicine {
-  id: number;
-  name: string;
-  category: string;
-  description: string;
-  dosage: number;
-  stock: number;
-  lowStockThreshold: number;
-  isLowStock: boolean;
-}
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+
+import type { FrontendMedicine } from '@/types/medication';
+import {
+  addMedicineSchema,
+  type AddMedicineFormValues,
+} from '@/components/zod/addMedicineSchema';
 
 interface AddMedicineFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddMedicine: (medicine: Omit<Medicine, 'id' | 'isLowStock'>) => void;
+  onAddMedicine: (
+    medicine: Omit<FrontendMedicine, 'id' | 'isLowStock'>,
+  ) => Promise<void>;
 }
 
-const AddMedicineForm: React.FC<AddMedicineFormProps> = ({
+const CATEGORIES = ['Hypertension', 'Diabetes'];
+
+function AddMedicineForm({
   isOpen,
   onClose,
   onAddMedicine,
-}) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    category: '',
-    stock: 0,
-    lowStockThreshold: 10,
-    dosage: 0,
-    price: 0,
+}: AddMedicineFormProps) {
+  const form = useForm<AddMedicineFormValues>({
+    resolver: zodResolver(addMedicineSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      category: 'Hypertension',
+      price: 0,
+      stock: 0,
+      lowStockThreshold: 10,
+      dosage: 0,
+    },
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmitting = form.formState.isSubmitting;
 
-  // Available categories (should match your TABS)
-  const CATEGORIES = ['Hypertension', 'Diabetes'];
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]:
-        name === 'stock' ||
-        name === 'lowStockThreshold' ||
-        name === 'price' ||
-        name === 'dosage'
-          ? Number(value)
-          : value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    if (!formData.name.trim()) {
-      toast.error('Please enter medicine name');
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (!formData.category) {
-      toast.error('Please select a category');
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (formData.price <= 0) {
-      toast.error('Please enter a valid price');
-      setIsSubmitting(false);
-      return;
-    }
-
-    const newMedicine = {
-      name: formData.name,
-      description: formData.description,
-      category: formData.category,
-      dosage: formData.dosage,
-      stock: formData.stock,
-      lowStockThreshold: formData.lowStockThreshold,
-      price: formData.price, // Added price
-    };
-
+  const onSubmit = async (values: AddMedicineFormValues) => {
     try {
-      await onAddMedicine(newMedicine);
-      onClose();
-
-      // Reset form
-      setFormData({
-        name: '',
-        description: '',
-        category: '',
-        stock: 0,
-        lowStockThreshold: 10,
-        dosage: 0,
-        price: 0,
+      await onAddMedicine({
+        ...values,
+        description: values.description ?? '',
       });
+      form.reset();
+      onClose();
     } catch {
-      /* empty */
-    } finally {
-      setIsSubmitting(false);
+      toast.error('Failed to add medicine');
     }
   };
-
-  if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={(open) => (!open ? onClose() : null)}>
+      <DialogContent
+        className="
+          w-full
+          max-w-md
+          max-h-[90vh]
+          overflow-y-auto
+          rounded-lg
+          p-0
+          gap-0
+        "
+      >
+        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-xl font-semibold">Add New Medicine</h2>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-full"
-            disabled={isSubmitting}
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <h2 className="text-xl font-semibold text-gray-900">
+            Add New Medicine
+          </h2>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-1">
-              Name *
-            </label>
-            <input
-              type="text"
+        {/* Form */}
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="p-6 space-y-4"
+          >
+            {/* Name */}
+            <FormField
+              control={form.control}
               name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter medicine name"
-              required
-              disabled={isSubmitting}
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Name *</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter medicine name"
+                      {...field}
+                      className={
+                        fieldState.invalid
+                          ? 'border-red-500 focus:ring-red-500'
+                          : ''
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-1">
-              Description
-            </label>
-            <textarea
+            {/* Description */}
+            <FormField
+              control={form.control}
               name="description"
-              value={formData.description}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter description"
-              rows={2}
-              disabled={isSubmitting}
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      rows={2}
+                      placeholder="Enter description"
+                      {...field}
+                      className={
+                        fieldState.invalid
+                          ? 'border-red-500 focus:ring-red-500'
+                          : ''
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-1">
-              Category *
-            </label>
-            <select
+            {/* Category */}
+            <FormField
+              control={form.control}
               name="category"
-              value={formData.category}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-              disabled={isSubmitting}
-            >
-              <option value="">Select a category</option>
-              {CATEGORIES.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-          </div>
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Category *</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger
+                        className={
+                          fieldState.invalid
+                            ? 'border-red-500 focus:ring-red-500'
+                            : ''
+                        }
+                      >
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {CATEGORIES.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-1">
-              Price *
-            </label>
-            <input
-              type="number"
+            {/* Price */}
+            <FormField
+              control={form.control}
               name="price"
-              value={formData.price}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="0.00"
-              min="0"
-              step="0.01"
-              required
-              disabled={isSubmitting}
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Price (PHP) *</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min={0}
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      className={
+                        fieldState.invalid
+                          ? 'border-red-500 focus:ring-red-500'
+                          : ''
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-1">
-              Stock
-            </label>
-            <input
-              type="number"
+            {/* Stock */}
+            <FormField
+              control={form.control}
               name="stock"
-              value={formData.stock}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              min="0"
-              disabled={isSubmitting}
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Stock</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={0}
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      className={
+                        fieldState.invalid
+                          ? 'border-red-500 focus:ring-red-500'
+                          : ''
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-1">
-              Low Stock Threshold
-            </label>
-            <input
-              type="number"
+            {/* Low Stock Threshold */}
+            <FormField
+              control={form.control}
               name="lowStockThreshold"
-              value={formData.lowStockThreshold}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              min="0"
-              disabled={isSubmitting}
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Low Stock Threshold</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={0}
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      className={
+                        fieldState.invalid
+                          ? 'border-red-500 focus:ring-red-500'
+                          : ''
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-1">
-              Dosage
-            </label>
-            <input
-              type="number"
+            {/* Dosage */}
+            <FormField
+              control={form.control}
               name="dosage"
-              value={formData.dosage}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g., 50mg"
-              disabled={isSubmitting}
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Dosage (mg)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={0}
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      className={
+                        fieldState.invalid
+                          ? 'border-red-500 focus:ring-red-500'
+                          : ''
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="px-4 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Saving...' : 'Save'}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
+            {/* Footer */}
+            <div className="flex justify-end gap-3 pt-4 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Saving...' : 'Add'}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
-};
+}
 
 export default AddMedicineForm;

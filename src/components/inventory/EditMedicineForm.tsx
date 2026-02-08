@@ -1,210 +1,348 @@
-import React, { useState } from 'react';
-import { Minus, Plus, X } from 'lucide-react';
-import { Button } from '../ui/button';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { useUpdateStock } from '@/hooks/useMedications';
 
-interface Medicine {
-  id: number;
-  name: string;
-  category: string;
-  description: string;
-  dosage: number;
-  stock: number;
-  lowStockThreshold: number;
-  isLowStock: boolean;
-}
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+
+import type { FrontendMedicine } from '@/types/medication';
+import {
+  addMedicineSchema,
+  type AddMedicineFormValues,
+} from '@/components/zod/addMedicineSchema';
+import { useUpdateMedication } from '@/hooks/medications/useUpdateMedication';
 
 interface EditMedicineFormProps {
   isOpen: boolean;
   onClose: () => void;
-  medicine: Medicine | null;
-  onUpdateMedicine: (id: number, updatedData: Partial<Medicine>) => void;
+  medicine: FrontendMedicine | null;
+  onUpdateMedicine: (
+    id: number,
+    updatedData: Partial<FrontendMedicine>,
+  ) => void;
 }
 
-const EditMedicineForm: React.FC<EditMedicineFormProps> = ({
+const CATEGORIES = ['Hypertension', 'Diabetes'];
+
+function EditMedicineForm({
   isOpen,
   onClose,
   medicine,
   onUpdateMedicine,
-}) => {
-  const [stockValue, setStockValue] = useState(medicine?.stock || 0);
+}: EditMedicineFormProps) {
+  const { updateMedication, loading } = useUpdateMedication();
 
-  const { updateStock, loading: isSubmitting } = useUpdateStock();
+  const form = useForm<AddMedicineFormValues>({
+    resolver: zodResolver(addMedicineSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      category: 'Hypertension',
+      price: 0,
+      stock: 0,
+      lowStockThreshold: 10,
+      dosage: 0,
+    },
+  });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (medicine) {
-      setStockValue(medicine.stock);
+      form.reset({
+        name: medicine.name,
+        description: medicine.description,
+        category: medicine.category,
+        price: medicine.price || 0,
+        stock: medicine.stock,
+        lowStockThreshold: medicine.lowStockThreshold,
+        dosage: medicine.dosage,
+      });
     }
-  }, [medicine]);
+  }, [form, medicine]);
 
-  const handleDecrement = () => {
-    if (stockValue > 0) {
-      setStockValue((prev) => prev - 1);
+  const isSubmitting = form.formState.isSubmitting;
+
+  const onSubmit = async (values: AddMedicineFormValues) => {
+    if (!medicine) {
+      toast.error('No medicine selected');
+      return;
     }
-  };
-
-  const handleIncrement = () => {
-    setStockValue((prev) => prev + 1);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value) || 0;
-    if (value >= 0) {
-      setStockValue(value);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!medicine) return;
 
     try {
-      const result = await updateStock(medicine.id, stockValue);
+      const result = await updateMedication(medicine.id, {
+        name: values.name,
+        category: values.category,
+        stock: values.stock,
+        lowStockThreshold: values.lowStockThreshold,
+        dosage: values.dosage,
+        price: values.price,
+        description: values.description,
+      });
 
       if (result.success) {
-        toast.success('Stock updated successfully', {
-          description: `Stock for ${medicine.name} has been updated to ${stockValue}`,
-        });
-
+        toast.success('Medicine updated successfully');
         onUpdateMedicine(medicine.id, {
-          stock: stockValue,
-          isLowStock: stockValue <= medicine.lowStockThreshold,
+          name: values.name,
+          description: values.description ?? '',
+          category: values.category,
+          stock: values.stock,
+          lowStockThreshold: values.lowStockThreshold,
+          dosage: values.dosage,
+          price: values.price,
         });
-
         onClose();
       } else {
-        toast.error(result.error || 'Failed to update stock');
+        toast.error(result.error || 'Failed to update medicine');
       }
     } catch (error) {
-      console.error('Error updating stock:', error);
-      toast.error('Failed to update stock');
+      console.error('Error updating medicine:', error);
+      toast.error('Failed to update medicine');
     }
   };
 
   if (!isOpen || !medicine) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={(open) => (!open ? onClose() : null)}>
+      <DialogContent
+        className="
+          w-full
+          max-w-md
+          max-h-[90vh]
+          overflow-y-auto
+          rounded-lg
+          p-0
+          gap-0
+        "
+      >
         <div className="flex items-center justify-between p-6 border-b">
-          <div>
-            <h2 className="text-xl font-semibold">Adjust Stock</h2>
-            <p className="text-sm text-gray-600 mt-1">
-              Adjust stock for &quot;
-              <span className="font-medium">{medicine.name}</span>&quot;
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-            aria-label="Close"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <h2 className="text-xl font-semibold text-gray-900">Edit Medicine</h2>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="space-y-6">
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center space-x-4">
-                <button
-                  type="button"
-                  onClick={handleDecrement}
-                  disabled={stockValue === 0}
-                  className={`p-3 rounded-full ${
-                    stockValue === 0
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-red-100 text-red-600 hover:bg-red-200'
-                  }`}
-                  aria-label="Decrease stock by 1"
-                >
-                  <Minus className="w-6 h-6" />
-                </button>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="p-6 space-y-4"
+          >
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Name *</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter medicine name"
+                      {...field}
+                      className={
+                        fieldState.invalid
+                          ? 'border-red-500 focus:ring-red-500'
+                          : ''
+                      }
+                      disabled={isSubmitting || loading}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <div className="min-w-30">
-                  <div className="text-4xl font-bold text-gray-900">
-                    {stockValue}
-                  </div>
-                  <div className="text-sm text-gray-500 mt-1">
-                    Current stock
-                  </div>
-                </div>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      rows={2}
+                      placeholder="Enter description"
+                      {...field}
+                      className={
+                        fieldState.invalid
+                          ? 'border-red-500 focus:ring-red-500'
+                          : ''
+                      }
+                      disabled={isSubmitting || loading}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <button
-                  type="button"
-                  onClick={handleIncrement}
-                  className="p-3 rounded-full bg-green-100 text-green-600 hover:bg-green-200"
-                  aria-label="Increase stock by 1"
-                >
-                  <Plus className="w-6 h-6" />
-                </button>
-              </div>
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Category *</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger
+                        className={
+                          fieldState.invalid
+                            ? 'border-red-500 focus:ring-red-500'
+                            : ''
+                        }
+                      >
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {CATEGORIES.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <div className="mt-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Or enter stock manually
-                </label>
-                <input
-                  type="number"
-                  value={stockValue}
-                  onChange={handleInputChange}
-                  className="w-32 px-4 py-2 border border-gray-300 rounded-md text-center text-lg font-medium"
-                  min="0"
-                />
-              </div>
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Price (PHP) *</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min={0}
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      className={
+                        fieldState.invalid
+                          ? 'border-red-500 focus:ring-red-500'
+                          : ''
+                      }
+                      disabled={isSubmitting || loading}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <div className="mt-6 pt-6 border-t space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Previous stock:</span>
-                  <span className="font-medium">{medicine.stock}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Change:</span>
-                  <span
-                    className={`font-medium ${stockValue - medicine.stock >= 0 ? 'text-green-600' : 'text-red-600'}`}
-                  >
-                    {stockValue - medicine.stock >= 0 ? '+' : ''}
-                    {stockValue - medicine.stock}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Low stock threshold:</span>
-                  <span className="font-medium">
-                    {medicine.lowStockThreshold}
-                  </span>
-                </div>
-                {stockValue <= medicine.lowStockThreshold && (
-                  <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">
-                    ⚠️ Stock is at or below low stock threshold
-                  </div>
-                )}
-              </div>
-            </div>
+            <FormField
+              control={form.control}
+              name="stock"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Stock</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={0}
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      className={
+                        fieldState.invalid
+                          ? 'border-red-500 focus:ring-red-500'
+                          : ''
+                      }
+                      disabled={isSubmitting || loading}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            <div className="flex justify-end gap-3 pt-6 border-t">
+            <FormField
+              control={form.control}
+              name="lowStockThreshold"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Low Stock Threshold</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={0}
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      className={
+                        fieldState.invalid
+                          ? 'border-red-500 focus:ring-red-500'
+                          : ''
+                      }
+                      disabled={isSubmitting || loading}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="dosage"
+              render={({ field, fieldState }) => (
+                <FormItem>
+                  <FormLabel>Dosage (mg)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={0}
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      className={
+                        fieldState.invalid
+                          ? 'border-red-500 focus:ring-red-500'
+                          : ''
+                      }
+                      disabled={isSubmitting || loading}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex justify-end gap-3 pt-4 border-t">
               <Button
                 type="button"
                 variant="outline"
                 onClick={onClose}
                 className="px-4 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                disabled={isSubmitting || loading}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting || stockValue === medicine.stock}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2"
+                disabled={isSubmitting || loading}
               >
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                {isSubmitting || loading ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
-          </div>
-        </form>
-      </div>
-    </div>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
-};
+}
 
 export default EditMedicineForm;

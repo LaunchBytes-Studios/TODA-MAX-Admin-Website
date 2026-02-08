@@ -2,7 +2,7 @@ import { Search, Plus } from 'lucide-react';
 import { Button } from '../ui/button';
 import type { Medicine } from '@/data/medicines';
 import MedicineCard from './MedicineCard';
-import MedicineCardSkeleton from './MedicineCardSkeleton';
+import MedicineCardSkeleton from '../skeleton/MedicineCardSkeleton';
 
 interface MedicinesListProps {
   medicines: Medicine[];

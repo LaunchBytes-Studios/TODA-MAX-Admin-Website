@@ -1,67 +1,23 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import logo from '../assets/logo.png';
 import { toast } from 'sonner';
-import axios, { AxiosError } from 'axios';
-
-// Define the response type
-interface LoginResponse {
-  token: string;
-  user: {
-    id: string;
-    email: string;
-  };
-}
-
-// Define the error response type
-interface ErrorResponse {
-  error: string;
-}
+import logo from '../assets/logo.png';
+import { useLogin } from '../hooks/auth/useLogin';
 
 const LoginPage: React.FC = () => {
+  const { isLoading, handleSubmit } = useLogin();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
+    const submitError = await handleSubmit(email, password);
 
-    try {
-      const url = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-      const response = await axios.post<LoginResponse>(
-        `${url}/auth/login`,
-        {
-          contact: email,
-          password,
-        },
-        {
-          headers: { 'Content-Type': 'application/json' },
-        },
-      );
-
-      const data = response.data;
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      toast.success('Login successful! Redirecting...');
-
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 500);
-    } catch (err) {
-      const error = err as AxiosError<ErrorResponse>;
-
-      if (error.response && error.response.data && error.response.data.error) {
-        toast.error(error.response.data.error || 'Login failed');
-      } else {
-        toast.error('Connection error. Is the backend running?');
-      }
-      console.error('Login failed:', error);
-    } finally {
-      setIsLoading(false);
+    if (submitError) {
+      toast.error(submitError.message);
+      return;
     }
+
+    toast.success('Login successful! Redirecting...');
   };
 
   return (
@@ -80,7 +36,7 @@ const LoginPage: React.FC = () => {
       </header>
 
       <form
-        onSubmit={handleSubmit}
+        onSubmit={onSubmit}
         className="w-full max-w-md bg-white rounded-lg shadow-sm p-8 space-y-6"
       >
         <div>

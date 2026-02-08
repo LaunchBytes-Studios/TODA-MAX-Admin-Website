@@ -43,7 +43,8 @@ const MedicineCard: React.FC<MedicineCardProps> = ({
           <p className="text-gray-600">{description}</p>
           <div className="space-y-1 text-sm">
             <p>
-              <span className="font-medium">Dosage:</span> {dosage}
+              <span className="font-medium">Dosage:</span>{' '}
+              {typeof dosage === 'number' ? `${dosage} mg` : 'N/A'}
             </p>
             <p className={isLowStock ? 'text-orange-600' : 'text-gray-700'}>
               <span className="font-medium">Current Stock:</span> {stock}
