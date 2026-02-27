@@ -5,8 +5,16 @@ import { formatMoney } from '@/lib/utils';
 import type { Order } from '@/hooks/ordering/useOrders';
 
 interface OrderCardProps {
-  order: Order;
-  onViewDetails: (order: Order) => void;
+  order: {
+    id: string;
+    order_number: string;
+    patient_name: string;
+    created_at: string;
+    amount: number;
+    status: string;
+    delivery_type: string;
+  };
+  onViewDetails: (order: OrderCardProps['order']) => void;
 }
 
 export function OrderCard({ order, onViewDetails }: OrderCardProps) {
