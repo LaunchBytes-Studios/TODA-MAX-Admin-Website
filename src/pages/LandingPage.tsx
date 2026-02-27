@@ -33,7 +33,7 @@ const LandingPage = () => {
           onClick={() => navigate('/dashboard')}
         >
           Get Started
-          <ArrowRight className="stroke-[3] scale-140" />
+          <ArrowRight className="stroke-3 scale-140" />
         </Button>
       </div>
     </section>
