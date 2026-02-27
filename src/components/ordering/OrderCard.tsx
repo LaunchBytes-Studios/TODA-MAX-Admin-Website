@@ -1,11 +1,18 @@
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import type { Order } from '@/pages/OrderingPage';
 
 interface OrderCardProps {
-  order: Order;
-  onViewDetails: (order: Order) => void;
+  order: {
+    id: string;
+    order_number: string;
+    patient_name: string;
+    created_at: string;
+    amount: number;
+    status: string;
+    delivery_type: string;
+  };
+  onViewDetails: (order: OrderCardProps['order']) => void;
 }
 
 export function OrderCard({ order, onViewDetails }: OrderCardProps) {
