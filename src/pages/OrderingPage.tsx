@@ -1,15 +1,22 @@
-import { useState } from 'react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { OrderingPageSkeleton } from '@/components/skeleton/OrderingPageSkeleton';
-import { StatsCards } from '@/components/ordering/StatsCards';
-import { SearchAndFilterBar } from '@/components/ordering/SearchAndFilterBar';
-import { OrdersList } from '@/components/ordering/OrderList';
-import { OrderDetailsModal } from '@/components/ordering/OrderDetailsModal';
-import { useOrders } from '@/hooks/ordering/useOrders';
-import type { Order } from '@/hooks/ordering/useOrders';
+import { ShoppingCart, Box, TrendingUp } from 'lucide-react';
+import axios from 'axios';
 
-// ────────────────────────────────────────────────
-// Mock Data
-// ────────────────────────────────────────────────
+interface Order {
+  id: string;
+  order_number: string;
+  patient_name: string;
+  created_at: string;
+  amount: string | number;
+  status: string;
+  delivery_type: string;
+}
 
 export default function OrderingPage() {
   const { orders, loading, error, handleUpdateStatus } = useOrders();
@@ -88,7 +95,6 @@ export default function OrderingPage() {
   };
 
   if (loading) return <OrderingPageSkeleton />;
-  if (error) return <div className="text-red-500">Error: {error}</div>;
 
   return (
     <div className="container mx-auto p-6">
