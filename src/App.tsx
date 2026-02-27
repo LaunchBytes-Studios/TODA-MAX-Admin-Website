@@ -6,7 +6,6 @@ import DashboardPage from './pages/DashboardPage';
 import InventoryPage from './pages/InventoryPage';
 import MainLayout from './components/layout/MainLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import OrderingPage from './pages/OrderingPage';
 
 function App() {
   return (
@@ -25,7 +24,10 @@ function App() {
         >
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/inventory" element={<InventoryPage />} />
-          <Route path="/orders" element={<OrderingPage />} />
+          <Route
+            path="/orders"
+            element={<div className="p-6">Orders Page</div>}
+          />
           <Route
             path="/chat"
             element={<div className="p-6">Patient Chat Page</div>}
