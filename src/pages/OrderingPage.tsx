@@ -1,138 +1,187 @@
-import { useState } from 'react';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { OrderingPageSkeleton } from '@/components/skeleton/OrderingPageSkeleton';
-import { StatsCards } from '@/components/ordering/StatsCards';
-import { SearchAndFilterBar } from '@/components/ordering/SearchAndFilterBar';
-import { OrdersList } from '@/components/ordering/OrderList';
-import { OrderDetailsModal } from '@/components/ordering/OrderDetailsModal';
-import { useOrders } from '@/hooks/ordering/useOrders';
-import type { Order } from '@/hooks/ordering/useOrders';
+import { ShoppingCart, Box, TrendingUp } from 'lucide-react';
+import axios from 'axios';
 
-// ────────────────────────────────────────────────
-// Mock Data
-// ────────────────────────────────────────────────
+interface Order {
+  id: string;
+  order_number: string;
+  patient_name: string;
+  created_at: string;
+  amount: string | number;
+  status: string;
+  delivery_type: string;
+}
 
 export default function OrderingPage() {
-  const { orders, loading, error, handleUpdateStatus } = useOrders();
-  const [activeTab, setActiveTab] = useState('pending'); // Default to 'pending' instead of 'new'
-  const [searchTerm, setSearchTerm] = useState('');
-  const [deliveryFilter, setDeliveryFilter] = useState('delivery'); // Filter by delivery type
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 10;
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [stats, setStats] = useState({
+    total: 0,
+    newOrders: 0,
+    preparing: 0,
+    outForDelivery: 0,
+    past: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('new');
 
-  // Dynamic stats based on live data
-  const stats = {
-    total: orders.length,
-    newOrders: orders.filter((o) => o.status === 'pending').length,
-    preparing: orders.filter((o) => o.status === 'preparing').length,
-    ready: orders.filter((o) => o.status === 'ready').length,
-    completed: orders.filter((o) => o.status === 'completed').length,
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [summaryRes, statsRes] = await Promise.all([
+          axios.get('http://localhost:3001/api/orders/summary'),
+          axios.get('http://localhost:3001/api/orders/stats'),
+        ]);
+        setOrders(summaryRes.data);
+        setStats(statsRes.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
-  // Client-side filtering
-  // OrderingPage.tsx
+  const getFilteredOrders = () => {
+    const statusMap: Record<string, string[]> = {
+      new: ['new', 'pending'],
+      preparing: ['preparing'],
+      out: ['out_for_delivery', 'shipped'],
+      past: ['completed', 'delivered', 'cancelled', 'past'],
+    };
 
-  const filteredOrders = orders
-    .filter((order) => {
-      const statusMap: Record<string, string[]> = {
-        pending: ['pending'],
-        preparing: ['preparing'],
-        ready: ['ready'],
-        completed: ['completed'],
-        rejected: ['rejected'],
-      };
-
-      const allowedStatuses = statusMap[activeTab] || [];
-
-      const matchesStatus = allowedStatuses.includes(
-        order.status?.toLowerCase().trim() ?? '',
-      );
-
-      const matchesDeliveryType = order.delivery_type === deliveryFilter;
-
-      const matchesSearch =
-        searchTerm === '' ||
-        order.patient_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.order_number.toLowerCase().includes(searchTerm.toLowerCase());
-
-      return matchesStatus && matchesDeliveryType && matchesSearch;
-    })
-    .sort(
-      (a, b) =>
-        new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
-    );
-
-  // Pagination
-  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedOrders = filteredOrders.slice(
-    startIndex,
-    startIndex + ITEMS_PER_PAGE,
-  );
-
-  // Reset to page 1 when filters change
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    setCurrentPage(1);
-  };
-
-  const handleSearchChange = (search: string) => {
-    setSearchTerm(search);
-    setCurrentPage(1);
-  };
-
-  const handleDeliveryFilterChange = (filter: string) => {
-    setDeliveryFilter(filter);
-    setCurrentPage(1);
+    const allowed = statusMap[activeTab] || [];
+    return orders.filter((o) => allowed.includes(o.status?.toLowerCase()));
   };
 
   if (loading) return <OrderingPageSkeleton />;
-  if (error) return <div className="text-red-500">Error: {error}</div>;
 
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Orders</h1>
 
-      <StatsCards
-        total={stats.total}
-        newOrders={stats.newOrders}
-        preparing={stats.preparing}
-        ready={stats.ready}
-      />
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <Card className="bg-white">
+          <CardHeader className="flex-row items-center justify-between !space-y-0">
+            <span>Total Orders</span>
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <ShoppingCart className="w-6 h-6 text-blue-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-4xl font-bold">{stats.total}</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-white">
+          <CardHeader className="flex-row items-center justify-between space-y-0!">
+            <span>New Orders</span>
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <Box className="w-6 h-6 text-blue-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-4xl font-bold text-blue-600">
+              {stats.newOrders}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="bg-white">
+          <CardHeader className="flex-row items-center justify-between space-y-0!">
+            <span>Out for Delivery</span>
+            <div className="bg-green-50 p-3 rounded-lg">
+              <TrendingUp className="w-6 h-6 text-green-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-4xl font-bold text-green-600">
+              {stats.outForDelivery}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
 
-      <SearchAndFilterBar
-        searchTerm={searchTerm}
-        onSearchChange={handleSearchChange}
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-        deliveryFilter={deliveryFilter}
-        onDeliveryFilterChange={handleDeliveryFilterChange}
-      />
+      {/* Search + Tabs */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <Input
+          placeholder="Search orders or patients..."
+          className="max-w-sm"
+        />
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full sm:w-auto"
+        >
+          <TabsList>
+            <TabsTrigger value="new">New ({stats.newOrders})</TabsTrigger>
+            <TabsTrigger value="preparing">
+              Preparing ({stats.preparing})
+            </TabsTrigger>
+            <TabsTrigger value="out">
+              Out for Delivery ({stats.outForDelivery})
+            </TabsTrigger>
+            <TabsTrigger value="past">Past Orders</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
 
-      <OrdersList
-        orders={paginatedOrders}
-        activeTab={activeTab}
-        searchTerm={searchTerm}
-        onViewDetails={(order) => {
-          setSelectedOrder(order);
-          setIsModalOpen(true);
-        }}
-        pagination={{
-          currentPage,
-          totalPages,
-          onPageChange: setCurrentPage,
-          itemsPerPage: ITEMS_PER_PAGE,
-          totalItems: filteredOrders.length,
-        }}
-      />
+      {/* Order List */}
+      <div className="space-y-4">
+        {getFilteredOrders().map((order) => (
+          <Card key={order.id} className="p-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <p className="font-medium">Order No. {order.order_number}</p>
+                <p className="text-lg font-semibold">{order.patient_name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {new Date(order.created_at).toLocaleString('en-PH', {
+                    timeZone: 'Asia/Manila',
+                  })}
+                </p>
+              </div>
 
-      <OrderDetailsModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        order={selectedOrder}
-        onUpdateStatus={handleUpdateStatus} // Wiring up the logic
-      />
+              <div className="flex flex-col items-end gap-2">
+                <p className="text-xl font-bold text-green-700">
+                  ₱{Number(order.amount).toFixed(2)}
+                </p>
+                <div className="flex gap-2">
+                  <Badge
+                    variant={
+                      order.status === 'new'
+                        ? 'destructive'
+                        : order.status === 'preparing'
+                          ? 'secondary'
+                          : order.status === 'out_for_delivery'
+                            ? 'default'
+                            : 'outline'
+                    }
+                  >
+                    {order.status?.replace('_', ' ').toUpperCase()}
+                  </Badge>
+                  <Badge
+                    variant={
+                      order.delivery_type === 'delivery'
+                        ? 'default'
+                        : 'secondary'
+                    }
+                  >
+                    {order.delivery_type === 'delivery'
+                      ? 'For Delivery'
+                      : 'For Pickup'}
+                  </Badge>
+                  <Button size="sm">Details</Button>
+                </div>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
