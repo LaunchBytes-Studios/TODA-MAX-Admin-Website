@@ -5,8 +5,8 @@ import { formatMoney } from '@/lib/utils';
 import type { Order } from '@/hooks/ordering/useOrders';
 
 interface OrderCardProps {
-  order: Order; // Use the main Order interface
-  onViewDetails: (order: Order) => void; // Fixed return type to void
+  order: Order;
+  onViewDetails: (order: Order) => void;
 }
 
 export function OrderCard({ order, onViewDetails }: OrderCardProps) {
@@ -47,7 +47,7 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
 
         <div className="flex flex-col items-end gap-3">
           <p className="text-xl font-bold text-green-700">
-            ₱{formatMoney(order.amount)}
+            ₱{order.amount.toFixed(2)}
           </p>
           <div className="flex flex-wrap gap-2 justify-end">
             <Badge
@@ -76,7 +76,7 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
                 order.delivery_type === 'delivery'
                   ? 'bg-green-100 text-green-800'
                   : order.delivery_type === 'pickup'
-                    ? 'bg-purple-100 text-purple-800'
+                    ? 'bg-yellow-100 text-yellow-800'
                     : ''
               }`}
             >
@@ -87,7 +87,6 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
             <Button
               size="sm"
               variant="outline"
-              className="bg-blue-600 text-white hover:bg-blue-700 hover:cursor-pointer hover:text-blue-100 text-sm"
               onClick={() => onViewDetails(order)}
             >
               Details

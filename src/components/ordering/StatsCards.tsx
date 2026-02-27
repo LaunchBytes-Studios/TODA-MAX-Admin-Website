@@ -30,7 +30,7 @@ export function StatsCards({
 
       <Card className="bg-white shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between space-y-0! pb-2">
-          <span className="text-xl font-xl font-semibold">Pending Orders</span>
+          <span className="text-sm font-medium">New Orders</span>
           <div className="bg-blue-50 p-3 rounded-lg">
             <Box className="h-6 w-6 text-blue-600" />
           </div>
