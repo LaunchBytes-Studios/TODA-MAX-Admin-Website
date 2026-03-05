@@ -1,25 +1,5 @@
 import { OrderCard } from './OrderCard';
-
-interface Order {
-  id: string;
-  order_number: string;
-  patient_name: string;
-  created_at: string;
-  amount: number;
-  status: string;
-  delivery_type: string;
-  delivery_address: string;
-  items: OrderItem[];
-  subtotal: number;
-  delivery_fee: number;
-}
-
-interface OrderItem {
-  name: string;
-  description: string;
-  quantity: number;
-  price: number;
-}
+import type { Order } from '@/hooks/ordering/useOrders';
 
 interface OrdersListProps {
   orders: Order[];

@@ -6,12 +6,6 @@ interface SearchAndFilterBarProps {
   onSearchChange: (value: string) => void;
   activeTab: string;
   onTabChange: (value: string) => void;
-  stats: {
-    total: number;
-    newOrders: number;
-    preparing: number;
-    outForDelivery: number;
-  };
 }
 
 export function SearchAndFilterBar({
@@ -19,7 +13,6 @@ export function SearchAndFilterBar({
   onSearchChange,
   activeTab,
   onTabChange,
-  stats,
 }: SearchAndFilterBarProps) {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -35,15 +28,11 @@ export function SearchAndFilterBar({
         className="w-full sm:w-auto"
       >
         <TabsList className="grid w-full grid-cols-5 sm:w-auto">
-          <TabsTrigger value="all">All ({stats.total})</TabsTrigger>
-          <TabsTrigger value="new">New ({stats.newOrders})</TabsTrigger>
-          <TabsTrigger value="preparing">
-            Preparing ({stats.preparing})
-          </TabsTrigger>
-          <TabsTrigger value="out">
-            Out for Delivery ({stats.outForDelivery})
-          </TabsTrigger>
+          <TabsTrigger value="pending">Pending</TabsTrigger>
+          <TabsTrigger value="preparing">Preparing</TabsTrigger>
+          <TabsTrigger value="out">Out for Delivery</TabsTrigger>
           <TabsTrigger value="past">Past Orders</TabsTrigger>
+          <TabsTrigger value="rejected">Rejected</TabsTrigger>
         </TabsList>
       </Tabs>
     </div>
