@@ -10,11 +10,14 @@ import {
 } from '../ui/dialog';
 import { ChevronRight } from 'lucide-react';
 import { Button } from '../ui/button';
-import { Textarea } from '../ui/textarea';
 import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
 import { Megaphone, Send } from 'lucide-react';
 import { useFetchAnnouncement } from '@/hooks/announcement/useFetchAnnouncement';
 import { useMakeAnnouncement } from '@/hooks/announcement/useMakeAnnouncement';
+import { cn } from '@/lib/utils';
+
+const CHAR_LIMIT = 1000;
 
 export const AnnouncementCard = () => {
   const [message, setMessage] = useState('');
@@ -29,6 +32,9 @@ export const AnnouncementCard = () => {
   const { loading: postLoading, postAnnouncement } = useMakeAnnouncement();
 
   const loading = fetchLoading || postLoading;
+
+  const charCount = message.length;
+  const isOverCharLimit = charCount > CHAR_LIMIT;
 
   const handleBroadcast = async () => {
     const result = await postAnnouncement(
@@ -92,7 +98,7 @@ export const AnnouncementCard = () => {
         <Button
           onClick={handleBroadcast}
           className="w-full md:w-auto bg-gray-300 hover:bg-gray-400 text-gray-700"
-          disabled={!message.trim() || loading}
+          disabled={!message.trim() || loading || isOverCharLimit}
         >
           <Send className="mr-2 size-4" />
           {loading ? 'Broadcasting...' : 'Broadcast Alert to All Users'}
@@ -107,7 +113,20 @@ export const AnnouncementCard = () => {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           rows={4}
+          disabled={loading}
         />
+        <div className="flex justify-end">
+          <span
+            className={cn(
+              'text-xs',
+              isOverCharLimit
+                ? 'text-red-500 font-medium'
+                : 'text-muted-foreground',
+            )}
+          >
+            {charCount} / {CHAR_LIMIT} characters
+          </span>
+        </div>
       </div>
     </DashboardCard>
   );

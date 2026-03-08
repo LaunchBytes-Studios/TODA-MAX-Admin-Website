@@ -180,16 +180,18 @@ export function RegistrationCodes() {
       title="Registration codes"
       headerActions={
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-sm">
-            <Clock className="h-4 w-4 text-muted-foreground" />
-            <span className="text-muted-foreground">Expires in:</span>
-            <Badge
-              variant={expiringSoon ? 'destructive' : 'secondary'}
-              className={cn(!expiringSoon && 'bg-green-100 text-green-800')}
-            >
-              {timeRemaining}
-            </Badge>
-          </div>
+          {codes.length > 0 && (
+            <div className="flex items-center gap-2 text-sm">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">Expires in:</span>
+              <Badge
+                variant={expiringSoon ? 'destructive' : 'secondary'}
+                className={cn(!expiringSoon && 'bg-green-100 text-green-800')}
+              >
+                {timeRemaining}
+              </Badge>
+            </div>
+          )}
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="ghost" size="sm" className="text-blue-600">
