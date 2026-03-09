@@ -38,6 +38,9 @@ interface AddMedicineFormProps {
 
 const CATEGORIES = ['Hypertension', 'Diabetes'];
 
+const parseNumberInput = (value: string) =>
+  value === '' ? undefined : Number(value);
+
 function AddMedicineForm({
   isOpen,
   onClose,
@@ -49,10 +52,10 @@ function AddMedicineForm({
       name: '',
       description: '',
       category: 'Hypertension',
-      price: 0,
-      stock: 0,
-      lowStockThreshold: 10,
-      dosage: 0,
+      price: undefined,
+      stock: undefined,
+      lowStockThreshold: undefined,
+      dosage: undefined,
     },
   });
 
@@ -76,8 +79,8 @@ function AddMedicineForm({
       <DialogContent
         className="
           w-full
-          max-w-md
-          max-h-[90vh]
+          max-w-xl
+          max-h-[92vh]
           overflow-y-auto
           rounded-lg
           p-0
@@ -176,106 +179,120 @@ function AddMedicineForm({
               )}
             />
 
-            {/* Price */}
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel>Price (PHP) *</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min={0}
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                      className={
-                        fieldState.invalid
-                          ? 'border-red-500 focus:ring-red-500'
-                          : ''
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel>Price (PHP) *</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min={0}
+                        placeholder="0"
+                        {...field}
+                        value={field.value ?? ''}
+                        onChange={(e) =>
+                          field.onChange(parseNumberInput(e.target.value))
+                        }
+                        className={
+                          fieldState.invalid
+                            ? 'border-red-500 focus:ring-red-500'
+                            : ''
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* Stock */}
-            <FormField
-              control={form.control}
-              name="stock"
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel>Stock</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={0}
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                      className={
-                        fieldState.invalid
-                          ? 'border-red-500 focus:ring-red-500'
-                          : ''
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="stock"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel>Stock</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        placeholder="0"
+                        {...field}
+                        value={field.value ?? ''}
+                        onChange={(e) =>
+                          field.onChange(parseNumberInput(e.target.value))
+                        }
+                        className={
+                          fieldState.invalid
+                            ? 'border-red-500 focus:ring-red-500'
+                            : ''
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* Low Stock Threshold */}
-            <FormField
-              control={form.control}
-              name="lowStockThreshold"
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel>Low Stock Threshold</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={0}
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                      className={
-                        fieldState.invalid
-                          ? 'border-red-500 focus:ring-red-500'
-                          : ''
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="lowStockThreshold"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel>Low Stock Threshold</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        placeholder="10"
+                        {...field}
+                        value={field.value ?? ''}
+                        onChange={(e) =>
+                          field.onChange(parseNumberInput(e.target.value))
+                        }
+                        className={
+                          fieldState.invalid
+                            ? 'border-red-500 focus:ring-red-500'
+                            : ''
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* Dosage */}
-            <FormField
-              control={form.control}
-              name="dosage"
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel>Dosage (mg)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={0}
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                      className={
-                        fieldState.invalid
-                          ? 'border-red-500 focus:ring-red-500'
-                          : ''
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="dosage"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel>Dosage (mg)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        placeholder="0"
+                        {...field}
+                        value={field.value ?? ''}
+                        onChange={(e) =>
+                          field.onChange(parseNumberInput(e.target.value))
+                        }
+                        className={
+                          fieldState.invalid
+                            ? 'border-red-500 focus:ring-red-500'
+                            : ''
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {/* Footer */}
             <div className="flex justify-end gap-3 pt-4 border-t">

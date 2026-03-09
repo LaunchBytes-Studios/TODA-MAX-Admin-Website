@@ -53,9 +53,14 @@ export function useUpdateMedication() {
 
       throw new Error(response.data.message);
     } catch (err: unknown) {
-      const axiosError = err as AxiosError<{ message: string }>;
+      const axiosError = err as AxiosError<{
+        message?: string;
+        error?: string;
+      }>;
       const errorMsg =
-        axiosError.response?.data?.message || 'Failed to update medication';
+        axiosError.response?.data?.error ||
+        axiosError.response?.data?.message ||
+        'Failed to update medication';
       setError(errorMsg);
       return {
         success: false,
