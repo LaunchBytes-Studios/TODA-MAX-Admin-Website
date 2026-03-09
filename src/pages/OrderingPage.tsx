@@ -21,11 +21,10 @@ export default function OrderingPage() {
   // Dynamic stats based on live data
   const stats = {
     total: orders.length,
-    newOrders: orders.filter(
-      (o) =>
-        o.status === 'new' || (o.status as unknown as string) === 'pending',
-    ).length,
+    newOrders: orders.filter((o) => o.status === 'pending').length,
     preparing: orders.filter((o) => o.status === 'preparing').length,
+    readyForPickup: orders.filter((o) => o.status === 'ready_for_pickup')
+      .length,
     outForDelivery: orders.filter((o) => o.status === 'out_for_delivery')
       .length,
   };
@@ -36,9 +35,10 @@ export default function OrderingPage() {
   const filteredOrders = orders
     .filter((order) => {
       const statusMap: Record<string, string[]> = {
-        pending: ['new', 'pending'],
-        preparing: ['preparing', 'processing'],
-        out: ['out_for_delivery', 'shipped', 'in_transit'],
+        pending: ['pending'],
+        preparing: ['preparing'],
+        ready: ['ready_for_pickup'],
+        out: ['out_for_delivery'],
         past: ['completed', 'delivered', 'cancelled'],
         rejected: ['rejected'],
       };
@@ -71,6 +71,7 @@ export default function OrderingPage() {
       <StatsCards
         total={stats.total}
         newOrders={stats.newOrders}
+        readyForPickup={stats.readyForPickup}
         outForDelivery={stats.outForDelivery}
       />
 

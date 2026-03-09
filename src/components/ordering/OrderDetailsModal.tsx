@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { getOrderDisplayStatus } from '@/utils/order.utils';
-import { formatMoney } from '@/lib/utils';
+import { formatMoney, formatDiagnosis } from '@/lib/utils';
 import {
   Package,
   Truck,
@@ -31,13 +30,33 @@ export function OrderDetailsModal({
 }: Props) {
   const [isProcessing, setIsProcessing] = useState(false);
 
-  if (!order) return null;
+  if (!order) {
+    return null;
+  }
 
-  const displayStatus = getOrderDisplayStatus(order.created_at);
+  if (!order.status) {
+    console.error('Order status is missing:', order);
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent>
+          <div className="p-4 text-red-600">
+            Error: Order status is missing. Please try again.
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  console.log('OrderDetailsModal - Order data:', order); // Debug log
 
   const handleAction = async (newStatus: OrderStatus) => {
     try {
       setIsProcessing(true); // Start loading
+      if (!order?.id) {
+        console.error('Order ID is missing');
+        alert('Error: Order ID is missing');
+        return;
+      }
       console.log('Starting update for order:', order.id, 'to', newStatus);
 
       await onUpdateStatus(order.id, newStatus);
@@ -53,7 +72,21 @@ export function OrderDetailsModal({
   };
 
   // Workflow logic
-  const currentStatus = order.status.toLowerCase();
+  const currentStatus = (order.status || '').toLowerCase();
+
+  // Safe date formatting
+  const formatOrderDate = (dateString: string) => {
+    try {
+      if (!dateString) return 'Date unavailable';
+      return new Date(dateString).toLocaleString('en-PH', {
+        dateStyle: 'long',
+        timeStyle: 'short',
+      });
+    } catch (error) {
+      console.error('Date formatting error:', error);
+      return 'Date unavailable';
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -63,16 +96,11 @@ export function OrderDetailsModal({
           <div className="flex justify-between items-start">
             <div>
               <h2 className="text-2xl font-bold tracking-tight">
-                Order #{order.order_number}
+                Order #{order.order_number || 'N/A'}
               </h2>
               <div className="flex items-center gap-2 mt-1 text-blue-100">
                 <Calendar className="w-4 h-4" />
-                <span>
-                  {new Date(order.created_at).toLocaleString('en-PH', {
-                    dateStyle: 'long',
-                    timeStyle: 'short',
-                  })}
-                </span>
+                <span>{formatOrderDate(order.created_at)}</span>
               </div>
             </div>
           </div>
@@ -88,7 +116,25 @@ export function OrderDetailsModal({
               <p className="text-lg font-bold text-slate-900">
                 {order.patient_name}
               </p>
-              <div className="mt-3 space-y-2 flex items-start gap-2">
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Badge className="bg-indigo-100 text-indigo-800 px-3 py-1">
+                  {formatDiagnosis(order.patient_diagnosis)}
+                </Badge>
+              </div>
+            </div>
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+              <div className="flex items-start gap-2 mb-4">
+                <MapPin className="w-4 h-4 text-blue-600 mt-1 shrink-0" />
+                <div>
+                  <p className="text-xs font-bold text-slate-500 uppercase mb-1">
+                    Delivery Address
+                  </p>
+                  <p className="text-sm text-slate-900 leading-snug">
+                    {order.delivery_address}
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
                 <Badge
                   variant={
                     order.delivery_type === 'delivery' ? 'outline' : 'secondary'
@@ -107,12 +153,12 @@ export function OrderDetailsModal({
                 </Badge>
                 <Badge
                   className={`block w-fit text-xs py-1 px-2 capitalize ${
-                    order.status === 'new' && displayStatus === 'new'
-                      ? 'bg-blue-100 text-blue-800 border-blue-300'
-                      : order.status === 'new' && displayStatus === 'pending'
-                        ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
-                        : order.status === 'preparing'
-                          ? 'bg-yellow-100 text-yellow-800'
+                    order.status === 'pending'
+                      ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
+                      : order.status === 'preparing'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : order.status === 'ready_for_pickup'
+                          ? 'bg-green-100 text-green-800'
                           : order.status === 'out_for_delivery'
                             ? 'bg-yellow-100 text-yellow-800'
                             : order.status === 'completed'
@@ -122,23 +168,8 @@ export function OrderDetailsModal({
                                 : 'bg-blue-100 text-blue-700'
                   }`}
                 >
-                  {order.status === 'new'
-                    ? displayStatus
-                    : order.status.replaceAll('_', ' ')}
+                  {order.status.replace(/_/g, ' ')}
                 </Badge>
-              </div>
-            </div>
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-              <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-blue-600 mt-1 shrink-0" />
-                <div>
-                  <p className="text-xs font-bold text-slate-500 uppercase mb-1">
-                    Delivery Address
-                  </p>
-                  <p className="text-sm text-slate-900 leading-snug">
-                    {order.delivery_address}
-                  </p>
-                </div>
               </div>
             </div>
           </div>
@@ -223,20 +254,42 @@ export function OrderDetailsModal({
                 {/* 2. Preparing Workflow */}
                 {currentStatus === 'preparing' && (
                   <Button
-                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white"
-                    onClick={() => handleAction('out_for_delivery')}
+                    className={`w-full h-12 text-white ${
+                      order.delivery_type === 'pickup'
+                        ? 'bg-green-600 hover:bg-green-700'
+                        : 'bg-blue-600 hover:bg-blue-700'
+                    }`}
+                    onClick={() =>
+                      handleAction(
+                        order.delivery_type === 'pickup'
+                          ? 'ready_for_pickup'
+                          : 'out_for_delivery',
+                      )
+                    }
                   >
-                    <Truck className="w-4 h-4 mr-2" /> Mark as Out for Delivery
+                    <Truck className="w-4 h-4 mr-2" />
+                    {order.delivery_type === 'pickup'
+                      ? 'Mark as Ready for Pickup'
+                      : 'Mark as Out for Delivery'}
                   </Button>
                 )}
 
-                {/* 3. Delivery Workflow */}
+                {/* 3. Delivery/Pickup Workflow */}
                 {currentStatus === 'out_for_delivery' && (
                   <Button
                     className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white"
                     onClick={() => handleAction('completed')}
                   >
                     <CheckCircle className="w-4 h-4 mr-2" /> Complete Delivery
+                  </Button>
+                )}
+
+                {currentStatus === 'ready_for_pickup' && (
+                  <Button
+                    className="w-full h-12 bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => handleAction('completed')}
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" /> Mark as Completed
                   </Button>
                 )}
 

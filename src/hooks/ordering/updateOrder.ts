@@ -1,8 +1,9 @@
 import { api } from '@/api/client';
 
 export type OrderStatus =
-  | 'new'
+  | 'pending'
   | 'preparing'
+  | 'ready_for_pickup'
   | 'out_for_delivery'
   | 'completed'
   | 'rejected';

@@ -17,6 +17,7 @@ export interface Order {
   id: string;
   order_number: string;
   patient_name: string;
+  patient_diagnosis: string;
   created_at: string;
   amount: number;
   status: OrderStatus; // Use the specific type here
@@ -36,14 +37,27 @@ export function useOrders() {
     const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
     api
-      .get(`/enavigator/orders`, { headers }) // Add /enavigator prefix
+      .get(`/enavigator/orders`, { headers })
       .then((res) => {
-        setOrders(res.data);
+        // Ensure all required fields have fallback values
+        const formattedOrders = (res.data || []).map((order: Order) => ({
+          ...order,
+          patient_diagnosis: order.patient_diagnosis || 'No diagnosis provided',
+          status: order.status || 'pending',
+          delivery_type: order.delivery_type || 'delivery',
+          delivery_address: order.delivery_address || 'No address provided',
+        }));
+        setOrders(formattedOrders);
         setError(null);
         setLoading(false);
       })
       .catch((err) => {
-        setError(err.response?.data?.message || 'Failed to fetch orders');
+        const errorMsg =
+          err?.response?.data?.message ||
+          err?.message ||
+          'Failed to fetch orders';
+        console.error('Fetch orders error:', err);
+        setError(errorMsg);
         setOrders([]);
         setLoading(false);
       });
