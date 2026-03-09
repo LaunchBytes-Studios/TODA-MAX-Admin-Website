@@ -1,24 +1,32 @@
 import { AlertTriangle, Package, Clock, TrendingUp } from 'lucide-react'; // or your icon library
-import { StatsCard } from '@/components/ui/stats-card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { LowStockCard } from '../components/dashboard/LowStockCard';
 import { RegistrationCodes } from '../components/dashboard/RegistrationCodesCard';
 import { AnnouncementCard } from '../components/dashboard/AnnouncementCard';
 import { useState, useEffect } from 'react';
 import { useAlertMedication } from '@/hooks/medication/useAlertMedication';
+import { useOrders } from '@/hooks/ordering/useOrders';
 import { DashboardSkeleton } from '../components/skeleton/DashboardSkeleton';
 import { useNavigate } from 'react-router-dom';
 
 export function DashboardPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const { medications, loading: medsLoading } = useAlertMedication();
+  const { orders } = useOrders();
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
   }, []);
 
-  const { medications, loading: medsLoading } = useAlertMedication();
   const lowStockCount = medications.length;
+  const currentOrdersCount = orders.filter(
+    (o) => o.delivery_type === 'delivery',
+  ).length;
+  const outForDeliveryCount = orders.filter(
+    (o) => o.delivery_type === 'delivery' && o.status === 'ready',
+  ).length;
 
   return (
     <div className="container mx-auto p-6 h-screen overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
@@ -28,38 +36,66 @@ export function DashboardPage() {
           <DashboardSkeleton />
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <StatsCard
-                title="Low Stock Items"
-                value={medsLoading ? '...' : lowStockCount}
-                icon={<AlertTriangle />}
-                iconBgClassName="bg-orange-50"
-                iconColorClassName="text-orange-500"
-                onClick={() =>
-                  navigate('/inventory', { state: { tab: 'low-stock' } })
-                }
-              />
-              <StatsCard
-                title="Unread Inquiries"
-                value={6}
-                icon={<Package />}
-                iconBgClassName="bg-blue-50"
-                iconColorClassName="text-blue-500"
-              />
-              <StatsCard
-                title="Current Orders"
-                value={1}
-                icon={<Clock />}
-                iconBgClassName="bg-red-50"
-                iconColorClassName="text-red-500"
-              />
-              <StatsCard
-                title="Out For Delivery"
-                value="1,320"
-                icon={<TrendingUp />}
-                iconBgClassName="bg-green-50"
-                iconColorClassName="text-green-500"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card className="bg-white shadow-sm">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0! pb-2">
+                  <span className="text-xl font-xl font-semibold">
+                    Low Stock Items
+                  </span>
+                  <div className="bg-orange-50 p-3 rounded-lg">
+                    <AlertTriangle className="h-6 w-6 text-orange-500" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold">
+                    {medsLoading ? '...' : lowStockCount}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white shadow-sm">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0! pb-2">
+                  <span className="text-xl font-xl font-semibold">
+                    Unread Inquiries
+                  </span>
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <Package className="h-6 w-6 text-blue-600" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold text-blue-600">6</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white shadow-sm">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0! pb-2">
+                  <span className="text-xl font-xl font-semibold">
+                    Current Orders
+                  </span>
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <Clock className="h-6 w-6 text-blue-600" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold">{currentOrdersCount}</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white shadow-sm">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0! pb-2">
+                  <span className="text-xl font-xl font-semibold">
+                    Out For Delivery
+                  </span>
+                  <div className="bg-green-50 p-3 rounded-lg">
+                    <TrendingUp className="h-6 w-6 text-green-600" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold text-green-600">
+                    {outForDeliveryCount}
+                  </p>
+                </CardContent>
+              </Card>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <LowStockCard />

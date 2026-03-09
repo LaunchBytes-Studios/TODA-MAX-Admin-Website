@@ -71,6 +71,9 @@ export function OrderDetailsModal({
     }
   };
 
+  // Check if order is completed by received_date
+  const isCompleted = order.received_date != null;
+
   // Workflow logic
   const currentStatus = (order.status || '').toLowerCase();
 
@@ -153,19 +156,17 @@ export function OrderDetailsModal({
                 </Badge>
                 <Badge
                   className={`block w-fit text-xs py-1 px-2 capitalize ${
-                    order.status === 'pending'
-                      ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
-                      : order.status === 'preparing'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : order.status === 'ready_for_pickup'
-                          ? 'bg-green-100 text-green-800'
-                          : order.status === 'out_for_delivery'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : order.status === 'completed'
-                              ? 'bg-green-100 text-green-800'
-                              : order.status === 'rejected'
-                                ? 'bg-red-100 text-red-700'
-                                : 'bg-blue-100 text-blue-700'
+                    isCompleted || order.status === 'completed'
+                      ? 'bg-green-100 text-green-800'
+                      : order.status === 'pending'
+                        ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
+                        : order.status === 'preparing'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : order.status === 'ready'
+                            ? 'bg-green-100 text-green-800'
+                            : order.status === 'rejected'
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-blue-100 text-blue-700'
                   }`}
                 >
                   {order.status.replace(/_/g, ' ')}
@@ -254,43 +255,19 @@ export function OrderDetailsModal({
                 {/* 2. Preparing Workflow */}
                 {currentStatus === 'preparing' && (
                   <Button
-                    className={`w-full h-12 text-white ${
-                      order.delivery_type === 'pickup'
-                        ? 'bg-green-600 hover:bg-green-700'
-                        : 'bg-blue-600 hover:bg-blue-700'
-                    }`}
-                    onClick={() =>
-                      handleAction(
-                        order.delivery_type === 'pickup'
-                          ? 'ready_for_pickup'
-                          : 'out_for_delivery',
-                      )
-                    }
+                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white"
+                    onClick={() => handleAction('ready')}
                   >
                     <Truck className="w-4 h-4 mr-2" />
-                    {order.delivery_type === 'pickup'
-                      ? 'Mark as Ready for Pickup'
-                      : 'Mark as Out for Delivery'}
+                    Mark as Ready
                   </Button>
                 )}
 
-                {/* 3. Delivery/Pickup Workflow */}
-                {currentStatus === 'out_for_delivery' && (
-                  <Button
-                    className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white"
-                    onClick={() => handleAction('completed')}
-                  >
-                    <CheckCircle className="w-4 h-4 mr-2" /> Complete Delivery
-                  </Button>
-                )}
-
-                {currentStatus === 'ready_for_pickup' && (
-                  <Button
-                    className="w-full h-12 bg-green-600 hover:bg-green-700 text-white"
-                    onClick={() => handleAction('completed')}
-                  >
-                    <CheckCircle className="w-4 h-4 mr-2" /> Mark as Completed
-                  </Button>
+                {/* 3. Ready Workflow */}
+                {currentStatus === 'ready' && !isCompleted && (
+                  <div className="text-sm text-slate-500 text-center italic">
+                    Order is ready for customer
+                  </div>
                 )}
 
                 {/* 4. Completed/Rejected State */}

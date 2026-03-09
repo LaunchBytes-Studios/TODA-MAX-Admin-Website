@@ -19,6 +19,7 @@ export interface Order {
   patient_name: string;
   patient_diagnosis: string;
   created_at: string;
+  received_date?: string | null; // Timestamp when order was received/completed
   amount: number;
   status: OrderStatus; // Use the specific type here
   delivery_type: string;

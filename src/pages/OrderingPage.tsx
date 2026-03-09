@@ -15,6 +15,7 @@ export default function OrderingPage() {
   const { orders, loading, error, handleUpdateStatus } = useOrders();
   const [activeTab, setActiveTab] = useState('pending'); // Default to 'pending' instead of 'new'
   const [searchTerm, setSearchTerm] = useState('');
+  const [deliveryFilter, setDeliveryFilter] = useState('delivery'); // Filter by delivery type
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -23,10 +24,8 @@ export default function OrderingPage() {
     total: orders.length,
     newOrders: orders.filter((o) => o.status === 'pending').length,
     preparing: orders.filter((o) => o.status === 'preparing').length,
-    readyForPickup: orders.filter((o) => o.status === 'ready_for_pickup')
-      .length,
-    outForDelivery: orders.filter((o) => o.status === 'out_for_delivery')
-      .length,
+    ready: orders.filter((o) => o.status === 'ready').length,
+    completed: orders.filter((o) => o.status === 'completed').length,
   };
 
   // Client-side filtering
@@ -37,9 +36,8 @@ export default function OrderingPage() {
       const statusMap: Record<string, string[]> = {
         pending: ['pending'],
         preparing: ['preparing'],
-        ready: ['ready_for_pickup'],
-        out: ['out_for_delivery'],
-        past: ['completed', 'delivered', 'cancelled'],
+        ready: ['ready'],
+        completed: ['completed'],
         rejected: ['rejected'],
       };
 
@@ -49,12 +47,14 @@ export default function OrderingPage() {
         order.status?.toLowerCase().trim() ?? '',
       );
 
+      const matchesDeliveryType = order.delivery_type === deliveryFilter;
+
       const matchesSearch =
         searchTerm === '' ||
         order.patient_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.order_number.toLowerCase().includes(searchTerm.toLowerCase());
 
-      return matchesStatus && matchesSearch;
+      return matchesStatus && matchesDeliveryType && matchesSearch;
     })
     .sort(
       (a, b) =>
@@ -71,8 +71,8 @@ export default function OrderingPage() {
       <StatsCards
         total={stats.total}
         newOrders={stats.newOrders}
-        readyForPickup={stats.readyForPickup}
-        outForDelivery={stats.outForDelivery}
+        preparing={stats.preparing}
+        ready={stats.ready}
       />
 
       <SearchAndFilterBar
@@ -80,6 +80,8 @@ export default function OrderingPage() {
         onSearchChange={setSearchTerm}
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        deliveryFilter={deliveryFilter}
+        onDeliveryFilterChange={setDeliveryFilter}
       />
 
       <OrdersList

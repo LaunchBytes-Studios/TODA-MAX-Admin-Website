@@ -52,15 +52,13 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
                   ? 'bg-blue-100 text-blue-800 border-blue-300'
                   : order.status === 'preparing'
                     ? 'bg-yellow-100 text-yellow-800'
-                    : order.status === 'ready_for_pickup'
+                    : order.status === 'ready'
                       ? 'bg-green-100 text-green-800'
-                      : order.status === 'out_for_delivery'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : order.status === 'completed'
-                          ? 'bg-green-100 text-green-800'
-                          : order.status === 'rejected'
-                            ? 'bg-red-100 text-red-800'
-                            : ''
+                      : order.status === 'completed'
+                        ? 'bg-green-100 text-green-800'
+                        : order.status === 'rejected'
+                          ? 'bg-red-100 text-red-800'
+                          : ''
               }`}
             >
               {order.status.replace(/_/g, ' ')}
