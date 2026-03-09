@@ -35,7 +35,7 @@ export function SearchAndFilterBar({
     <div className="bg-white rounded-lg border p-4 mb-6">
       <div className="flex flex-col md:flex-row md:items-center gap-4">
         {/* Search Bar */}
-        <div className="relative md:w-64 flex-shrink-0">
+        <div className="relative md:w-64 shrink-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
@@ -47,7 +47,7 @@ export function SearchAndFilterBar({
         </div>
 
         {/* Delivery Type Filter */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           {DELIVERY_TYPES.map((type) => (
             <button
               key={type.id}
