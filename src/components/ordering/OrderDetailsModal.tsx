@@ -3,6 +3,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getOrderDisplayStatus } from '@/utils/order.utils';
+import { formatMoney } from '@/lib/utils';
 import {
   Package,
   Truck,
@@ -163,7 +164,7 @@ export function OrderDetailsModal({
                 >
                   {order.status === 'new'
                     ? displayStatus
-                    : order.status.replace('_', ' ')}
+                    : order.status.replaceAll('_', ' ')}
                 </Badge>
               </div>
             </div>
@@ -209,7 +210,7 @@ export function OrderDetailsModal({
                         {item.quantity}
                       </td>
                       <td className="p-4 text-right font-bold text-slate-900">
-                        ₱{item.price.toFixed(2)}
+                        ₱{formatMoney(item.price)}
                       </td>
                     </tr>
                   ))}
@@ -220,7 +221,7 @@ export function OrderDetailsModal({
                       Total Amount
                     </td>
                     <td className="p-4 text-right text-green-700 text-lg">
-                      ₱{order.amount.toFixed(2)}
+                      ₱{formatMoney(order.amount)}
                     </td>
                   </tr>
                 </tfoot>
