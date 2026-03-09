@@ -2,6 +2,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { getOrderDisplayStatus } from '@/utils/order.utils';
+import { formatMoney } from '@/lib/utils';
 import type { Order } from '@/hooks/ordering/useOrders';
 
 interface OrderCardProps {
@@ -30,7 +31,7 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
 
         <div className="flex flex-col items-end gap-3">
           <p className="text-xl font-bold text-green-700">
-            ₱{order.amount.toFixed(2)}
+            ₱{formatMoney(order.amount)}
           </p>
           <div className="flex flex-wrap gap-2 justify-end">
             <Badge
