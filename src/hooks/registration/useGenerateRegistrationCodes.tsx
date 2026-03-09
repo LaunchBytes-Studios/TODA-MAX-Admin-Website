@@ -15,6 +15,12 @@ export function useGenerateRegistrationCodes() {
     setError(null);
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        const message = 'Access token is missing. Please log in again.';
+        setError(message);
+        toast.error(message);
+        return;
+      }
       const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
       // Run maintenance before generating to clean up old codes

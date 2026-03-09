@@ -1,15 +1,22 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import axios, { AxiosError } from 'axios';
 import { toast } from 'sonner';
-import type { ApiResponse, StatsData } from '@/types/medication';
-import { API_BASE_URL } from '@/utils/medication.utils';
+import type {
+  BackendReward,
+  RewardApiResponse,
+  RewardStats,
+} from '@/types/reward';
+import {
+  API_BASE_URL,
+  calculateRewardStats,
+  mapBackendRewardToFrontend,
+} from '@/utils/reward.utils';
 
-export function useMedicationStats() {
-  const [stats, setStats] = useState<StatsData>({
+export function useRewardStats() {
+  const [stats, setStats] = useState<RewardStats>({
     total: 0,
+    active: 0,
     lowStock: 0,
-    outOfStock: 0,
-    totalStock: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,13 +32,16 @@ export function useMedicationStats() {
         return;
       }
       const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-      const response = await axios.get<ApiResponse<StatsData>>(
-        `${API_BASE_URL}/medications/stats`,
+      const response = await axios.get<RewardApiResponse<BackendReward[]>>(
+        `${API_BASE_URL}/rewards`,
         { headers },
       );
 
       if (response.data.success) {
-        setStats(response.data.data);
+        const mappedRewards = response.data.data.map(
+          mapBackendRewardToFrontend,
+        );
+        setStats(calculateRewardStats(mappedRewards));
         setError(null);
       } else {
         setError(response.data.message);
@@ -39,10 +49,10 @@ export function useMedicationStats() {
       }
     } catch (err: unknown) {
       const axiosError = err as AxiosError<{ message: string }>;
-      const errorMsg =
-        axiosError.response?.data?.message || 'Failed to fetch statistics';
-      setError(errorMsg);
-      toast.error(errorMsg);
+      const errorMessage =
+        axiosError.response?.data?.message || 'Failed to fetch reward stats';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
