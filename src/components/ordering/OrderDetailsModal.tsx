@@ -159,19 +159,17 @@ export function OrderDetailsModal({
                 </Badge>
                 <Badge
                   className={`block w-fit text-xs py-1 px-2 capitalize ${
-                    order.status === 'pending'
-                      ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
-                      : order.status === 'preparing'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : order.status === 'ready_for_pickup'
-                          ? 'bg-green-100 text-green-800'
-                          : order.status === 'out_for_delivery'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : order.status === 'completed'
-                              ? 'bg-green-100 text-green-800'
-                              : order.status === 'rejected'
-                                ? 'bg-red-100 text-red-700'
-                                : 'bg-blue-100 text-blue-700'
+                    isCompleted || order.status === 'completed'
+                      ? 'bg-green-100 text-green-800'
+                      : order.status === 'pending'
+                        ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
+                        : order.status === 'preparing'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : order.status === 'ready'
+                            ? 'bg-green-100 text-green-800'
+                            : order.status === 'rejected'
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-blue-100 text-blue-700'
                   }`}
                 >
                   {order.status.replace(/_/g, ' ')}
