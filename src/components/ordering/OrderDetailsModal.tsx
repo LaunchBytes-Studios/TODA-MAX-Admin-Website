@@ -156,17 +156,19 @@ export function OrderDetailsModal({
                 </Badge>
                 <Badge
                   className={`block w-fit text-xs py-1 px-2 capitalize ${
-                    isCompleted || order.status === 'completed'
-                      ? 'bg-green-100 text-green-800'
-                      : order.status === 'pending'
+                    order.status === 'new' && displayStatus === 'new'
+                      ? 'bg-blue-100 text-blue-800 border-blue-300'
+                      : order.status === 'new' && displayStatus === 'pending'
                         ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
                         : order.status === 'preparing'
                           ? 'bg-yellow-100 text-yellow-800'
-                          : order.status === 'ready'
-                            ? 'bg-green-100 text-green-800'
-                            : order.status === 'rejected'
-                              ? 'bg-red-100 text-red-700'
-                              : 'bg-blue-100 text-blue-700'
+                          : order.status === 'out_for_delivery'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : order.status === 'completed'
+                              ? 'bg-green-100 text-green-800'
+                              : order.status === 'rejected'
+                                ? 'bg-red-100 text-red-700'
+                                : 'bg-blue-100 text-blue-700'
                   }`}
                 >
                   {order.status.replace(/_/g, ' ')}
@@ -256,18 +258,29 @@ export function OrderDetailsModal({
                 {currentStatus === 'preparing' && (
                   <Button
                     className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white"
-                    onClick={() => handleAction('ready')}
+                    onClick={() => handleAction('out_for_delivery')}
                   >
-                    <Truck className="w-4 h-4 mr-2" />
-                    Mark as Ready
+                    <Truck className="w-4 h-4 mr-2" /> Mark as Out for Delivery
                   </Button>
                 )}
 
-                {/* 3. Ready Workflow */}
-                {currentStatus === 'ready' && !isCompleted && (
-                  <div className="text-sm text-slate-500 text-center italic">
-                    Order is ready for customer
-                  </div>
+                {/* 3. Delivery Workflow */}
+                {currentStatus === 'out_for_delivery' && (
+                  <Button
+                    className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white"
+                    onClick={() => handleAction('completed')}
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" /> Complete Delivery
+                  </Button>
+                )}
+
+                {currentStatus === 'ready_for_pickup' && (
+                  <Button
+                    className="w-full h-12 bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => handleAction('completed')}
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" /> Mark as Completed
+                  </Button>
                 )}
 
                 {/* 4. Completed/Rejected State */}
