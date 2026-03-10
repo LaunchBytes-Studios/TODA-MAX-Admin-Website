@@ -7,10 +7,8 @@ import { useState, useEffect } from 'react';
 import { useAlertMedication } from '@/hooks/medication/useAlertMedication';
 import { useOrders } from '@/hooks/ordering/useOrders';
 import { DashboardSkeleton } from '../components/skeleton/DashboardSkeleton';
-import { useNavigate } from 'react-router-dom';
 
 export function DashboardPage() {
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const { medications, loading: medsLoading } = useAlertMedication();
   const { orders } = useOrders();

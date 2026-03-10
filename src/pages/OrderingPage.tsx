@@ -7,19 +7,13 @@ import { OrderDetailsModal } from '@/components/ordering/OrderDetailsModal';
 import { useOrders } from '@/hooks/ordering/useOrders';
 import type { Order } from '@/hooks/ordering/useOrders';
 
-// ────────────────────────────────────────────────
-// Mock Data
-// ────────────────────────────────────────────────
-
 export default function OrderingPage() {
   const { orders, loading, error, handleUpdateStatus } = useOrders();
-  const [activeTab, setActiveTab] = useState('pending'); // Default to 'pending' instead of 'new'
+  const [activeTab, setActiveTab] = useState('pending');
   const [searchTerm, setSearchTerm] = useState('');
-  const [deliveryFilter, setDeliveryFilter] = useState('delivery'); // Filter by delivery type
+  const [deliveryFilter, setDeliveryFilter] = useState('delivery');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 10;
 
   // Dynamic stats based on live data
   const stats = {
@@ -29,9 +23,6 @@ export default function OrderingPage() {
     ready: orders.filter((o) => o.status === 'ready').length,
     completed: orders.filter((o) => o.status === 'completed').length,
   };
-
-  // Client-side filtering
-  // OrderingPage.tsx
 
   const filteredOrders = orders
     .filter((order) => {
@@ -63,30 +54,6 @@ export default function OrderingPage() {
         new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
     );
 
-  // Pagination
-  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedOrders = filteredOrders.slice(
-    startIndex,
-    startIndex + ITEMS_PER_PAGE,
-  );
-
-  // Reset to page 1 when filters change
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    setCurrentPage(1);
-  };
-
-  const handleSearchChange = (search: string) => {
-    setSearchTerm(search);
-    setCurrentPage(1);
-  };
-
-  const handleDeliveryFilterChange = (filter: string) => {
-    setDeliveryFilter(filter);
-    setCurrentPage(1);
-  };
-
   if (loading) return <OrderingPageSkeleton />;
   if (error) return <div className="text-red-500">Error: {error}</div>;
 
@@ -103,27 +70,20 @@ export default function OrderingPage() {
 
       <SearchAndFilterBar
         searchTerm={searchTerm}
-        onSearchChange={handleSearchChange}
+        onSearchChange={setSearchTerm}
         activeTab={activeTab}
-        onTabChange={handleTabChange}
+        onTabChange={setActiveTab}
         deliveryFilter={deliveryFilter}
-        onDeliveryFilterChange={handleDeliveryFilterChange}
+        onDeliveryFilterChange={setDeliveryFilter}
       />
 
       <OrdersList
-        orders={paginatedOrders}
+        orders={filteredOrders}
         activeTab={activeTab}
         searchTerm={searchTerm}
         onViewDetails={(order) => {
           setSelectedOrder(order);
           setIsModalOpen(true);
-        }}
-        pagination={{
-          currentPage,
-          totalPages,
-          onPageChange: setCurrentPage,
-          itemsPerPage: ITEMS_PER_PAGE,
-          totalItems: filteredOrders.length,
         }}
       />
 
@@ -131,7 +91,7 @@ export default function OrderingPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         order={selectedOrder}
-        onUpdateStatus={handleUpdateStatus} // Wiring up the logic
+        onUpdateStatus={handleUpdateStatus}
       />
     </div>
   );
