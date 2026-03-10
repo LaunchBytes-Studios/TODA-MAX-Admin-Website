@@ -18,6 +18,8 @@ export default function OrderingPage() {
   const [deliveryFilter, setDeliveryFilter] = useState('delivery'); // Filter by delivery type
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   // Dynamic stats based on live data
   const stats = {
@@ -61,6 +63,30 @@ export default function OrderingPage() {
         new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
     );
 
+  // Pagination
+  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedOrders = filteredOrders.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE,
+  );
+
+  // Reset to page 1 when filters change
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (search: string) => {
+    setSearchTerm(search);
+    setCurrentPage(1);
+  };
+
+  const handleDeliveryFilterChange = (filter: string) => {
+    setDeliveryFilter(filter);
+    setCurrentPage(1);
+  };
+
   if (loading) return <OrderingPageSkeleton />;
   if (error) return <div className="text-red-500">Error: {error}</div>;
 
@@ -77,20 +103,27 @@ export default function OrderingPage() {
 
       <SearchAndFilterBar
         searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
+        onSearchChange={handleSearchChange}
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         deliveryFilter={deliveryFilter}
-        onDeliveryFilterChange={setDeliveryFilter}
+        onDeliveryFilterChange={handleDeliveryFilterChange}
       />
 
       <OrdersList
-        orders={filteredOrders}
+        orders={paginatedOrders}
         activeTab={activeTab}
         searchTerm={searchTerm}
         onViewDetails={(order) => {
           setSelectedOrder(order);
           setIsModalOpen(true);
+        }}
+        pagination={{
+          currentPage,
+          totalPages,
+          onPageChange: setCurrentPage,
+          itemsPerPage: ITEMS_PER_PAGE,
+          totalItems: filteredOrders.length,
         }}
       />
 

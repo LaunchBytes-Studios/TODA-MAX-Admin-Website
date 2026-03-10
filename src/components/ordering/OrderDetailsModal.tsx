@@ -272,15 +272,19 @@ export function OrderDetailsModal({
 
                 {/* 4. Completed/Rejected State */}
                 {(currentStatus === 'completed' ||
-                  currentStatus === 'rejected') && (
-                  <Button
-                    variant="ghost"
-                    disabled
-                    className="w-full h-12 italic text-slate-400"
-                  >
-                    Order has been processed
-                  </Button>
-                )}
+                  currentStatus === 'rejected') &&
+                  order.received_date && (
+                    <Button
+                      variant="ghost"
+                      disabled
+                      className="w-full h-12 italic text-green-400"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                      <span>
+                        Received: {formatOrderDate(order.received_date)}
+                      </span>
+                    </Button>
+                  )}
               </>
             )}
           </div>
