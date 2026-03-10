@@ -2,7 +2,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -87,12 +93,14 @@ function AddMedicineForm({
           gap-0
         "
       >
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">
+        <DialogHeader className="p-6 border-b">
+          <DialogTitle className="text-xl font-semibold text-gray-900">
             Add New Medicine
-          </h2>
-        </div>
+          </DialogTitle>
+          <DialogDescription>
+            Fill in the medicine details to add a new inventory item.
+          </DialogDescription>
+        </DialogHeader>
 
         {/* Form */}
         <Form {...form}>

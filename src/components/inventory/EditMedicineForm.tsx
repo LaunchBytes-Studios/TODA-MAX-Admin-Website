@@ -3,7 +3,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -135,9 +141,14 @@ function EditMedicineForm({
           gap-0
         "
       >
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">Edit Medicine</h2>
-        </div>
+        <DialogHeader className="p-6 border-b">
+          <DialogTitle className="text-xl font-semibold text-gray-900">
+            Edit Medicine
+          </DialogTitle>
+          <DialogDescription>
+            Update the medicine details and save your changes.
+          </DialogDescription>
+        </DialogHeader>
 
         <Form {...form}>
           <form
