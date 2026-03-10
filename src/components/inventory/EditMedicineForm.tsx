@@ -33,7 +33,7 @@ import type { FrontendMedicine } from '@/types/medication';
 import {
   addMedicineSchema,
   type AddMedicineFormValues,
-} from '@/components/zod/addMedicineSchema';
+} from '@/components/zod/medicineSchema';
 import { useUpdateMedication } from '@/hooks/medications/useUpdateMedication';
 
 interface EditMedicineFormProps {

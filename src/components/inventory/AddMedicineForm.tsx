@@ -32,7 +32,7 @@ import type { FrontendMedicine } from '@/types/medication';
 import {
   addMedicineSchema,
   type AddMedicineFormValues,
-} from '@/components/zod/addMedicineSchema';
+} from '@/components/zod/medicineSchema';
 
 interface AddMedicineFormProps {
   isOpen: boolean;
