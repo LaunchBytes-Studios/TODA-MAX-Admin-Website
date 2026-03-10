@@ -3,5 +3,5 @@ export interface LowStockItem {
   category: string;
   current: number;
   minStock: number;
-  status: 'Low' | 'Very Low';
+  status: 'Low';
 }

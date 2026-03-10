@@ -8,6 +8,7 @@ interface StatsCardProps {
   iconColorClassName?: string;
   className?: string;
   description?: string;
+  onClick?: () => void;
 }
 
 export const StatsCard: React.FC<StatsCardProps> = ({
@@ -18,10 +19,12 @@ export const StatsCard: React.FC<StatsCardProps> = ({
   iconColorClassName = '',
   className = '',
   description,
+  onClick,
 }) => {
   return (
     <div
-      className={`bg-white rounded-lg border p-6 flex items-center justify-between ${className}`}
+      onClick={onClick}
+      className={`bg-white rounded-lg border p-6 flex items-center justify-between ${onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''} ${className}`}
     >
       <div className="space-y-2">
         <p className="text-sm text-gray-600">{title}</p>
