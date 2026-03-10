@@ -269,7 +269,9 @@ export function OrderDetailsModal({
                 {/* 3. Ready Workflow */}
                 {currentStatus === 'ready' && !isCompleted && (
                   <div className="text-sm text-slate-500 text-center italic">
-                    Order is ready for customer
+                    Order is ready for{' '}
+                    {order.delivery_type === 'delivery' ? 'delivery' : 'pickup'}
+                    .
                   </div>
                 )}
 
@@ -289,7 +291,7 @@ export function OrderDetailsModal({
                     <Button
                       variant="ghost"
                       disabled
-                      className="w-full h-12 italic text-green-400"
+                      className="w-full h-12 italic text-green-600"
                     >
                       <CheckCircle className="w-4 h-4" />
                       <span>
