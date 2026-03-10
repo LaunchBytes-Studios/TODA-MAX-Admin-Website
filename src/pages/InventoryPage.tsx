@@ -1,5 +1,6 @@
 import { useState, useMemo, useDeferredValue } from 'react';
 import { toast } from 'sonner';
+import { useLocation } from 'react-router-dom';
 import { InventoryStats } from '@/components/inventory/InventoryStats';
 import { SearchAndFilterBar } from '@/components/inventory/SearchAndFilterBar';
 import { MedicinesList } from '@/components/inventory/MedicinesList';
@@ -11,9 +12,16 @@ import { useCreateMedication } from '@/hooks/medications/useCreateMedication';
 import { useDeleteMedication } from '@/hooks/medications/useDeleteMedication';
 import { useFetchMedications } from '@/hooks/medications/useFetchMedications';
 import type { FrontendMedicine } from '@/types/medication';
+import { INVENTORY_FILTER_OPTIONS } from '@/constants/tabs';
 
 export function InventoryPage() {
-  const [activeTab, setActiveTab] = useState('all');
+  const location = useLocation();
+  const initialFilters =
+    (location.state as { tab?: string } | null)?.tab === 'low-stock'
+      ? ['low-stock']
+      : [];
+  const [selectedFilters, setSelectedFilters] =
+    useState<string[]>(initialFilters);
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [selectedMedicine, setSelectedMedicine] =
@@ -28,26 +36,38 @@ export function InventoryPage() {
   const deferredSearch = useDeferredValue(searchTerm);
 
   const filters = useMemo(() => {
-    const isCategory = activeTab !== 'all' && activeTab !== 'low-stock';
-
-    const normalizedType = isCategory
-      ? activeTab.charAt(0).toUpperCase() + activeTab.slice(1)
-      : undefined;
+    const hasLowStockFilter = selectedFilters.includes('low-stock');
 
     const trimmedSearch = deferredSearch.trim();
 
     return {
       search: trimmedSearch ? trimmedSearch : undefined,
-      lowStockOnly: activeTab === 'low-stock' ? true : undefined,
-      type: normalizedType,
+      lowStockOnly: hasLowStockFilter ? true : undefined,
+      page: 1,
+      limit: 100,
     };
-  }, [deferredSearch, activeTab]);
+  }, [deferredSearch, selectedFilters]);
 
   const {
     medications,
     loading: isLoadingMedications,
     refetch,
   } = useFetchMedications(filters);
+
+  const selectedTypeFilters = useMemo(
+    () => selectedFilters.filter((filterId) => filterId !== 'low-stock'),
+    [selectedFilters],
+  );
+
+  const filteredMedications = useMemo(() => {
+    if (selectedTypeFilters.length === 0) {
+      return medications;
+    }
+
+    return medications.filter((medicine) =>
+      selectedTypeFilters.includes(medicine.category.toLowerCase()),
+    );
+  }, [medications, selectedTypeFilters]);
 
   const isSearching = searchTerm.trim() !== '' && searchTerm !== deferredSearch;
 
@@ -57,7 +77,7 @@ export function InventoryPage() {
   const { deleteMedication } = useDeleteMedication();
 
   const handleEdit = (id: number) => {
-    const medicine = medications.find((m) => m.id === id);
+    const medicine = filteredMedications.find((m) => m.id === id);
     if (medicine) {
       setSelectedMedicine(medicine);
       setIsEditFormOpen(true);
@@ -75,7 +95,7 @@ export function InventoryPage() {
   };
 
   const handleDelete = async (id: number) => {
-    const medicine = medications.find((m) => m.id === id);
+    const medicine = filteredMedications.find((m) => m.id === id);
     if (medicine) {
       setMedicineToDelete(medicine);
       setIsDeleteModalOpen(true);
@@ -132,14 +152,15 @@ export function InventoryPage() {
         <SearchAndFilterBar
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
+          selectedFilters={selectedFilters}
+          onFiltersChange={setSelectedFilters}
+          filterOptions={INVENTORY_FILTER_OPTIONS}
           onAddClick={() => setIsAddFormOpen(true)}
           isLoading={isSearching}
         />
 
         <MedicinesList
-          medicines={medications}
+          medicines={filteredMedications}
           loading={isContentLoading}
           searchTerm={searchTerm}
           onEdit={handleEdit}

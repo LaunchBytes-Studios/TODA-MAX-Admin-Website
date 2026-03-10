@@ -1,12 +1,13 @@
 import { Search, Plus, Loader2 } from 'lucide-react';
 import { Button } from '../ui/button';
-import { TABS } from '../../constants/tabs';
+import { FilterModal, type FilterOption } from '../ui/filter-modal';
 
 interface SearchAndFilterBarProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  activeTab: string;
-  onTabChange: (tabId: string) => void;
+  selectedFilters: string[];
+  onFiltersChange: (filterIds: string[]) => void;
+  filterOptions: FilterOption[];
   onAddClick: () => void;
   isLoading?: boolean;
 }
@@ -14,8 +15,9 @@ interface SearchAndFilterBarProps {
 export function SearchAndFilterBar({
   searchTerm,
   onSearchChange,
-  activeTab,
-  onTabChange,
+  selectedFilters,
+  onFiltersChange,
+  filterOptions,
   onAddClick,
   isLoading = false,
 }: SearchAndFilterBarProps) {
@@ -38,22 +40,14 @@ export function SearchAndFilterBar({
             />
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            {TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => onTabChange(tab.id)}
-                disabled={isLoading}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === tab.id
-                    ? 'bg-blue-100 text-blue-700 border border-blue-300'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-transparent'
-                } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          <FilterModal
+            title="Filter Medicines"
+            description="Select one or more filters to refine the list."
+            options={filterOptions}
+            selectedValues={selectedFilters}
+            onApply={onFiltersChange}
+            disabled={isLoading}
+          />
         </div>
 
         <Button
