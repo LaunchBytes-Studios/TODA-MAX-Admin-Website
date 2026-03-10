@@ -38,6 +38,11 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
           <p className="text-sm text-muted-foreground">
             {formatOrderDate(order.created_at)}
           </p>
+          {order.received_date && order.status === 'completed' && (
+            <p className="text-sm text-green-600 font-medium">
+              Received: {formatOrderDate(order.received_date)}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col items-end gap-3">
