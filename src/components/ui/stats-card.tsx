@@ -9,6 +9,7 @@ interface StatsCardProps {
   className?: string;
   description?: string;
   compact?: boolean;
+  onClick?: () => void;
 }
 
 export const StatsCard: React.FC<StatsCardProps> = ({
@@ -20,10 +21,12 @@ export const StatsCard: React.FC<StatsCardProps> = ({
   className = '',
   description,
   compact = false,
+  onClick,
 }) => {
   return (
     <div
-      className={`bg-white rounded-lg border flex items-center justify-between ${compact ? 'p-4' : 'p-6'} ${className}`}
+      className={`bg-white rounded-lg border flex items-center justify-between ${compact ? 'p-4' : 'p-6'} ${onClick ? 'cursor-pointer hover:bg-gray-50 transition-colors' : ''} ${className}`}
+      onClick={onClick}
     >
       <div className={compact ? 'space-y-1.5' : 'space-y-2'}>
         <p className="text-sm text-gray-600">{title}</p>
