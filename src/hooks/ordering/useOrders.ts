@@ -41,7 +41,7 @@ export function useOrders() {
       .get(`/enavigator/orders`, { headers })
       .then((res) => {
         // Ensure all required fields have fallback values
-        const formattedOrders = (res.data || []).map((order: Order) => ({
+        const formattedOrders = (res.data.data || []).map((order: Order) => ({
           ...order,
           patient_diagnosis: order.patient_diagnosis || 'No diagnosis provided',
           status: order.status || 'pending',
