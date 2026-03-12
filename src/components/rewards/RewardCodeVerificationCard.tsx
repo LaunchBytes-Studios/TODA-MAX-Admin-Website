@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -27,10 +28,11 @@ const formatStatusLabel = (status?: string) => {
 
 export function RewardCodeVerificationCard() {
   const [codeInput, setCodeInput] = useState('');
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const {
     verification,
     isVerifying,
-    isFinalizing,
+    isRedeeming,
     verifyCode,
     finalizeCode,
     clearVerification,
@@ -38,21 +40,30 @@ export function RewardCodeVerificationCard() {
 
   const normalizedCode = useMemo(() => codeInput.trim(), [codeInput]);
   const canSubmit = normalizedCode.length > 0;
-  const canFinalize =
+  const canConfirmRedeem =
     !!verification && verification.isValid && !verification.isFinalized;
 
   const handleVerify = async () => {
     if (!canSubmit) {
       return;
     }
-    await verifyCode(normalizedCode);
+    const result = await verifyCode(normalizedCode);
+    if (result?.isValid) {
+      setIsDetailsOpen(true);
+    }
   };
 
-  const handleFinalize = async () => {
-    if (!canFinalize) {
+  const handleConfirmRedeem = async () => {
+    if (!canConfirmRedeem) {
       return;
     }
-    await finalizeCode(verification.code);
+
+    const result = await finalizeCode(verification.code);
+    if (result) {
+      setIsDetailsOpen(false);
+      setCodeInput('');
+      clearVerification();
+    }
   };
 
   const handleCodeChange = (value: string) => {
@@ -73,7 +84,7 @@ export function RewardCodeVerificationCard() {
       headerActions={
         <div className="flex items-center gap-2">
           {verification ? (
-            <Dialog>
+            <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
               <DialogTrigger asChild>
                 <Button
                   variant="ghost"
@@ -95,10 +106,6 @@ export function RewardCodeVerificationCard() {
                   <p>
                     <span className="font-medium">Status:</span>{' '}
                     {formatStatusLabel(verification.status)}
-                  </p>
-                  <p>
-                    <span className="font-medium">Finalized:</span>{' '}
-                    {verification.isFinalized ? 'Yes' : 'No'}
                   </p>
                   <p>
                     <span className="font-medium">Code:</span>{' '}
@@ -127,6 +134,31 @@ export function RewardCodeVerificationCard() {
                       : 'Not yet assigned'}
                   </p>
                 </div>
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsDetailsOpen(false)}
+                    disabled={isRedeeming}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    onClick={handleConfirmRedeem}
+                    disabled={!canConfirmRedeem || isRedeeming}
+                  >
+                    {isRedeeming ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Confirming...
+                      </>
+                    ) : (
+                      'Confirm'
+                    )}
+                  </Button>
+                </DialogFooter>
               </DialogContent>
             </Dialog>
           ) : (
@@ -141,22 +173,6 @@ export function RewardCodeVerificationCard() {
             </Button>
           )}
         </div>
-      }
-      footer={
-        <Button
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-          onClick={handleFinalize}
-          disabled={!canFinalize || isFinalizing}
-        >
-          {isFinalizing ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Finalizing...
-            </>
-          ) : (
-            'FINALIZE REWARD'
-          )}
-        </Button>
       }
     >
       <div className="space-y-4">
@@ -175,10 +191,10 @@ export function RewardCodeVerificationCard() {
             {isVerifying ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Verifying...
+                Redeeming...
               </>
             ) : (
-              'Validate Code'
+              'Redeem Code'
             )}
           </Button>
         </div>

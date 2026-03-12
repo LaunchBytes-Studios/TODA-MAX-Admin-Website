@@ -10,10 +10,14 @@ import { SearchAndFilterBar } from '@/components/rewards/SearchAndFilterBar';
 import { useCreateReward } from '@/hooks/rewards/useCreateReward';
 import { useDeleteReward } from '@/hooks/rewards/useDeleteReward';
 import { useFetchRewards } from '@/hooks/rewards/useFetchRewards';
+import { REWARDS_FILTER_GROUPS } from '@/constants/tabs';
 import type { FrontendReward } from '@/types/reward';
 
+const GROUP_ALL_PREFIX = 'all:';
+const QUANTITY_FILTER_IDS = ['out-of-stock', 'low-stock', 'in-stock'];
+
 export function RewardsPage() {
-  const [activeTab, setActiveTab] = useState('all');
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [selectedReward, setSelectedReward] = useState<FrontendReward | null>(
@@ -30,18 +34,12 @@ export function RewardsPage() {
   const deferredSearch = useDeferredValue(searchTerm);
 
   const filters = useMemo(() => {
-    const isCategory = activeTab !== 'all' && activeTab !== 'low-stock';
-    const normalizedCategory = isCategory
-      ? activeTab.charAt(0).toUpperCase() + activeTab.slice(1)
-      : undefined;
     const trimmedSearch = deferredSearch.trim();
 
     return {
       search: trimmedSearch || undefined,
-      category: normalizedCategory,
-      lowStockOnly: activeTab === 'low-stock' ? true : undefined,
     };
-  }, [activeTab, deferredSearch]);
+  }, [deferredSearch]);
 
   const {
     rewards,
@@ -53,6 +51,47 @@ export function RewardsPage() {
 
   const isSearching = searchTerm.trim() !== '' && searchTerm !== deferredSearch;
   const isContentLoading = isLoadingRewards || isSearching;
+
+  const selectedCategoryFilters = useMemo(
+    () =>
+      selectedFilters.filter(
+        (filterId) =>
+          !filterId.startsWith(GROUP_ALL_PREFIX) &&
+          !QUANTITY_FILTER_IDS.includes(filterId),
+      ),
+    [selectedFilters],
+  );
+
+  const selectedQuantityFilters = useMemo(
+    () =>
+      selectedFilters.filter(
+        (filterId) =>
+          !filterId.startsWith(GROUP_ALL_PREFIX) &&
+          QUANTITY_FILTER_IDS.includes(filterId),
+      ),
+    [selectedFilters],
+  );
+
+  const filteredRewards = useMemo(() => {
+    return rewards.filter((reward) => {
+      const matchesType =
+        selectedCategoryFilters.length === 0 ||
+        selectedCategoryFilters.includes(reward.category.toLowerCase());
+
+      const isOutOfStock = reward.stockAvailable === 0;
+      const isLowStock =
+        reward.stockAvailable > 0 &&
+        reward.stockAvailable <= reward.lowStockThreshold;
+      const isInStock = reward.stockAvailable > reward.lowStockThreshold;
+      const matchesQuantity =
+        selectedQuantityFilters.length === 0 ||
+        (selectedQuantityFilters.includes('out-of-stock') && isOutOfStock) ||
+        (selectedQuantityFilters.includes('low-stock') && isLowStock) ||
+        (selectedQuantityFilters.includes('in-stock') && isInStock);
+
+      return matchesType && matchesQuantity;
+    });
+  }, [rewards, selectedCategoryFilters, selectedQuantityFilters]);
 
   const handleEdit = (id: number) => {
     const reward = rewards.find((item) => item.id === id);
@@ -141,16 +180,16 @@ export function RewardsPage() {
         <SearchAndFilterBar
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
+          selectedFilters={selectedFilters}
+          onFiltersChange={setSelectedFilters}
+          filterOptionGroups={REWARDS_FILTER_GROUPS}
           onAddClick={() => setIsAddFormOpen(true)}
           isLoading={isSearching}
         />
 
         <RewardsList
-          rewards={rewards}
+          rewards={filteredRewards}
           loading={isContentLoading}
-          searchTerm={searchTerm}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onAddClick={() => setIsAddFormOpen(true)}

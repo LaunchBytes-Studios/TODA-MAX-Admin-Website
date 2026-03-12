@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { SlidersHorizontal } from 'lucide-react';
+import { Funnel } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -16,11 +16,23 @@ export interface FilterOption {
   label: string;
 }
 
+export interface FilterOptionGroup {
+  id: string;
+  label: string;
+  options: FilterOption[];
+}
+
+const GROUP_ALL_PREFIX = 'all:';
+
+const getGroupAllId = (groupId: string) => `${GROUP_ALL_PREFIX}${groupId}`;
+
+const isGroupAllValue = (value: string) => value.startsWith(GROUP_ALL_PREFIX);
+
 interface FilterModalProps {
   title: string;
   description?: string;
   triggerLabel?: string;
-  options: FilterOption[];
+  optionGroups: FilterOptionGroup[];
   selectedValues: string[];
   onApply: (values: string[]) => void;
   disabled?: boolean;
@@ -30,7 +42,7 @@ export function FilterModal({
   title,
   description,
   triggerLabel = 'Filter',
-  options,
+  optionGroups,
   selectedValues,
   onApply,
   disabled = false,
@@ -38,14 +50,74 @@ export function FilterModal({
   const [isOpen, setIsOpen] = useState(false);
   const [draftValues, setDraftValues] = useState<string[]>(selectedValues);
 
-  const selectedCount = useMemo(() => selectedValues.length, [selectedValues]);
+  const selectedCount = useMemo(() => {
+    const expandedValues = new Set<string>();
 
-  const toggleValue = (value: string) => {
-    setDraftValues((previousValues) =>
-      previousValues.includes(value)
-        ? previousValues.filter((currentValue) => currentValue !== value)
-        : [...previousValues, value],
-    );
+    selectedValues.forEach((value) => {
+      if (!isGroupAllValue(value)) {
+        expandedValues.add(value);
+        return;
+      }
+
+      const groupId = value.slice(GROUP_ALL_PREFIX.length);
+      const group = optionGroups.find(
+        (optionGroup) => optionGroup.id === groupId,
+      );
+
+      group?.options.forEach((option) => expandedValues.add(option.id));
+    });
+
+    return expandedValues.size;
+  }, [optionGroups, selectedValues]);
+
+  const toggleGroupAll = (group: FilterOptionGroup) => {
+    const groupOptionIds = group.options.map((option) => option.id);
+    const groupAllId = getGroupAllId(group.id);
+
+    setDraftValues((previousValues) => {
+      const otherValues = previousValues.filter(
+        (value) => value !== groupAllId && !groupOptionIds.includes(value),
+      );
+      const isAllSelected = previousValues.includes(groupAllId);
+
+      return isAllSelected ? otherValues : [...otherValues, groupAllId];
+    });
+  };
+
+  const toggleValue = (group: FilterOptionGroup, value: string) => {
+    const groupOptionIds = group.options.map((option) => option.id);
+    const groupAllId = getGroupAllId(group.id);
+
+    setDraftValues((previousValues) => {
+      const otherValues = previousValues.filter(
+        (currentValue) =>
+          currentValue !== groupAllId && !groupOptionIds.includes(currentValue),
+      );
+
+      const currentGroupValues = previousValues.includes(groupAllId)
+        ? [...groupOptionIds]
+        : previousValues.filter((currentValue) =>
+            groupOptionIds.includes(currentValue),
+          );
+
+      const nextGroupValues = currentGroupValues.includes(value)
+        ? currentGroupValues.filter((currentValue) => currentValue !== value)
+        : [...currentGroupValues, value];
+
+      if (nextGroupValues.length === groupOptionIds.length) {
+        return [...otherValues, groupAllId];
+      }
+
+      return [...otherValues, ...nextGroupValues];
+    });
+  };
+
+  const getBadgeClasses = (isSelected: boolean) => {
+    if (isSelected) {
+      return 'bg-blue-100 text-blue-700 border-blue-300';
+    }
+
+    return 'bg-gray-100 text-gray-700 border-transparent hover:bg-gray-200';
   };
 
   return (
@@ -64,7 +136,7 @@ export function FilterModal({
           className="border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
           disabled={disabled}
         >
-          <SlidersHorizontal className="h-4 w-4" />
+          <Funnel className="h-4 w-4" />
           {triggerLabel}
           {selectedCount > 0 && (
             <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-100 px-1.5 text-xs font-semibold text-blue-700">
@@ -80,27 +152,41 @@ export function FilterModal({
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
 
-        <div className="space-y-3">
-          {options.map((option) => {
-            const isChecked = draftValues.includes(option.id);
+        <div className="space-y-4">
+          {optionGroups.map((group) => (
+            <div key={group.id} className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                {group.label}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => toggleGroupAll(group)}
+                  aria-pressed={draftValues.includes(getGroupAllId(group.id))}
+                  className={`px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors ${getBadgeClasses(
+                    draftValues.includes(getGroupAllId(group.id)),
+                  )}`}
+                >
+                  All
+                </button>
+                {group.options.map((option) => {
+                  const isChecked = draftValues.includes(option.id);
 
-            return (
-              <label
-                key={option.id}
-                htmlFor={`filter-option-${option.id}`}
-                className="flex items-center gap-3 rounded-md border p-3 cursor-pointer"
-              >
-                <input
-                  id={`filter-option-${option.id}`}
-                  type="checkbox"
-                  checked={isChecked}
-                  onChange={() => toggleValue(option.id)}
-                  className="h-4 w-4"
-                />
-                <span className="text-sm text-foreground">{option.label}</span>
-              </label>
-            );
-          })}
+                  return (
+                    <button
+                      type="button"
+                      key={option.id}
+                      onClick={() => toggleValue(group, option.id)}
+                      aria-pressed={isChecked}
+                      className={`px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors ${getBadgeClasses(isChecked)}`}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
 
         <DialogFooter>

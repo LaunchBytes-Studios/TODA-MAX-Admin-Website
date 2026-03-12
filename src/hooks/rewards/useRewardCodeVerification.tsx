@@ -11,7 +11,7 @@ export function useRewardCodeVerification() {
   const [verification, setVerification] =
     useState<RewardCodeVerificationData | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
-  const [isFinalizing, setIsFinalizing] = useState(false);
+  const [isRedeeming, setIsRedeeming] = useState(false);
 
   const getTokenOrFail = () => {
     const token = localStorage.getItem('token');
@@ -64,7 +64,7 @@ export function useRewardCodeVerification() {
   };
 
   const finalizeCode = async (code: string) => {
-    setIsFinalizing(true);
+    setIsRedeeming(true);
     try {
       const token = getTokenOrFail();
       if (!token) {
@@ -80,15 +80,15 @@ export function useRewardCodeVerification() {
       );
 
       if (!response.data.success || !response.data.data) {
-        toast.error(response.data.message || 'Finalization failed');
+        toast.error(response.data.message || 'Redemption failed');
         return null;
       }
 
       setVerification(response.data.data);
-      toast.success(response.data.message || 'Reward finalized');
+      toast.success(response.data.message || 'Reward redeemed');
       return response.data.data;
     } catch (error: unknown) {
-      let message = 'Failed to finalize reward code';
+      let message = 'Failed to redeem reward code';
       if (axios.isAxiosError(error)) {
         message =
           (error.response?.data as { message?: string } | undefined)?.message ||
@@ -100,7 +100,7 @@ export function useRewardCodeVerification() {
       toast.error(message);
       return null;
     } finally {
-      setIsFinalizing(false);
+      setIsRedeeming(false);
     }
   };
 
@@ -111,7 +111,7 @@ export function useRewardCodeVerification() {
   return {
     verification,
     isVerifying,
-    isFinalizing,
+    isRedeeming,
     verifyCode,
     finalizeCode,
     clearVerification,

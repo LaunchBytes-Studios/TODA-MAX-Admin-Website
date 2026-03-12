@@ -15,7 +15,10 @@ export const addMedicineSchema = z.object({
     .string()
     .min(1, 'Medicine name is required')
     .max(100, 'Medicine name must be 100 characters or less'),
-  description: z.string().optional(),
+  description: z
+    .string()
+    .max(300, 'Description must be at most 300 characters')
+    .optional(),
   category: z.string().min(1, 'Category is required'),
   price: requiredNumber('Price').pipe(
     z

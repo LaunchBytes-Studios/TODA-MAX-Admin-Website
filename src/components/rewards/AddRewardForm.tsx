@@ -2,7 +2,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -41,6 +47,9 @@ interface AddRewardFormProps {
   }) => Promise<void>;
 }
 
+const parseNumberInput = (value: string) =>
+  value === '' ? undefined : Number(value);
+
 function AddRewardForm({ isOpen, onClose, onAddReward }: AddRewardFormProps) {
   const form = useForm<RewardFormValues>({
     resolver: zodResolver(rewardSchema),
@@ -48,9 +57,9 @@ function AddRewardForm({ isOpen, onClose, onAddReward }: AddRewardFormProps) {
       rewardName: '',
       description: '',
       category: 'Discount',
-      pointsCost: 0,
-      stockAvailable: 0,
-      lowStockThreshold: 10,
+      pointsCost: undefined,
+      stockAvailable: undefined,
+      lowStockThreshold: undefined,
       activeStatus: 'active',
     },
   });
@@ -77,12 +86,25 @@ function AddRewardForm({ isOpen, onClose, onAddReward }: AddRewardFormProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => (!open ? onClose() : null)}>
-      <DialogContent className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-lg p-0 gap-0">
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">
+      <DialogContent
+        className="
+          w-full
+          max-w-xl
+          max-h-[92vh]
+          overflow-y-auto
+          rounded-lg
+          p-0
+          gap-0
+        "
+      >
+        <DialogHeader className="p-6 border-b">
+          <DialogTitle className="text-xl font-semibold text-gray-900">
             Add New Reward
-          </h2>
-        </div>
+          </DialogTitle>
+          <DialogDescription>
+            Fill in the reward details to add a new catalog item.
+          </DialogDescription>
+        </DialogHeader>
 
         <Form {...form}>
           <form
@@ -165,105 +187,119 @@ function AddRewardForm({ isOpen, onClose, onAddReward }: AddRewardFormProps) {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="pointsCost"
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel>Points Cost *</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={0}
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                      className={
-                        fieldState.invalid
-                          ? 'border-red-500 focus:ring-red-500'
-                          : ''
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="stockAvailable"
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel>Stock Available *</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={0}
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                      className={
-                        fieldState.invalid
-                          ? 'border-red-500 focus:ring-red-500'
-                          : ''
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="lowStockThreshold"
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel>Low Stock Threshold *</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={0}
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                      className={
-                        fieldState.invalid
-                          ? 'border-red-500 focus:ring-red-500'
-                          : ''
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="activeStatus"
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel>Active Status *</FormLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="pointsCost"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel>Points Cost *</FormLabel>
                     <FormControl>
-                      <SelectTrigger
+                      <Input
+                        type="number"
+                        min={0}
+                        placeholder="0"
+                        {...field}
+                        value={field.value ?? ''}
+                        onChange={(e) =>
+                          field.onChange(parseNumberInput(e.target.value))
+                        }
                         className={
                           fieldState.invalid
                             ? 'border-red-500 focus:ring-red-500'
                             : ''
                         }
-                      >
-                        <SelectValue placeholder="Select active status" />
-                      </SelectTrigger>
+                      />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="stockAvailable"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel>Stock Available *</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        placeholder="0"
+                        {...field}
+                        value={field.value ?? ''}
+                        onChange={(e) =>
+                          field.onChange(parseNumberInput(e.target.value))
+                        }
+                        className={
+                          fieldState.invalid
+                            ? 'border-red-500 focus:ring-red-500'
+                            : ''
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="lowStockThreshold"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel>Low Stock Threshold *</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        placeholder="10"
+                        {...field}
+                        value={field.value ?? ''}
+                        onChange={(e) =>
+                          field.onChange(parseNumberInput(e.target.value))
+                        }
+                        className={
+                          fieldState.invalid
+                            ? 'border-red-500 focus:ring-red-500'
+                            : ''
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="activeStatus"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel>Active Status *</FormLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger
+                          className={
+                            fieldState.invalid
+                              ? 'border-red-500 focus:ring-red-500'
+                              : ''
+                          }
+                        >
+                          <SelectValue placeholder="Select active status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="flex justify-end gap-3 pt-4 border-t">
               <Button

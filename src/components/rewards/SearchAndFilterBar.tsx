@@ -1,29 +1,26 @@
 import { Loader2, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  FilterModal,
+  type FilterOptionGroup,
+} from '@/components/ui/filter-modal';
 
 interface SearchAndFilterBarProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  activeTab: string;
-  onTabChange: (tabId: string) => void;
+  selectedFilters: string[];
+  onFiltersChange: (filterIds: string[]) => void;
+  filterOptionGroups: FilterOptionGroup[];
   onAddClick: () => void;
   isLoading?: boolean;
 }
 
-const REWARD_TABS = [
-  { id: 'all', label: 'All' },
-  { id: 'discount', label: 'Discount' },
-  { id: 'gift', label: 'Gift' },
-  { id: 'service', label: 'Service' },
-  { id: 'health', label: 'Health' },
-  { id: 'low-stock', label: 'Low Stock Alert' },
-];
-
 export function SearchAndFilterBar({
   searchTerm,
   onSearchChange,
-  activeTab,
-  onTabChange,
+  selectedFilters,
+  onFiltersChange,
+  filterOptionGroups,
   onAddClick,
   isLoading = false,
 }: SearchAndFilterBarProps) {
@@ -46,22 +43,14 @@ export function SearchAndFilterBar({
             />
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            {REWARD_TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => onTabChange(tab.id)}
-                disabled={isLoading}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === tab.id
-                    ? 'bg-blue-100 text-blue-700 border border-blue-300'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-transparent'
-                } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          <FilterModal
+            title="Filter Rewards"
+            description="Select one or more tags by section to refine results."
+            optionGroups={filterOptionGroups}
+            selectedValues={selectedFilters}
+            onApply={onFiltersChange}
+            disabled={isLoading}
+          />
         </div>
 
         <Button

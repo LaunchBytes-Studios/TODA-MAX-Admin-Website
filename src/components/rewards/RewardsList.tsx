@@ -7,7 +7,6 @@ import RewardCard from '@/components/rewards/RewardCard';
 interface RewardsListProps {
   rewards: FrontendReward[];
   loading: boolean;
-  searchTerm: string;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
   onAddClick: () => void;
@@ -16,7 +15,6 @@ interface RewardsListProps {
 export function RewardsList({
   rewards,
   loading,
-  searchTerm,
   onEdit,
   onDelete,
   onAddClick,
@@ -50,20 +48,14 @@ export function RewardsList({
         <h3 className="text-lg font-medium text-gray-900 mb-2">
           No rewards found
         </h3>
-        <p className="text-gray-600">
-          {searchTerm
-            ? `No rewards found for "${searchTerm}"`
-            : 'No rewards in this category. Add your first reward!'}
-        </p>
-        {!searchTerm && (
-          <Button
-            className="mt-4 bg-blue-600 hover:bg-blue-700"
-            onClick={onAddClick}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add First Reward
-          </Button>
-        )}
+        <p className="text-gray-600">No rewards found in this category.</p>
+        <Button
+          className="mt-4 bg-blue-600 hover:bg-blue-700"
+          onClick={onAddClick}
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Add Reward
+        </Button>
       </div>
     );
   }

@@ -1,11 +1,16 @@
-import { z } from 'zod';
+import * as z from 'zod';
 
-export const REWARD_CATEGORIES = [
-  'Discount',
-  'Gift',
-  'Service',
-  'Health',
-] as const;
+const requiredNumber = (fieldName: string) =>
+  z
+    .any()
+    .refine((value) => value !== undefined, `${fieldName} is required`)
+    .refine(
+      (value) => typeof value === 'number' && !Number.isNaN(value),
+      `${fieldName} must be a number`,
+    )
+    .transform((value) => value as number);
+
+export const REWARD_CATEGORIES = ['Discount', 'Gift', 'Service'] as const;
 
 export const rewardSchema = z.object({
   rewardName: z
@@ -19,15 +24,24 @@ export const rewardSchema = z.object({
   category: z.enum(REWARD_CATEGORIES, {
     message: 'Please select a valid category',
   }),
-  pointsCost: z
-    .number({ message: 'Points cost is required' })
-    .min(0, 'Points cost cannot be negative'),
-  stockAvailable: z
-    .number({ message: 'Stock available is required' })
-    .min(0, 'Stock available cannot be negative'),
-  lowStockThreshold: z
-    .number({ message: 'Low stock threshold is required' })
-    .min(0, 'Low stock threshold cannot be negative'),
+  pointsCost: requiredNumber('Points cost').pipe(
+    z
+      .number()
+      .min(0, 'Points cost cannot be negative')
+      .max(10000, 'Points cost is too high'),
+  ),
+  stockAvailable: requiredNumber('Stock available').pipe(
+    z
+      .number()
+      .min(0, 'Stock available cannot be negative')
+      .max(100000, 'Stock available is too high'),
+  ),
+  lowStockThreshold: requiredNumber('Low stock threshold').pipe(
+    z
+      .number()
+      .min(5, 'Low stock threshold must be at least 5')
+      .max(10000, 'Low stock threshold is too high'),
+  ),
   activeStatus: z.enum(['active', 'inactive'], {
     message: 'Please select active status',
   }),

@@ -7,7 +7,6 @@ import MedicineCardSkeleton from '../skeleton/MedicineCardSkeleton';
 interface MedicinesListProps {
   medicines: Medicine[];
   loading: boolean;
-  searchTerm: string;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
   onAddClick: () => void;
@@ -16,7 +15,6 @@ interface MedicinesListProps {
 export function MedicinesList({
   medicines,
   loading,
-  searchTerm,
   onEdit,
   onDelete,
   onAddClick,
@@ -50,20 +48,14 @@ export function MedicinesList({
         <h3 className="text-lg font-medium text-gray-900 mb-2">
           No medicines found
         </h3>
-        <p className="text-gray-600">
-          {searchTerm
-            ? `No medicines found for "${searchTerm}"`
-            : 'No medicines in this category. Add your first medicine!'}
-        </p>
-        {!searchTerm && (
-          <Button
-            className="mt-4 bg-blue-600 hover:bg-blue-700"
-            onClick={onAddClick}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add First Medicine
-          </Button>
-        )}
+        <p className="text-gray-600">No medicines found in this category.</p>
+        <Button
+          className="mt-4 bg-blue-600 hover:bg-blue-700"
+          onClick={onAddClick}
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Add Medicine
+        </Button>
       </div>
     );
   }

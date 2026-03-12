@@ -1,13 +1,13 @@
 import { Search, Plus, Loader2 } from 'lucide-react';
 import { Button } from '../ui/button';
-import { FilterModal, type FilterOption } from '../ui/filter-modal';
+import { FilterModal, type FilterOptionGroup } from '../ui/filter-modal';
 
 interface SearchAndFilterBarProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
   selectedFilters: string[];
   onFiltersChange: (filterIds: string[]) => void;
-  filterOptions: FilterOption[];
+  filterOptionGroups: FilterOptionGroup[];
   onAddClick: () => void;
   isLoading?: boolean;
 }
@@ -17,7 +17,7 @@ export function SearchAndFilterBar({
   onSearchChange,
   selectedFilters,
   onFiltersChange,
-  filterOptions,
+  filterOptionGroups,
   onAddClick,
   isLoading = false,
 }: SearchAndFilterBarProps) {
@@ -42,8 +42,8 @@ export function SearchAndFilterBar({
 
           <FilterModal
             title="Filter Medicines"
-            description="Select one or more filters to refine the list."
-            options={filterOptions}
+            description="Select one or more tags by section to refine results."
+            optionGroups={filterOptionGroups}
             selectedValues={selectedFilters}
             onApply={onFiltersChange}
             disabled={isLoading}

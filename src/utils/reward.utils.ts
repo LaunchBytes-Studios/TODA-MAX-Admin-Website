@@ -27,7 +27,7 @@ export const mapBackendRewardToFrontend = (
     pointsCost: backendReward.points_required,
     stockAvailable,
     lowStockThreshold,
-    isLowStock: stockAvailable <= lowStockThreshold,
+    isLowStock: stockAvailable > 0 && stockAvailable <= lowStockThreshold,
     totalRedeemed: backendReward.total_redeemed ?? 0,
     code: formatRewardCode(backendReward.reward_id, backendReward.reward_code),
     isActive: backendReward.is_active ?? true,
