@@ -1,19 +1,14 @@
 import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { formatMoney, formatDiagnosis } from '@/lib/utils';
-import {
-  Package,
-  Truck,
-  CheckCircle,
-  XCircle,
-  Loader2,
-  Calendar,
-  MapPin,
-} from 'lucide-react';
 import type { Order } from '@/hooks/ordering/useOrders';
 import type { OrderStatus } from '@/hooks/ordering/updateOrder';
+import {
+  OrderHeader,
+  PatientDetails,
+  DeliveryInfo,
+  OrderItemsTable,
+  OrderActions,
+} from './order-details';
 
 interface Props {
   isOpen: boolean;
@@ -97,132 +92,17 @@ export function OrderDetailsModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl p-0 overflow-hidden border-none shadow-2xl">
-        {/* Header with Background */}
-        <div className="bg-blue-700 p-6 text-white">
-          <div className="flex justify-between items-start">
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight">
-                Order #{order.order_number || 'N/A'}
-              </h2>
-              <div className="flex items-center gap-2 mt-1 text-blue-100">
-                <Calendar className="w-4 h-4" />
-                <span>{formatOrderDate(order.created_at)}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <OrderHeader order={order} />
 
         <div className="p-6 space-y-6 bg-white">
           {/* Patient & Address Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-              <p className="text-xs font-bold text-slate-500 uppercase mb-2">
-                Patient Details
-              </p>
-              <p className="text-lg font-bold text-slate-900">
-                {order.patient_name}
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Badge className="bg-indigo-100 text-indigo-800 px-3 py-1">
-                  {formatDiagnosis(order.patient_diagnosis)}
-                </Badge>
-              </div>
-            </div>
-            <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-              <div className="flex items-start gap-2 mb-4">
-                <MapPin className="w-4 h-4 text-blue-600 mt-1 shrink-0" />
-                <div>
-                  <p className="text-xs font-bold text-slate-500 uppercase mb-1">
-                    Delivery Address
-                  </p>
-                  <p className="text-sm text-slate-900 leading-snug">
-                    {order.delivery_address}
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Badge
-                  variant={
-                    order.delivery_type === 'delivery' ? 'outline' : 'secondary'
-                  }
-                  className={`px-3 py-1 capitalize ${
-                    order.delivery_type === 'delivery'
-                      ? 'bg-green-100 text-green-800'
-                      : order.delivery_type === 'pickup'
-                        ? 'bg-purple-100 text-purple-800'
-                        : ''
-                  }`}
-                >
-                  {order.delivery_type === 'delivery'
-                    ? 'For Delivery'
-                    : 'For Pickup'}
-                </Badge>
-                <Badge
-                  className={`block w-fit text-xs py-1 px-2 capitalize ${
-                    isCompleted || order.status === 'completed'
-                      ? 'bg-green-100 text-green-800'
-                      : order.status === 'pending'
-                        ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
-                        : order.status === 'preparing'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : order.status === 'ready'
-                            ? 'bg-green-100 text-green-800'
-                            : order.status === 'rejected'
-                              ? 'bg-red-100 text-red-700'
-                              : 'bg-blue-100 text-blue-700'
-                  }`}
-                >
-                  {order.status.replace(/_/g, ' ')}
-                </Badge>
-              </div>
-            </div>
+            <PatientDetails order={order} />
+            <DeliveryInfo order={order} isCompleted={isCompleted} />
           </div>
 
           {/* Items Table */}
-          <div>
-            <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-              <Package className="w-4 h-4" /> Order Items
-            </h3>
-            <div className="border rounded-xl overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-slate-50 border-b">
-                  <tr className="text-slate-500">
-                    <th className="text-left p-4 font-semibold">Medicine</th>
-                    <th className="text-center p-4 font-semibold">Qty</th>
-                    <th className="text-right p-4 font-semibold">Price</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {order.items.map((item, i) => (
-                    <tr key={i} className="hover:bg-slate-50 transition-colors">
-                      <td className="p-4">
-                        <p className="font-bold text-slate-900">{item.name}</p>
-                        <p className="text-xs text-slate-500">
-                          {item.description}
-                        </p>
-                      </td>
-                      <td className="p-4 text-center font-medium">
-                        {item.quantity}
-                      </td>
-                      <td className="p-4 text-right font-bold text-slate-900">
-                        ₱{formatMoney(item.price)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot className="bg-slate-50/50 font-bold">
-                  <tr>
-                    <td colSpan={2} className="p-4 text-right text-slate-600">
-                      Total Amount
-                    </td>
-                    <td className="p-4 text-right text-green-700 text-lg">
-                      ₱{formatMoney(order.amount)}
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          </div>
+          <OrderItemsTable order={order} />
 
           {/* Dynamic Action Buttons */}
           <div className="flex flex-col gap-3 pt-4 border-t">
