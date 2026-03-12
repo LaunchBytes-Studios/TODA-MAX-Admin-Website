@@ -19,8 +19,8 @@ export function DashboardPage() {
   }, []);
 
   const lowStockCount = medications.length;
-  const completedOrdersCount = orders.filter(
-    (o) => o.status === 'completed',
+  const currentOrdersCount = orders.filter((o) =>
+    ['pending', 'preparing', 'ready'].includes(o.status?.toLowerCase()),
   ).length;
   const outForDeliveryCount = orders.filter(
     (o) => o.delivery_type === 'delivery' && o.status === 'ready',
@@ -82,15 +82,15 @@ export function DashboardPage() {
               <Card className="bg-white shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0! pb-2">
                   <span className="text-xl font-xl font-semibold">
-                    Completed Orders
+                    Current Orders
                   </span>
-                  <div className="bg-green-50 p-3 rounded-lg">
-                    <Clock className="h-6 w-6 text-green-600" />
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <Clock className="h-6 w-6 text-blue-600" />
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-4xl font-bold text-green-600">
-                    {completedOrdersCount}
+                  <p className="text-4xl font-bold text-blue-600">
+                    {currentOrdersCount}
                   </p>
                 </CardContent>
               </Card>
