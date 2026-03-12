@@ -12,7 +12,7 @@ export function OrderItemsTable({ order }: OrderItemsTableProps) {
       <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
         <Package className="w-4 h-4" /> Order Items
       </h3>
-      <div className="border rounded-xl overflow-hidden max-h-80 flex flex-col">
+      <div className="border rounded-xl overflow-y-auto max-h-80 scrollbar-hide">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 border-b sticky top-0 z-10">
             <tr className="text-slate-500">
@@ -21,7 +21,7 @@ export function OrderItemsTable({ order }: OrderItemsTableProps) {
               <th className="text-right p-4 font-semibold">Price</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 overflow-y-auto">
+          <tbody className="divide-y divide-slate-100">
             {order.items.map((item, i) => (
               <tr key={i} className="hover:bg-slate-50 transition-colors">
                 <td className="p-4">
@@ -35,7 +35,7 @@ export function OrderItemsTable({ order }: OrderItemsTableProps) {
               </tr>
             ))}
           </tbody>
-          <tfoot className="bg-slate-50/50 font-bold sticky bottom-0">
+          <tfoot className="bg-blue-50 font-bold sticky bottom-0 z-20 border-t-2 border-slate-200">
             <tr>
               <td colSpan={2} className="p-4 text-right text-slate-600">
                 Total Amount
