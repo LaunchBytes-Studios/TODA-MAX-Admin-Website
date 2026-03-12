@@ -60,9 +60,14 @@ export function useCreateMedication() {
 
       throw new Error(response.data.message);
     } catch (err: unknown) {
-      const axiosError = err as AxiosError<{ message: string }>;
+      const axiosError = err as AxiosError<{
+        message?: string;
+        error?: string;
+      }>;
       const errorMsg =
-        axiosError.response?.data?.message || 'Failed to create medication';
+        axiosError.response?.data?.error ||
+        axiosError.response?.data?.message ||
+        'Failed to create medication';
       setError(errorMsg);
       toast.error(errorMsg);
       return {

@@ -6,8 +6,10 @@ import { AnnouncementCard } from '../components/dashboard/AnnouncementCard';
 import { useState, useEffect } from 'react';
 import { useAlertMedication } from '@/hooks/medication/useAlertMedication';
 import { DashboardSkeleton } from '../components/skeleton/DashboardSkeleton';
+import { useNavigate } from 'react-router-dom';
 
 export function DashboardPage() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,6 +35,9 @@ export function DashboardPage() {
                 icon={<AlertTriangle />}
                 iconBgClassName="bg-orange-50"
                 iconColorClassName="text-orange-500"
+                onClick={() =>
+                  navigate('/inventory', { state: { tab: 'low-stock' } })
+                }
               />
               <StatsCard
                 title="Unread Inquiries"

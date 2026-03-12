@@ -23,8 +23,8 @@ export const StatsCard: React.FC<StatsCardProps> = ({
 }) => {
   return (
     <div
+      className={`bg-white rounded-lg border p-6 flex items-center justify-between ${onClick ? 'cursor-pointer hover:bg-gray-50 transition-colors' : ''} ${className}`}
       onClick={onClick}
-      className={`bg-white rounded-lg border p-6 flex items-center justify-between ${onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''} ${className}`}
     >
       <div className="space-y-2">
         <p className="text-sm text-gray-600">{title}</p>
