@@ -20,7 +20,7 @@ export default function OrderingPage() {
 
   // Dynamic stats based on live data
   const stats = {
-    total: orders.length,
+    total: orders.filter((o) => o.status !== 'rejected').length,
     newOrders: orders.filter((o) => o.status === 'pending').length,
     preparing: orders.filter((o) => o.status === 'preparing').length,
     ready: orders.filter((o) => o.status === 'ready').length,
@@ -76,7 +76,7 @@ export default function OrderingPage() {
       <h1 className="text-3xl font-bold mb-6">Orders</h1>
 
       <StatsCards
-        total={stats.total}
+        total={stats.completed}
         newOrders={stats.newOrders}
         preparing={stats.preparing}
         ready={stats.ready}

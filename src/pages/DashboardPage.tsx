@@ -19,8 +19,8 @@ export function DashboardPage() {
   }, []);
 
   const lowStockCount = medications.length;
-  const currentOrdersCount = orders.filter(
-    (o) => o.delivery_type === 'delivery',
+  const completedOrdersCount = orders.filter(
+    (o) => o.status === 'completed',
   ).length;
   const outForDeliveryCount = orders.filter(
     (o) => o.delivery_type === 'delivery' && o.status === 'ready',
@@ -64,21 +64,6 @@ export function DashboardPage() {
                   <p className="text-4xl font-bold text-blue-600">6</p>
                 </CardContent>
               </Card>
-
-              <Card className="bg-white shadow-sm">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0! pb-2">
-                  <span className="text-xl font-xl font-semibold">
-                    Current Orders
-                  </span>
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <Clock className="h-6 w-6 text-blue-600" />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-4xl font-bold">{currentOrdersCount}</p>
-                </CardContent>
-              </Card>
-
               <Card className="bg-white shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0! pb-2">
                   <span className="text-xl font-xl font-semibold">
@@ -91,6 +76,21 @@ export function DashboardPage() {
                 <CardContent>
                   <p className="text-4xl font-bold text-green-600">
                     {outForDeliveryCount}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="bg-white shadow-sm">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0! pb-2">
+                  <span className="text-xl font-xl font-semibold">
+                    Completed Orders
+                  </span>
+                  <div className="bg-green-50 p-3 rounded-lg">
+                    <Clock className="h-6 w-6 text-green-600" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold text-green-600">
+                    {completedOrdersCount}
                   </p>
                 </CardContent>
               </Card>
