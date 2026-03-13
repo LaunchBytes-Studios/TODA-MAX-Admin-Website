@@ -4,6 +4,7 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import InventoryPage from './pages/InventoryPage';
+import RewardsPage from './pages/RewardsPage';
 import MainLayout from './components/layout/MainLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import OrderingPage from './pages/OrderingPage';
@@ -30,10 +31,7 @@ function App() {
             path="/chat"
             element={<div className="p-6">Patient Chat Page</div>}
           />
-          <Route
-            path="/rewards"
-            element={<div className="p-6">Rewards Page</div>}
-          />
+          <Route path="/rewards" element={<RewardsPage />} />
         </Route>
       </Routes>
     </>

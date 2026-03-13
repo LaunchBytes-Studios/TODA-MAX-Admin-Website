@@ -12,7 +12,10 @@ import { useCreateMedication } from '@/hooks/medications/useCreateMedication';
 import { useDeleteMedication } from '@/hooks/medications/useDeleteMedication';
 import { useFetchMedications } from '@/hooks/medications/useFetchMedications';
 import type { FrontendMedicine } from '@/types/medication';
-import { INVENTORY_FILTER_OPTIONS } from '@/constants/tabs';
+import { INVENTORY_FILTER_GROUPS } from '@/constants/tabs';
+
+const GROUP_ALL_PREFIX = 'all:';
+const QUANTITY_FILTER_IDS = ['out-of-stock', 'low-stock', 'in-stock'];
 
 export function InventoryPage() {
   const location = useLocation();
@@ -36,17 +39,14 @@ export function InventoryPage() {
   const deferredSearch = useDeferredValue(searchTerm);
 
   const filters = useMemo(() => {
-    const hasLowStockFilter = selectedFilters.includes('low-stock');
-
     const trimmedSearch = deferredSearch.trim();
 
     return {
       search: trimmedSearch ? trimmedSearch : undefined,
-      lowStockOnly: hasLowStockFilter ? true : undefined,
       page: 1,
       limit: 100,
     };
-  }, [deferredSearch, selectedFilters]);
+  }, [deferredSearch]);
 
   const {
     medications,
@@ -55,19 +55,44 @@ export function InventoryPage() {
   } = useFetchMedications(filters);
 
   const selectedTypeFilters = useMemo(
-    () => selectedFilters.filter((filterId) => filterId !== 'low-stock'),
+    () =>
+      selectedFilters.filter(
+        (filterId) =>
+          !filterId.startsWith(GROUP_ALL_PREFIX) &&
+          !QUANTITY_FILTER_IDS.includes(filterId),
+      ),
+    [selectedFilters],
+  );
+
+  const selectedQuantityFilters = useMemo(
+    () =>
+      selectedFilters.filter(
+        (filterId) =>
+          !filterId.startsWith(GROUP_ALL_PREFIX) &&
+          QUANTITY_FILTER_IDS.includes(filterId),
+      ),
     [selectedFilters],
   );
 
   const filteredMedications = useMemo(() => {
-    if (selectedTypeFilters.length === 0) {
-      return medications;
-    }
+    return medications.filter((medicine) => {
+      const matchesType =
+        selectedTypeFilters.length === 0 ||
+        selectedTypeFilters.includes(medicine.category.toLowerCase());
 
-    return medications.filter((medicine) =>
-      selectedTypeFilters.includes(medicine.category.toLowerCase()),
-    );
-  }, [medications, selectedTypeFilters]);
+      const isOutOfStock = medicine.stock === 0;
+      const isLowStock =
+        medicine.stock > 0 && medicine.stock <= medicine.lowStockThreshold;
+      const isInStock = medicine.stock > medicine.lowStockThreshold;
+      const matchesQuantity =
+        selectedQuantityFilters.length === 0 ||
+        (selectedQuantityFilters.includes('out-of-stock') && isOutOfStock) ||
+        (selectedQuantityFilters.includes('low-stock') && isLowStock) ||
+        (selectedQuantityFilters.includes('in-stock') && isInStock);
+
+      return matchesType && matchesQuantity;
+    });
+  }, [medications, selectedTypeFilters, selectedQuantityFilters]);
 
   const isSearching = searchTerm.trim() !== '' && searchTerm !== deferredSearch;
 
@@ -154,7 +179,7 @@ export function InventoryPage() {
           onSearchChange={setSearchTerm}
           selectedFilters={selectedFilters}
           onFiltersChange={setSelectedFilters}
-          filterOptions={INVENTORY_FILTER_OPTIONS}
+          filterOptionGroups={INVENTORY_FILTER_GROUPS}
           onAddClick={() => setIsAddFormOpen(true)}
           isLoading={isSearching}
         />
@@ -162,7 +187,6 @@ export function InventoryPage() {
         <MedicinesList
           medicines={filteredMedications}
           loading={isContentLoading}
-          searchTerm={searchTerm}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onAddClick={() => setIsAddFormOpen(true)}

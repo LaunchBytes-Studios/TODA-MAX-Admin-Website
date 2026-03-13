@@ -15,6 +15,13 @@ export function useFetchRegistrationCodes() {
     setError(null);
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        const message = 'Access token is missing. Please log in again.';
+        setError(message);
+        toast.error(message);
+        setCodes([]);
+        return;
+      }
       const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
       const response = await api.get(`/enavigator/registrationCodes`, {
         headers,

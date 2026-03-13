@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios, { AxiosError } from 'axios';
+import { toast } from 'sonner';
 import type { ApiResponse, BackendMedication } from '@/types/medication';
 import { API_BASE_URL, mapBackendToFrontend } from '@/utils/medication.utils';
 
@@ -11,10 +12,21 @@ export function useSearchMedications() {
     try {
       setLoading(true);
       setError(null);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        const message = 'Access token is missing. Please log in again.';
+        setError(message);
+        toast.error(message);
+        return {
+          success: false,
+          error: message,
+        };
+      }
+      const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
       const response = await axios.get<ApiResponse<BackendMedication[]>>(
         `${API_BASE_URL}/medications/search`,
-        { params: { q: query } },
+        { params: { q: query }, headers },
       );
 
       if (response.data.success) {

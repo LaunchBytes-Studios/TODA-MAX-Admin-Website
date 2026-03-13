@@ -8,6 +8,7 @@ interface StatsCardProps {
   iconColorClassName?: string;
   className?: string;
   description?: string;
+  compact?: boolean;
   onClick?: () => void;
 }
 
@@ -19,26 +20,33 @@ export const StatsCard: React.FC<StatsCardProps> = ({
   iconColorClassName = '',
   className = '',
   description,
+  compact = false,
   onClick,
 }) => {
   return (
     <div
-      className={`bg-white rounded-lg border p-6 flex items-center justify-between ${onClick ? 'cursor-pointer hover:bg-gray-50 transition-colors' : ''} ${className}`}
+      className={`bg-white rounded-lg border flex items-center justify-between ${compact ? 'p-4' : 'p-6'} ${onClick ? 'cursor-pointer hover:bg-gray-50 transition-colors' : ''} ${className}`}
       onClick={onClick}
     >
-      <div className="space-y-2">
+      <div className={compact ? 'space-y-1.5' : 'space-y-2'}>
         <p className="text-sm text-gray-600">{title}</p>
-        <p className="text-3xl font-bold text-gray-900">{value}</p>
+        <p
+          className={`${compact ? 'text-2xl' : 'text-3xl'} font-bold text-gray-900`}
+        >
+          {value}
+        </p>
         {description && <p className="text-xs text-gray-400">{description}</p>}
       </div>
       {icon && (
-        <div className={`${iconBgClassName} p-3 rounded-lg`}>
+        <div
+          className={`${iconBgClassName} ${compact ? 'p-2.5' : 'p-3'} rounded-lg`}
+        >
           {React.isValidElement(icon)
             ? React.cloneElement(
                 icon as React.ReactElement<{ className?: string }>,
                 {
                   className:
-                    `size-6 ${iconColorClassName} ${(icon as React.ReactElement<{ className?: string }>).props.className ?? ''}`.trim(),
+                    `${compact ? 'size-5' : 'size-6'} ${iconColorClassName} ${(icon as React.ReactElement<{ className?: string }>).props.className ?? ''}`.trim(),
                 },
               )
             : icon}

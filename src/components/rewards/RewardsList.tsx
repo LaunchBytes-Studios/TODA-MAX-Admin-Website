@@ -1,25 +1,25 @@
-import { Search, Plus } from 'lucide-react';
-import { Button } from '../ui/button';
-import type { Medicine } from '@/data/medicines';
-import MedicineCard from './MedicineCard';
-import MedicineCardSkeleton from '../skeleton/MedicineCardSkeleton';
+import { Plus, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import MedicineCardSkeleton from '@/components/skeleton/MedicineCardSkeleton';
+import type { FrontendReward } from '@/types/reward';
+import RewardCard from '@/components/rewards/RewardCard';
 
-interface MedicinesListProps {
-  medicines: Medicine[];
+interface RewardsListProps {
+  rewards: FrontendReward[];
   loading: boolean;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
   onAddClick: () => void;
 }
 
-export function MedicinesList({
-  medicines,
+export function RewardsList({
+  rewards,
   loading,
   onEdit,
   onDelete,
   onAddClick,
-}: MedicinesListProps) {
-  if (loading && medicines.length > 0) {
+}: RewardsListProps) {
+  if (loading && rewards.length > 0) {
     return (
       <div className="space-y-4">
         {Array.from({ length: 3 }).map((_, index) => (
@@ -29,7 +29,7 @@ export function MedicinesList({
     );
   }
 
-  if (loading && medicines.length === 0) {
+  if (loading && rewards.length === 0) {
     return (
       <div className="space-y-4">
         {Array.from({ length: 5 }).map((_, index) => (
@@ -39,22 +39,22 @@ export function MedicinesList({
     );
   }
 
-  if (medicines.length === 0) {
+  if (rewards.length === 0) {
     return (
       <div className="bg-white rounded-lg border p-8 text-center">
         <div className="text-gray-400 mb-2">
           <Search className="w-12 h-12 mx-auto" />
         </div>
         <h3 className="text-lg font-medium text-gray-900 mb-2">
-          No medicines found
+          No rewards found
         </h3>
-        <p className="text-gray-600">No medicines found in this category.</p>
+        <p className="text-gray-600">No rewards found in this category.</p>
         <Button
           className="mt-4 bg-blue-600 hover:bg-blue-700"
           onClick={onAddClick}
         >
           <Plus className="w-4 h-4 mr-2" />
-          Add Medicine
+          Add Reward
         </Button>
       </div>
     );
@@ -62,16 +62,19 @@ export function MedicinesList({
 
   return (
     <div className="space-y-4">
-      {medicines.map((medicine) => (
-        <MedicineCard
-          key={medicine.id}
-          id={medicine.id}
-          name={medicine.name}
-          category={medicine.category}
-          description={medicine.description}
-          dosage={medicine.dosage}
-          stock={medicine.stock}
-          isLowStock={medicine.isLowStock}
+      {rewards.map((reward) => (
+        <RewardCard
+          key={reward.id}
+          id={reward.id}
+          rewardName={reward.rewardName}
+          description={reward.description}
+          category={reward.category}
+          pointsCost={reward.pointsCost}
+          totalRedeemed={reward.totalRedeemed}
+          code={reward.code}
+          stockAvailable={reward.stockAvailable}
+          isLowStock={reward.isLowStock}
+          isActive={reward.isActive}
           onEdit={onEdit}
           onDelete={onDelete}
         />

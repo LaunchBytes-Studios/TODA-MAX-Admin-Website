@@ -1,6 +1,9 @@
-import { Search, Plus, Loader2 } from 'lucide-react';
-import { Button } from '../ui/button';
-import { FilterModal, type FilterOptionGroup } from '../ui/filter-modal';
+import { Loader2, Plus, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  FilterModal,
+  type FilterOptionGroup,
+} from '@/components/ui/filter-modal';
 
 interface SearchAndFilterBarProps {
   searchTerm: string;
@@ -33,7 +36,7 @@ export function SearchAndFilterBar({
             )}
             <input
               type="text"
-              placeholder="Search medicines..."
+              placeholder="Search rewards..."
               className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
@@ -41,7 +44,7 @@ export function SearchAndFilterBar({
           </div>
 
           <FilterModal
-            title="Filter Medicines"
+            title="Filter Rewards"
             description="Select one or more tags by section to refine results."
             optionGroups={filterOptionGroups}
             selectedValues={selectedFilters}
@@ -56,7 +59,7 @@ export function SearchAndFilterBar({
           disabled={isLoading}
         >
           <Plus className="w-4 h-4 mr-2" />
-          Add Medicine
+          Add Reward
         </Button>
       </div>
     </div>

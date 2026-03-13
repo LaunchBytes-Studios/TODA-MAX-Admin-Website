@@ -12,7 +12,9 @@ export const mapBackendToFrontend = (
   price: backendMed.price,
   stock: backendMed.stock_qty,
   lowStockThreshold: backendMed.threshold_qty,
-  isLowStock: backendMed.stock_qty <= backendMed.threshold_qty,
+  isLowStock:
+    backendMed.stock_qty > 0 &&
+    backendMed.stock_qty <= backendMed.threshold_qty,
   description: backendMed.description ?? '',
   dosage: backendMed.dosage ?? 0,
 });

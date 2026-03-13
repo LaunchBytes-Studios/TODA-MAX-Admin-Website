@@ -23,9 +23,18 @@ export function useFetchMedications(filters?: MedicationFilters) {
   const fetchMedications = useCallback(async () => {
     try {
       setLoading(true);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        const message = 'Access token is missing. Please log in again.';
+        setError(message);
+        toast.error(message);
+        setMedications([]);
+        return;
+      }
+      const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
       const response = await axios.get<ApiResponse<BackendMedication[]>>(
         `${API_BASE_URL}/medications`,
-        { params: filters },
+        { params: filters, headers },
       );
 
       if (response.data.success) {
@@ -47,9 +56,14 @@ export function useFetchMedications(filters?: MedicationFilters) {
         toast.error(response.data.message);
       }
     } catch (err: unknown) {
-      const axiosError = err as AxiosError<{ message: string }>;
+      const axiosError = err as AxiosError<{
+        message?: string;
+        error?: string;
+      }>;
       const errorMsg =
-        axiosError.response?.data?.message || 'Failed to fetch medications';
+        axiosError.response?.data?.message ||
+        axiosError.response?.data?.error ||
+        'Session expired. Please log in again.';
       setError(errorMsg);
       toast.error(errorMsg);
       setMedications([]);

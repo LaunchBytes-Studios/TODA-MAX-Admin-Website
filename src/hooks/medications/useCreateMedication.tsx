@@ -24,6 +24,17 @@ export function useCreateMedication() {
     try {
       setLoading(true);
       setError(null);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        const message = 'Access token is missing. Please log in again.';
+        setError(message);
+        toast.error(message);
+        return {
+          success: false,
+          error: message,
+        };
+      }
+      const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
       let resolvedEnavId: string | undefined;
       const userStr = localStorage.getItem('user');
@@ -49,6 +60,7 @@ export function useCreateMedication() {
       const response = await axios.post<ApiResponse<BackendMedication>>(
         `${API_BASE_URL}/medications`,
         backendData,
+        { headers },
       );
       if (response.data.success) {
         toast.success('Medicine added successfully');

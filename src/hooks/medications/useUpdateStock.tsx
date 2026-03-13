@@ -12,10 +12,22 @@ export function useUpdateStock() {
     try {
       setLoading(true);
       setError(null);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        const message = 'Access token is missing. Please log in again.';
+        setError(message);
+        toast.error(message);
+        return {
+          success: false,
+          error: message,
+        };
+      }
+      const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
       const response = await axios.patch<ApiResponse<BackendMedication>>(
         `${API_BASE_URL}/medications/${id}/stock`,
         { stock_qty: stock },
+        { headers },
       );
 
       if (response.data.success) {
