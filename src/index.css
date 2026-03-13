@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @plugin "tailwindcss-animate";
 
@@ -165,4 +165,11 @@ body {
   }
 }
 
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
 
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
