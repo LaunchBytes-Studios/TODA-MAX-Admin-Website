@@ -69,9 +69,6 @@ export function OrderDetailsModal({
   // Check if order is completed by received_date
   const isCompleted = order.received_date != null;
 
-  // Check if order is completed by received_date
-  const isCompleted = order.received_date != null;
-
   // Workflow logic
   const currentStatus = (order.status || '').toLowerCase();
 
@@ -105,83 +102,12 @@ export function OrderDetailsModal({
           <OrderItemsTable order={order} />
 
           {/* Dynamic Action Buttons */}
-          <div className="flex flex-col gap-3 pt-4 border-t">
-            {isProcessing ? (
-              <Button
-                disabled
-                className="w-full h-12 bg-slate-100 text-slate-400"
-              >
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Updating
-                Order...
-              </Button>
-            ) : (
-              <>
-                {/* 1. New Order Workflow */}
-                {currentStatus === 'pending' && (
-                  <div className="flex gap-3">
-                    <Button
-                      variant="outline"
-                      className="flex-1 h-12 text-red-600 border-red-200 hover:bg-red-50"
-                      onClick={() => handleAction('rejected')}
-                    >
-                      <XCircle className="w-4 h-4 mr-2" /> Reject Order
-                    </Button>
-                    <Button
-                      className="flex-2 h-12 bg-green-600 hover:bg-green-700 text-white"
-                      onClick={() => handleAction('preparing')}
-                    >
-                      <CheckCircle className="w-4 h-4 mr-2" /> Accept & Prepare
-                    </Button>
-                  </div>
-                )}
-
-                {/* 2. Preparing Workflow */}
-                {currentStatus === 'preparing' && (
-                  <Button
-                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white"
-                    onClick={() => handleAction('ready')}
-                  >
-                    <Truck className="w-4 h-4 mr-2" />
-                    Mark as Ready
-                  </Button>
-                )}
-
-                {/* 3. Ready Workflow */}
-                {currentStatus === 'ready' && !isCompleted && (
-                  <div className="text-sm text-slate-500 text-center italic">
-                    Order is ready for{' '}
-                    {order.delivery_type === 'delivery' ? 'delivery' : 'pickup'}
-                    .
-                  </div>
-                )}
-
-                {currentStatus === 'ready_for_pickup' && (
-                  <Button
-                    className="w-full h-12 bg-green-600 hover:bg-green-700 text-white"
-                    onClick={() => handleAction('completed')}
-                  >
-                    <CheckCircle className="w-4 h-4 mr-2" /> Mark as Completed
-                  </Button>
-                )}
-
-                {/* 4. Completed/Rejected State */}
-                {(currentStatus === 'completed' ||
-                  currentStatus === 'rejected') &&
-                  order.received_date && (
-                    <Button
-                      variant="ghost"
-                      disabled
-                      className="w-full h-12 italic text-green-600"
-                    >
-                      <CheckCircle className="w-4 h-4" />
-                      <span>
-                        Received: {formatOrderDate(order.received_date)}
-                      </span>
-                    </Button>
-                  )}
-              </>
-            )}
-          </div>
+          <OrderActions
+            order={order}
+            isCompleted={isCompleted}
+            onAction={handleAction}
+            isProcessing={isProcessing}
+          />
         </div>
       </DialogContent>
     </Dialog>
