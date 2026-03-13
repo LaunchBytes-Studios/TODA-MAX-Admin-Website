@@ -30,13 +30,6 @@ interface Medication {
   category?: string;
 }
 
-function getStatusBadgeStyles(status: LowStockItem['status']) {
-  if (status === 'Very Low') {
-    return 'bg-red-100 text-red-700 hover:bg-red-100';
-  }
-  return 'bg-orange-100 text-orange-700 hover:bg-orange-100';
-}
-
 function LowStockTableContent({ items }: { items: LowStockItem[] }) {
   return (
     <Table>
@@ -64,9 +57,9 @@ function LowStockTableContent({ items }: { items: LowStockItem[] }) {
             <TableCell className="text-right">
               <Badge
                 variant="secondary"
-                className={getStatusBadgeStyles(item.status)}
+                className="bg-yellow-100 text-red-600 hover:bg-yellow-100 rounded-full px-3"
               >
-                {item.status}
+                Low Stock
               </Badge>
             </TableCell>
           </TableRow>
@@ -85,27 +78,15 @@ export function LowStockCard() {
     category: med.category ?? '',
     current: med.stock_qty ?? 0,
     minStock: med.threshold_qty ?? 0,
-    status: med.stock_qty <= (med.threshold_qty ?? 0) / 2 ? 'Very Low' : 'Low',
+    status: 'Low' as LowStockItem['status'],
   }));
 
   // Show only first 5 items in the card
   const previewItems = lowStockItems.slice(0, 5);
-  const veryLowCount = lowStockItems.filter(
-    (item: LowStockItem) => item.status === 'Very Low',
-  ).length;
 
   return (
     <DashboardCard
-      title={
-        <div className="flex items-center gap-2">
-          Low Stock Items
-          {veryLowCount > 0 && (
-            <Badge variant="destructive" className="text-xs">
-              {veryLowCount} Very Low
-            </Badge>
-          )}
-        </div>
-      }
+      title={<div className="flex items-center gap-2">Low Stock Items</div>}
       headerActions={
         <Dialog>
           <DialogTrigger asChild>
@@ -119,9 +100,6 @@ export function LowStockCard() {
               <DialogTitle className="flex items-center gap-2">
                 Low Stock Items
                 <Badge variant="outline">{lowStockItems.length} items</Badge>
-                {veryLowCount > 0 && (
-                  <Badge variant="destructive">{veryLowCount} Very Low</Badge>
-                )}
               </DialogTitle>
               <DialogDescription>
                 Detailed list of all medications that are low in stock. Consider
