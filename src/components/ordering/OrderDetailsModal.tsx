@@ -69,23 +69,6 @@ export function OrderDetailsModal({
   // Check if order is completed by received_date
   const isCompleted = order.received_date != null;
 
-  // Workflow logic
-  const currentStatus = (order.status || '').toLowerCase();
-
-  // Safe date formatting
-  const formatOrderDate = (dateString: string) => {
-    try {
-      if (!dateString) return 'Date unavailable';
-      return new Date(dateString).toLocaleString('en-PH', {
-        dateStyle: 'long',
-        timeStyle: 'short',
-      });
-    } catch (error) {
-      console.error('Date formatting error:', error);
-      return 'Date unavailable';
-    }
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl p-0 overflow-hidden border-none shadow-2xl">
