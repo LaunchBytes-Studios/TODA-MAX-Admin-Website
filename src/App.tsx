@@ -8,6 +8,7 @@ import RewardsPage from './pages/RewardsPage';
 import MainLayout from './components/layout/MainLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import OrderingPage from './pages/OrderingPage';
+import { SupportPage } from './pages/SupportPage';
 
 function App() {
   return (
@@ -27,10 +28,7 @@ function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/inventory" element={<InventoryPage />} />
           <Route path="/orders" element={<OrderingPage />} />
-          <Route
-            path="/chat"
-            element={<div className="p-6">Patient Chat Page</div>}
-          />
+          <Route path="/chat" element={<SupportPage />} />
           <Route path="/rewards" element={<RewardsPage />} />
         </Route>
       </Routes>
