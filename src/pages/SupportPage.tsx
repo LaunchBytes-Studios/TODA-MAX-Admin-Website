@@ -1,190 +1,73 @@
-import { useState } from 'react';
-import type { ChatSession, Message } from '@/types/chat';
-import type { Patient } from '@/types/patient';
+import { useEffect, useState } from 'react';
+import type { ChatSessionWithPatient, Message } from '@/types/chat';
 import { PatientChatArea } from '@/components/supportchat/PatientChatArea';
 import { SessionsSidebar } from '@/components/supportchat/SessionsSidebar';
-
-/* =========================
-   MOCK PATIENTS
-========================= */
-const patients: Patient[] = [
-  {
-    patientId: 'p1',
-    contact: 'sarah.johnson@email.com',
-    address: 'Quezon City',
-    diagnosis: { diabetes: false, hypertension: true },
-    birthday: new Date('1979-05-12'),
-    firstname: 'Sarah',
-    surname: 'Johnson',
-    sex: 'female',
-    philhealth_num: 'PH-10001',
-    avatar_url: '',
-  },
-  {
-    patientId: 'p2',
-    contact: 'michael.chen@email.com',
-    address: 'Manila',
-    diagnosis: { diabetes: true, hypertension: false },
-    birthday: new Date('1965-09-03'),
-    firstname: 'Michael',
-    surname: 'Chen',
-    sex: 'male',
-    philhealth_num: 'PH-10002',
-    avatar_url: '',
-  },
-  {
-    patientId: 'p3',
-    contact: 'emily.rodriguez@email.com',
-    address: 'Pasig City',
-    diagnosis: { diabetes: true, hypertension: true },
-    birthday: new Date('1992-01-20'),
-    firstname: 'Emily',
-    surname: 'Rodriguez',
-    sex: 'female',
-    philhealth_num: 'PH-10003',
-    avatar_url: '',
-  },
-  {
-    patientId: 'p4',
-    contact: 'david.thompson@email.com',
-    address: 'Makati',
-    diagnosis: { diabetes: true, hypertension: false },
-    birthday: new Date('1967-11-18'),
-    firstname: 'David',
-    surname: 'Thompson',
-    sex: 'male',
-    philhealth_num: 'PH-10004',
-    avatar_url: '',
-  },
-  {
-    patientId: 'p5',
-    contact: 'lisa.martinez@email.com',
-    address: 'Caloocan',
-    diagnosis: { diabetes: true, hypertension: false },
-    birthday: new Date('1983-07-09'),
-    firstname: 'Lisa',
-    surname: 'Martinez',
-    sex: 'female',
-    philhealth_num: 'PH-10005',
-    avatar_url: '',
-  },
-];
-
-/* =========================
-   CHAT SESSIONS
-========================= */
-const chatSessions: ChatSession[] = [
-  {
-    chat_id: 'c1',
-    patient_id: 'p1',
-    started_at: new Date('2026-04-11T08:00:00'),
-    last_message_at: new Date('2026-04-11T08:40:00'),
-    language: 'en',
-    chat_bot_active: true,
-  },
-  {
-    chat_id: 'c2',
-    patient_id: 'p2',
-    started_at: new Date('2026-04-11T07:10:00'),
-    last_message_at: new Date('2026-04-11T07:30:00'),
-    language: 'en',
-    chat_bot_active: true,
-  },
-  {
-    chat_id: 'c3',
-    patient_id: 'p3',
-    started_at: new Date('2026-04-10T18:00:00'),
-    last_message_at: new Date('2026-04-10T18:15:00'),
-    language: 'en',
-    chat_bot_active: false,
-  },
-  {
-    chat_id: 'c4',
-    patient_id: 'p4',
-    started_at: new Date('2026-04-09T12:00:00'),
-    last_message_at: new Date('2026-04-09T12:45:00'),
-    language: 'en',
-    chat_bot_active: false,
-  },
-  {
-    chat_id: 'c5',
-    patient_id: 'p5',
-    started_at: new Date('2026-04-10T09:00:00'),
-    last_message_at: new Date('2026-04-10T09:25:00'),
-    language: 'en',
-    chat_bot_active: true,
-  },
-];
-
-/* =========================
-   MESSAGES
-========================= */
-const messages: Message[] = [
-  {
-    message_id: 'm1',
-    chat_id: 'c1',
-    sender_id: 'p1',
-    role: 'patient',
-    content:
-      'Hi doctor, I forgot to take my blood pressure medication this morning. Should I take it now?',
-    created_at: '08:30:00',
-  },
-  {
-    message_id: 'm2',
-    chat_id: 'c1',
-    sender_id: 'enav',
-    role: 'enav',
-    content:
-      'Hello Sarah! Yes, you can take it now. Try to take it at the same time each day.',
-    created_at: '08:35:00',
-  },
-  {
-    message_id: 'm3',
-    chat_id: 'c1',
-    sender_id: 'p1',
-    role: 'patient',
-    content: 'Thank you! I will set a reminder on my phone.',
-    created_at: '08:40:00',
-  },
-  {
-    message_id: 'm4',
-    chat_id: 'c2',
-    sender_id: 'p2',
-    role: 'patient',
-    content: 'My sugar levels have been unstable lately.',
-    created_at: '07:20:00',
-  },
-  {
-    message_id: 'm5',
-    chat_id: 'c2',
-    sender_id: 'enav',
-    role: 'enav',
-    content: 'Please monitor your glucose levels and avoid high sugar intake.',
-    created_at: '07:30:00',
-  },
-];
+import { useGetChatSessions } from '@/hooks/supportchat/useChatSessionsWithPatients';
+import { useFetchMessages } from '@/hooks/supportchat/useFetchMessages';
+import { useSendMessage } from '@/hooks/supportchat/useSendMessage';
 
 export function SupportPage() {
   const [showDetails, setShowDetails] = useState(false);
-
-  const [selectedSession, setSelectedSession] = useState<ChatSession>(
-    chatSessions[0],
+  const [chatSessions, setChatSessions] = useState<ChatSessionWithPatient[]>(
+    [],
   );
-
-  const selectedPatient = patients.find(
-    (p) => p.patientId === selectedSession.patient_id,
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [selectedSession, setSelectedSession] =
+    useState<ChatSessionWithPatient>(chatSessions[0] ?? null);
+  const [botActive, setBotActive] = useState(
+    selectedSession?.chatbot_active ?? false,
   );
+  const [messageInput, setMessageInput] = useState('');
 
-  const [botActive, setBotActive] = useState(selectedSession.chat_bot_active);
+  const { getChatSessions, loading } = useGetChatSessions();
+  const { getMessages, loading: messagesLoading } = useFetchMessages();
+  const { sendMessage, loading: sending } = useSendMessage();
 
-  const filteredMessages = messages.filter(
-    (m) => m.chat_id === selectedSession.chat_id,
-  );
+  useEffect(() => {
+    const fetchSessions = async () => {
+      const res = await getChatSessions();
+      if (res.success) {
+        setChatSessions(res.data ?? []);
+        if (res.data && res.data.length > 0) {
+          setSelectedSession(res.data[0]);
+          setBotActive(res.data[0].chatbot_active);
+        }
+      }
+    };
 
-  const handleSessionSelect = (session: ChatSession) => {
+    fetchSessions();
+  }, []);
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (!selectedSession?.chat_id) return;
+
+      const res = await getMessages(selectedSession.chat_id);
+      if (res.success) {
+        setMessages(res.data ?? []);
+        setBotActive(selectedSession.chatbot_active);
+      }
+    };
+
+    fetchMessages();
+  }, [selectedSession]);
+
+  const handleSessionSelect = (session: ChatSessionWithPatient) => {
     setShowDetails(false);
     setSelectedSession(session);
-    setBotActive(session.chat_bot_active);
+    setBotActive(session.chatbot_active);
+    console.log('Selected session:', session);
+  };
+
+  const handleSend = async () => {
+    if (!messageInput.trim() || !selectedSession) return;
+
+    const res = await sendMessage(selectedSession.chat_id, messageInput);
+
+    if (res.success) {
+      setMessages((prev) => [...prev, res.data as Message]);
+      setMessageInput('');
+    }
   };
 
   return (
@@ -199,21 +82,31 @@ export function SupportPage() {
 
       <div className="flex flex-1 gap-6 min-h-0">
         {/* Sidebar */}
-        <SessionsSidebar
-          chatSessions={chatSessions}
-          patients={patients}
-          selectedSession={selectedSession}
-          onSessionSelect={handleSessionSelect}
-        />
+        {loading ? (
+          <div className="w-1/3 border flex flex-col bg-white rounded-xl shadow-lg items-center justify-center">
+            <p className="text-gray-500">Loading sessions...</p>
+          </div>
+        ) : (
+          <SessionsSidebar
+            chatSessions={chatSessions}
+            selectedSession={selectedSession}
+            onSessionSelect={handleSessionSelect}
+          />
+        )}
 
         {/* Chat Area */}
         <PatientChatArea
-          selectedPatient={selectedPatient}
-          filteredMessages={filteredMessages}
+          selectedPatient={selectedSession?.patient ?? null}
+          messages={messages}
           showDetails={showDetails}
           botActive={botActive}
           setShowDetails={setShowDetails}
           setBotActive={setBotActive}
+          loading={messagesLoading}
+          input={messageInput}
+          setInput={setMessageInput}
+          sending={sending}
+          handleSend={handleSend}
         />
       </div>
     </div>

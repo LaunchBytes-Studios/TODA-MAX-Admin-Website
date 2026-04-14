@@ -23,11 +23,11 @@ export function ChatBotToggle({
         }`}
       >
         <div
-          className={`w-8 h-8 bg-white rounded-full absolute top-0.5 flex items-center justify-center transition ${
+          className={`w-8 h-8 bg-white rounded-full absolute top-0.5 flex items-center justify-center transition text-blue-700 ${
             active ? 'right-1' : 'left-1'
           }`}
         >
-          {active ? <Bot size={16} /> : <BotOff size={16} />}
+          {active ? <Bot size={16} /> : <BotOff size={16} color="#6a7282" />}
         </div>
       </button>
     </div>

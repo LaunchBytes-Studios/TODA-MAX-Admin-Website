@@ -1,17 +1,14 @@
-import type { ChatSession } from '@/types/chat';
+import type { ChatSessionWithPatient } from '@/types/chat';
 import { PatientSessionItem } from './PatientSessionItem';
-import type { Patient } from '@/types/patient';
 
 interface SessionsSidebarProps {
-  chatSessions: ChatSession[];
-  patients: Patient[];
-  selectedSession: ChatSession;
-  onSessionSelect: (session: ChatSession) => void;
+  chatSessions: ChatSessionWithPatient[];
+  selectedSession: ChatSessionWithPatient;
+  onSessionSelect: (session: ChatSessionWithPatient) => void;
 }
 
 export function SessionsSidebar({
   chatSessions,
-  patients,
   selectedSession,
   onSessionSelect,
 }: SessionsSidebarProps) {
@@ -25,21 +22,22 @@ export function SessionsSidebar({
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {chatSessions.map((session) => {
-          const patient = patients.find(
-            (p) => p.patientId === session.patient_id,
-          );
-
-          return (
-            <PatientSessionItem
-              key={session.chat_id}
-              session={session}
-              patient={patient}
-              selected={session.chat_id === selectedSession.chat_id}
-              onClick={() => onSessionSelect(session)}
-            />
-          );
-        })}
+        {chatSessions.length > 0 ? (
+          chatSessions.map((session) => {
+            return (
+              <PatientSessionItem
+                key={session.chat_id}
+                session={session}
+                selected={
+                  selectedSession && session.chat_id === selectedSession.chat_id
+                }
+                onClick={() => onSessionSelect(session)}
+              />
+            );
+          })
+        ) : (
+          <p className="text-gray-500 p-4">No sessions available.</p>
+        )}
       </div>
     </div>
   );

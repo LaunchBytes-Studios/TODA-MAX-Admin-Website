@@ -1,17 +1,17 @@
-import type { ChatSession } from '@/types/chat';
-import type { Patient } from '@/types/patient';
+import type { ChatSessionWithPatient } from '@/types/chat';
+
+interface PatientSessionItemProps {
+  session: ChatSessionWithPatient;
+  selected: boolean;
+  onClick: () => void;
+}
 
 export function PatientSessionItem({
   session,
-  patient,
   selected,
   onClick,
-}: {
-  session: ChatSession;
-  patient?: Patient;
-  selected: boolean;
-  onClick: () => void;
-}) {
+}: PatientSessionItemProps) {
+  const patient = session.patient;
   const name = patient
     ? `${patient.firstname} ${patient.surname}`
     : 'Unknown Patient';
@@ -35,7 +35,7 @@ export function PatientSessionItem({
         <div className="flex justify-between">
           <p className="font-medium text-sm">{name}</p>
           <span className="text-xs text-gray-400">
-            {session.last_message_at.toLocaleTimeString([], {
+            {new Date(session.last_message_at).toLocaleTimeString([], {
               hour: '2-digit',
               minute: '2-digit',
             })}
