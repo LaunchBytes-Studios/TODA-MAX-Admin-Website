@@ -7,7 +7,6 @@ export function useGenerateRegistrationCodes() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Generate a registration code
   const generateRegistrationCode = async (
     onSuccess?: () => void | Promise<void>,
   ) => {
@@ -23,7 +22,6 @@ export function useGenerateRegistrationCodes() {
       }
       const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
-      // Run maintenance before generating to clean up old codes
       try {
         await api.post(
           `/enavigator/registrationCodes/maintenance`,
@@ -37,7 +35,6 @@ export function useGenerateRegistrationCodes() {
       await api.post('/enavigator/registrationCodes/generate', {}, { headers });
       toast.success('Registration code generated successfully!');
 
-      // Call the success callback if provided (e.g., to refetch codes)
       if (onSuccess) {
         await onSuccess();
       }

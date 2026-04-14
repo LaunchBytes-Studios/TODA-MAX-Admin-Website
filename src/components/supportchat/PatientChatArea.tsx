@@ -4,10 +4,10 @@ import { ChatMessage } from './ChatMessage';
 import { ChevronDown, Loader } from 'lucide-react';
 import { ChatBotToggle } from './ChatBotToggle';
 import { ExpandedPatientDetails } from './ExpandedPatientDetails';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface PatientChatAreaProps {
-  selectedPatient?: Patient;
+  selectedPatient?: Patient | null;
   messages: Message[];
   showDetails: boolean;
   botActive: boolean;
@@ -33,12 +33,10 @@ export function PatientChatArea({
   sending,
   handleSend,
 }: PatientChatAreaProps) {
-  useEffect(() => {
-    const el = document.getElementById('chat-container');
-    if (!el) return;
+  const bottomRef = useRef<HTMLDivElement | null>(null);
 
-    el.scrollTo({
-      top: el.scrollHeight,
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({
       behavior: 'smooth',
     });
   }, [messages]);
@@ -51,10 +49,20 @@ export function PatientChatArea({
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
             {/* Avatar */}
-            <div className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-500 text-white font-semibold">
-              {selectedPatient
-                ? `${selectedPatient.firstname[0]}${selectedPatient.surname[0]}`
-                : '??'}
+            <div className="w-11 h-11 flex items-center justify-center rounded-full bg-blue-500 text-white font-semibold border border-blue-500">
+              {selectedPatient ? (
+                selectedPatient.avatar_url ? (
+                  <img
+                    src={selectedPatient.avatar_url}
+                    alt="Avatar"
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                ) : (
+                  `${selectedPatient.firstname[0]}${selectedPatient.surname[0]}`
+                )
+              ) : (
+                '??'
+              )}
             </div>
 
             {/* Basic Info */}
@@ -103,18 +111,19 @@ export function PatientChatArea({
 
       {/* Messages */}
       {loading ? (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-gray-500">Loading messages...</p>
+        <div className="flex-1 flex items-center justify-center flex-col">
+          <Loader type="spin" color="#2b7fff" height={40} width={40} />
+          <p className="text-blue-500 font-medium text-lg">
+            Loading messages...
+          </p>
         </div>
       ) : (
-        <div
-          id="chat-container"
-          className="flex-1 min-h-0 overflow-y-auto pl-6 py-4 flex flex-col"
-        >
-          <div className="mt-auto flex flex-col gap-4 pr-4 mr-2 overflow-y-scroll">
+        <div className="flex-1 min-h-0 overflow-y-auto pl-6 pt-4 pb-8 flex flex-col">
+          <div className="mt-auto flex flex-col pr-4 mr-2 min-h-full">
             {messages.map((m) => (
               <ChatMessage key={m.message_id} message={m} />
             ))}
+            <div ref={bottomRef} />
           </div>
         </div>
       )}

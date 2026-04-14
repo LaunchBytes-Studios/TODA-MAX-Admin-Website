@@ -23,7 +23,7 @@ export function ExpandedPatientDetails({
         </p>
         <p>
           <span className="text-gray-500">PhilHealth:</span>{' '}
-          {selectedPatient.philhealth_num}
+          {selectedPatient.philhealth_num || 'N/A'}
         </p>
         <p>
           <span className="text-gray-500">Birthday:</span>{' '}

@@ -27,8 +27,17 @@ export function PatientSessionItem({
         selected ? 'bg-gray-100' : 'hover:bg-gray-50'
       }`}
     >
-      <div className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-500 text-white font-semibold">
-        {initials}
+      <div className="w-11 h-11 flex items-center justify-center rounded-full bg-blue-500 text-white font-semibold border border-blue-500">
+        {patient &&
+          (patient.avatar_url ? (
+            <img
+              src={patient.avatar_url}
+              alt="Avatar"
+              className="w-full h-full object-cover rounded-full"
+            />
+          ) : (
+            initials
+          ))}
       </div>
 
       <div className="flex-1">

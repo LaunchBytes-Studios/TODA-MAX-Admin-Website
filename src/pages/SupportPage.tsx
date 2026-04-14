@@ -5,6 +5,8 @@ import { SessionsSidebar } from '@/components/supportchat/SessionsSidebar';
 import { useGetChatSessions } from '@/hooks/supportchat/useChatSessionsWithPatients';
 import { useFetchMessages } from '@/hooks/supportchat/useFetchMessages';
 import { useSendMessage } from '@/hooks/supportchat/useSendMessage';
+import { SupportChatSkeleton } from '@/components/skeleton/SupportChatSkeleton';
+import { supabase } from '@/lib/supabaseClient';
 
 export function SupportPage() {
   const [showDetails, setShowDetails] = useState(false);
@@ -13,50 +15,96 @@ export function SupportPage() {
   );
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedSession, setSelectedSession] =
-    useState<ChatSessionWithPatient>(chatSessions[0] ?? null);
-  const [botActive, setBotActive] = useState(
-    selectedSession?.chatbot_active ?? false,
-  );
+    useState<ChatSessionWithPatient | null>(null);
+  const [botActive, setBotActive] = useState(false);
   const [messageInput, setMessageInput] = useState('');
 
-  const { getChatSessions, loading } = useGetChatSessions();
   const { getMessages, loading: messagesLoading } = useFetchMessages();
+  const { getChatSessions, loading } = useGetChatSessions();
   const { sendMessage, loading: sending } = useSendMessage();
 
   useEffect(() => {
     const fetchSessions = async () => {
       const res = await getChatSessions();
       if (res.success) {
-        setChatSessions(res.data ?? []);
-        if (res.data && res.data.length > 0) {
-          setSelectedSession(res.data[0]);
-          setBotActive(res.data[0].chatbot_active);
+        const sessions = res.data ?? [];
+        setChatSessions(sessions);
+
+        if (sessions.length > 0) {
+          setSelectedSession(sessions[0]);
+          setBotActive(sessions[0].chatbot_active);
         }
       }
     };
 
     fetchSessions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchMessages = async () => {
       if (!selectedSession?.chat_id) return;
 
+      setMessages([]);
+
       const res = await getMessages(selectedSession.chat_id);
+
+      if (!isMounted) return;
+
       if (res.success) {
         setMessages(res.data ?? []);
-        setBotActive(selectedSession.chatbot_active);
       }
     };
 
     fetchMessages();
+
+    return () => {
+      isMounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSession]);
+
+  useEffect(() => {
+    if (!selectedSession?.chat_id) return;
+
+    const channel = supabase
+      .channel(`chat-${selectedSession.chat_id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'ChatMessages',
+          filter: `chat_id=eq.${selectedSession.chat_id}`,
+        },
+        (payload) => {
+          const newMessage = payload.new as Message;
+
+          setMessages((prev) => {
+            const exists = prev.some(
+              (msg) => msg.message_id === newMessage.message_id,
+            );
+            if (exists) return prev;
+
+            return [...prev, newMessage];
+          });
+        },
+      )
+      .subscribe((status) => {
+        console.log('Realtime status:', status);
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [selectedSession]);
 
   const handleSessionSelect = (session: ChatSessionWithPatient) => {
     setShowDetails(false);
     setSelectedSession(session);
     setBotActive(session.chatbot_active);
-    console.log('Selected session:', session);
   };
 
   const handleSend = async () => {
@@ -65,7 +113,6 @@ export function SupportPage() {
     const res = await sendMessage(selectedSession.chat_id, messageInput);
 
     if (res.success) {
-      setMessages((prev) => [...prev, res.data as Message]);
       setMessageInput('');
     }
   };
@@ -80,35 +127,33 @@ export function SupportPage() {
         </p>
       </div>
 
-      <div className="flex flex-1 gap-6 min-h-0">
-        {/* Sidebar */}
-        {loading ? (
-          <div className="w-1/3 border flex flex-col bg-white rounded-xl shadow-lg items-center justify-center">
-            <p className="text-gray-500">Loading sessions...</p>
-          </div>
-        ) : (
+      {loading ? (
+        <SupportChatSkeleton />
+      ) : (
+        <div className="flex flex-1 gap-6 min-h-0">
+          {/* Sidebar */}
           <SessionsSidebar
             chatSessions={chatSessions}
             selectedSession={selectedSession}
             onSessionSelect={handleSessionSelect}
           />
-        )}
 
-        {/* Chat Area */}
-        <PatientChatArea
-          selectedPatient={selectedSession?.patient ?? null}
-          messages={messages}
-          showDetails={showDetails}
-          botActive={botActive}
-          setShowDetails={setShowDetails}
-          setBotActive={setBotActive}
-          loading={messagesLoading}
-          input={messageInput}
-          setInput={setMessageInput}
-          sending={sending}
-          handleSend={handleSend}
-        />
-      </div>
+          {/* Chat Area */}
+          <PatientChatArea
+            selectedPatient={selectedSession?.patient ?? null}
+            messages={messages}
+            showDetails={showDetails}
+            botActive={botActive}
+            setShowDetails={setShowDetails}
+            setBotActive={setBotActive}
+            loading={messagesLoading}
+            input={messageInput}
+            setInput={setMessageInput}
+            sending={sending}
+            handleSend={handleSend}
+          />
+        </div>
+      )}
     </div>
   );
 }

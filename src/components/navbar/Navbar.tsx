@@ -5,16 +5,16 @@ import logo from '../../assets/logo.png';
 import NavItem from './NavItem';
 import { NAV_ITEMS, LOGOUT_ITEM } from '../../constants/navigation';
 import { toast } from 'sonner';
+import { useLogout } from '@/hooks/auth/useLogout';
 
 const Navbar: React.FC = () => {
+  const { logout } = useLogout();
   const navigate = useNavigate();
   const location = useLocation();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  const handleLogout = async () => {
+    await logout();
 
     toast.success('Logged out successfully!', {
       style: {
@@ -23,8 +23,6 @@ const Navbar: React.FC = () => {
         border: '1px solid #bbf7d0',
       },
     });
-
-    navigate('/login');
     setShowLogoutConfirm(false);
   };
 

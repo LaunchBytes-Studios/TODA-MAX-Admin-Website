@@ -3,7 +3,7 @@ import { PatientSessionItem } from './PatientSessionItem';
 
 interface SessionsSidebarProps {
   chatSessions: ChatSessionWithPatient[];
-  selectedSession: ChatSessionWithPatient;
+  selectedSession: ChatSessionWithPatient | null;
   onSessionSelect: (session: ChatSessionWithPatient) => void;
 }
 
@@ -29,7 +29,8 @@ export function SessionsSidebar({
                 key={session.chat_id}
                 session={session}
                 selected={
-                  selectedSession && session.chat_id === selectedSession.chat_id
+                  selectedSession !== null &&
+                  session.chat_id === selectedSession.chat_id
                 }
                 onClick={() => onSessionSelect(session)}
               />
