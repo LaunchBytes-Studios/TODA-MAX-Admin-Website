@@ -36,7 +36,7 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
             {order.patient_name || 'Unknown'}
           </p>
           <p className="text-sm text-muted-foreground">
-            {formatOrderDate(order.created_at)}
+            {formatOrderDate(order.order_date)}
           </p>
           {order.received_date && order.status === 'completed' && (
             <p className="text-sm text-green-600 font-medium">

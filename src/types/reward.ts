@@ -59,7 +59,7 @@ export interface RewardCodeVerificationData {
   patientName: string;
   rewardId: number | null;
   rewardName: string;
-  transDate: string | null;
+  createdAt: string | null;
   validatedByEnavId: string | null;
   isValid: boolean;
   isFinalized: boolean;

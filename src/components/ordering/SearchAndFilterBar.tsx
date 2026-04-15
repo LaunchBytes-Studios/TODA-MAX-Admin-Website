@@ -18,6 +18,7 @@ const TABS = [
 ];
 
 const DELIVERY_TYPES = [
+  { id: 'all', label: 'All' },
   { id: 'delivery', label: 'For Delivery' },
   { id: 'pickup', label: 'For Pickup' },
 ];
