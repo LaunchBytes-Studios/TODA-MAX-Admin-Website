@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import type { Order } from '@/hooks/ordering/useOrders';
 import type { OrderStatus } from '@/hooks/ordering/updateOrder';
 import {
@@ -34,6 +34,7 @@ export function OrderDetailsModal({
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent>
+          <DialogTitle className="sr-only">Error</DialogTitle>
           <div className="p-4 text-red-600">
             Error: Order status is missing. Please try again.
           </div>
@@ -42,11 +43,11 @@ export function OrderDetailsModal({
     );
   }
 
-  console.log('OrderDetailsModal - Order data:', order); // Debug log
+  console.log('OrderDetailsModal - Order data:', order);
 
   const handleAction = async (newStatus: OrderStatus) => {
     try {
-      setIsProcessing(true); // Start loading
+      setIsProcessing(true);
       if (!order?.id) {
         console.error('Order ID is missing');
         alert('Error: Order ID is missing');
@@ -57,34 +58,34 @@ export function OrderDetailsModal({
       await onUpdateStatus(order.id, newStatus);
 
       console.log('Update successful');
-      onClose(); // Close modal only on success
+      onClose();
     } catch (error) {
       console.error('Action failed:', error);
       alert('Could not update order. Please check console.');
     } finally {
-      setIsProcessing(false); // ALWAYS stop loading, even on error
+      setIsProcessing(false);
     }
   };
 
-  // Check if order is completed by received_date
   const isCompleted = order.received_date != null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl p-0 overflow-hidden border-none shadow-2xl">
+      <DialogContent
+        className="max-w-3xl p-0 overflow-hidden border-none shadow-2xl"
+        aria-describedby={undefined}
+      >
+        <DialogTitle className="sr-only">Order Details</DialogTitle>
         <OrderHeader order={order} />
 
         <div className="p-6 space-y-6 bg-white">
-          {/* Patient & Address Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <PatientDetails order={order} />
             <DeliveryInfo order={order} isCompleted={isCompleted} />
           </div>
 
-          {/* Items Table */}
           <OrderItemsTable order={order} />
 
-          {/* Dynamic Action Buttons */}
           <OrderActions
             order={order}
             isCompleted={isCompleted}
