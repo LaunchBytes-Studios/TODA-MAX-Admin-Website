@@ -88,7 +88,15 @@ export function useOrders(
 
         setOrders(formattedOrders);
         setTotal(res.data.pagination?.total || 0);
-        setStats(res.data.stats);
+        setStats(
+          res.data.stats ?? {
+            total: 0,
+            pending: 0,
+            preparing: 0,
+            ready: 0,
+            completed: 0,
+          },
+        );
         setError(null);
       })
       .catch((err) => {
@@ -174,10 +182,8 @@ export function useOrders(
     const result = await updateOrderStatusApi(orderId, newStatus);
 
     if (result.success) {
-      setOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)),
-      );
       toast.success(`Order updated to ${newStatus}`);
+      fetchOrders();
     } else {
       toast.error(result.data?.message || 'Update failed');
     }
