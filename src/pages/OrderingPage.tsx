@@ -5,8 +5,9 @@ import { SearchAndFilterBar } from '@/components/ordering/SearchAndFilterBar';
 import { OrdersList } from '@/components/ordering/OrderList';
 import { OrderDetailsModal } from '@/components/ordering/OrderDetailsModal';
 import { useOrders } from '@/hooks/ordering/useOrders';
-import type { Order } from '@/hooks/ordering/useOrders';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { useNotifications } from '@/contexts/NotificationContext';
+import type { Order } from '@/types/order';
 
 export default function OrderingPage() {
   const [activeTab, setActiveTab] = useState('pending');
@@ -32,6 +33,12 @@ export default function OrderingPage() {
   useEffect(() => {
     setPage(1);
   }, [activeTab, deliveryFilter, searchTerm, setPage]);
+  const { resetOrders } = useNotifications();
+
+  useEffect(() => {
+    resetOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (loading) return <OrderingPageSkeleton />;
   if (error) return <div className="text-red-500">Error: {error}</div>;

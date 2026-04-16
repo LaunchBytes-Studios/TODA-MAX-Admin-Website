@@ -2,7 +2,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatMoney } from '@/lib/utils';
-import type { Order } from '@/hooks/ordering/useOrders';
+import type { Order } from '@/types/order';
 
 interface OrderCardProps {
   order: Order; // Use the main Order interface

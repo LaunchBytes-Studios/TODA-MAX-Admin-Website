@@ -8,8 +8,10 @@ import { useSendMessage } from '@/hooks/supportchat/useSendMessage';
 import { SupportChatSkeleton } from '@/components/skeleton/SupportChatSkeleton';
 import { supabase } from '@/lib/supabaseClient';
 import { useToggleChatbot } from '@/hooks/supportchat/useToggleChatbot';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 export function SupportPage() {
+  const { resetChats } = useNotifications();
   const [showDetails, setShowDetails] = useState(false);
   const [chatSessions, setChatSessions] = useState<ChatSessionWithPatient[]>(
     [],
@@ -27,6 +29,7 @@ export function SupportPage() {
   const { sendMessage, loading: sending } = useSendMessage();
 
   useEffect(() => {
+    resetChats();
     const fetchSessions = async () => {
       const res = await getChatSessions();
       if (res.success) {

@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
+import type { Order } from '@/types/order';
 import { MapPin } from 'lucide-react';
-import type { Order } from '@/hooks/ordering/useOrders';
 
 interface DeliveryInfoProps {
   order: Order;

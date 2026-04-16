@@ -1,5 +1,5 @@
+import type { Order } from '@/types/order';
 import { Calendar } from 'lucide-react';
-import type { Order } from '@/hooks/ordering/useOrders';
 
 interface OrderHeaderProps {
   order: Order;
