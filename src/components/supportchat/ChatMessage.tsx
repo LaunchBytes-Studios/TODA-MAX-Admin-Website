@@ -19,8 +19,19 @@ export function ChatMessage({ message }: { message: Message }) {
         }`}
       >
         {isChatBot && <BotMessageSquare size={20} />}
-        <div className="text-sm prose prose-sm max-w-none">
-          <ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml={true}>
+        <div className="text-sm prose prose-sm max-w-none prose-invert">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            skipHtml={true}
+            components={{
+              ul: ({ children }) => (
+                <ul className="list-disc pl-5">{children}</ul>
+              ),
+              ol: ({ children }) => (
+                <ol className="list-decimal pl-5">{children}</ol>
+              ),
+            }}
+          >
             {message.content}
           </ReactMarkdown>
         </div>
