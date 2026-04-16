@@ -27,13 +27,10 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'ChatMessages' },
         (payload) => {
-          console.log('🔥 REALTIME MESSAGE:', payload); // 👈 ADD THIS
           eventBus.emit('chat:new-message', payload.new);
         },
       )
-      .subscribe((status) => {
-        console.log('📡 ChatMessages status:', status); // 👈 ADD THIS
-      });
+      .subscribe();
 
     // =========================
     // CHAT SESSION UPDATES
@@ -44,6 +41,7 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'ChatSession' },
         (payload) => {
+          console.log('New Chat Session Update', payload.new);
           eventBus.emit('chat:session-update', payload.new);
         },
       )

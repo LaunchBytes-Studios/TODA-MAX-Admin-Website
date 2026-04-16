@@ -53,6 +53,7 @@ const Navbar: React.FC = () => {
 
                   if (item.path === '/chat') badge = unreadChats;
                   if (item.path === '/orders') badge = newOrders;
+
                   return (
                     <NavItem
                       key={item.name}

@@ -20,4 +20,5 @@ export interface Message {
 
 export interface ChatSessionWithPatient extends ChatSession {
   patient: Patient;
+  has_unread?: boolean;
 }

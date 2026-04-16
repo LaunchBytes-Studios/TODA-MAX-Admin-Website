@@ -19,18 +19,34 @@ export function NotificationProvider({
     const unsubChat = eventBus.on('chat:new-message', (msg: Message) => {
       console.log('CHAT EVENT RECEIVED', msg);
 
+      if (msg.role !== 'patient') {
+        return;
+      }
+      const isOnSupportPage = location.pathname.startsWith('/chat');
+      if (isOnSupportPage) {
+        setUnreadChats(0);
+        return;
+      }
+
       setUnreadChats((prev) => {
-        console.log('prev chats:', prev);
         return prev + 1;
       });
 
       toast.info('New Message', {
-        description: msg.content?.slice(0, 30) || 'New message',
+        description: msg.content
+          ? `${msg.content.slice(0, 45)}${msg.content.length > 45 ? '...' : ''}`
+          : 'New message',
       });
     });
 
     const unsubOrder = eventBus.on('order:new', (order: Order) => {
       console.log('ORDER EVENT RECEIVED', order);
+
+      const isOnOrdersPage = location.pathname.startsWith('/orders');
+      if (isOnOrdersPage) {
+        setNewOrders(0);
+        return;
+      }
 
       setNewOrders((prev) => {
         console.log('prev orders:', prev);
@@ -38,7 +54,7 @@ export function NotificationProvider({
       });
 
       toast.success('New Order', {
-        description: `Order #${order.order_id?.slice(0, 8)}`,
+        description: `Order #${order.order_id?.slice(0, 8).toUpperCase()}`,
       });
     });
 
