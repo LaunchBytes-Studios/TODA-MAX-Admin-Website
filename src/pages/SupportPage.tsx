@@ -130,6 +130,7 @@ export function SupportPage() {
     return () => {
       supabase.removeChannel(channel);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSession]);
 
   const handleSessionSelect = (session: ChatSessionWithPatient) => {
