@@ -7,6 +7,7 @@ import { useFetchMessages } from '@/hooks/supportchat/useFetchMessages';
 import { useSendMessage } from '@/hooks/supportchat/useSendMessage';
 import { SupportChatSkeleton } from '@/components/skeleton/SupportChatSkeleton';
 import { supabase } from '@/lib/supabaseClient';
+import { useToggleChatbot } from '@/hooks/supportchat/useToggleChatbot';
 
 export function SupportPage() {
   const [showDetails, setShowDetails] = useState(false);
@@ -16,7 +17,9 @@ export function SupportPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedSession, setSelectedSession] =
     useState<ChatSessionWithPatient | null>(null);
+  const { toggleChatbot } = useToggleChatbot();
   const [botActive, setBotActive] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
   const [messageInput, setMessageInput] = useState('');
 
   const { getMessages, loading: messagesLoading } = useFetchMessages();
@@ -71,6 +74,8 @@ export function SupportPage() {
 
     const channel = supabase
       .channel(`chat-${selectedSession.chat_id}`)
+
+      // MESSAGES
       .on(
         'postgres_changes',
         {
@@ -92,6 +97,32 @@ export function SupportPage() {
           });
         },
       )
+      // CHATBOT TOGGLE
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'ChatSession',
+          filter: `chat_id=eq.${selectedSession.chat_id}`,
+        },
+        (payload) => {
+          const updatedSession = payload.new as ChatSessionWithPatient;
+
+          if (!isToggling) {
+            setBotActive(updatedSession.chatbot_active);
+          }
+
+          setChatSessions((prev) =>
+            prev.map((s) =>
+              s.chat_id === updatedSession.chat_id
+                ? { ...s, chatbot_active: updatedSession.chatbot_active }
+                : s,
+            ),
+          );
+        },
+      )
+
       .subscribe((status) => {
         console.log('Realtime status:', status);
       });
@@ -114,6 +145,20 @@ export function SupportPage() {
 
     if (res.success) {
       setMessageInput('');
+    }
+  };
+
+  const handleToggleBot = async (value: boolean) => {
+    if (!selectedSession) return;
+
+    setIsToggling(true);
+    setBotActive(value);
+
+    const res = await toggleChatbot(selectedSession.chat_id, value);
+    setIsToggling(false);
+
+    if (!res.success) {
+      setBotActive(!value);
     }
   };
 
@@ -145,7 +190,7 @@ export function SupportPage() {
             showDetails={showDetails}
             botActive={botActive}
             setShowDetails={setShowDetails}
-            setBotActive={setBotActive}
+            setBotActive={handleToggleBot}
             loading={messagesLoading}
             input={messageInput}
             setInput={setMessageInput}

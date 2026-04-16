@@ -55,15 +55,13 @@ export function StatsCards({
       </Card>
       <Card className="bg-white shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between space-y-0! pb-2">
-          <span className="text-xl font-xl font-semibold">
-            Completed Orders
-          </span>
-          <div className="bg-green-50 p-3 rounded-lg">
-            <Clock className="h-6 w-6 text-green-600" />
+          <span className="text-xl font-xl font-semibold">Total Orders</span>
+          <div className="bg-purple-50 p-3 rounded-lg">
+            <Clock className="h-6 w-6 text-purple-600" />
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-4xl font-bold text-green-600">{total}</p>
+          <p className="text-4xl font-bold text-purple-600">{total}</p>
         </CardContent>
       </Card>
     </div>
