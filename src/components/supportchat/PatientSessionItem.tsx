@@ -25,7 +25,7 @@ export function PatientSessionItem({
     <div
       onClick={onClick}
       className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition border-b
-        ${selected ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+        ${selected ? 'bg-blue-200 border border-blue-300' : session.has_unread ? 'bg-red-100' : 'hover:bg-gray-50'}`}
     >
       {/* Avatar */}
       <div className="relative w-11 h-11 flex shrink-0">

@@ -39,10 +39,18 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
       .channel('global:chat-sessions')
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'ChatSession' },
+        { event: '*', schema: 'public', table: 'ChatSession' },
         (payload) => {
-          console.log('New Chat Session Update', payload.new);
-          eventBus.emit('chat:session-update', payload.new);
+          console.log('New Chat Session Update', {
+            new: payload.new,
+            old: payload.old,
+            eventType: payload.eventType,
+          });
+          eventBus.emit('chat:session-change', {
+            new: payload.new,
+            old: payload.old,
+            eventType: payload.eventType,
+          });
         },
       )
       .subscribe();

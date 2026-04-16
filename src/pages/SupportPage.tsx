@@ -10,6 +10,13 @@ import { supabase } from '@/lib/supabaseClient';
 import { useToggleChatbot } from '@/hooks/supportchat/useToggleChatbot';
 import { eventBus } from '@/utils/eventBus';
 import { useNotifications } from '@/contexts/NotificationContext';
+import { useHydrateChatSession } from '@/hooks/supportchat/useHydrateChatSession';
+
+type SessionChangePayload = {
+  new: ChatSessionWithPatient | null;
+  old: ChatSessionWithPatient | null;
+  eventType: 'INSERT' | 'UPDATE' | 'DELETE';
+};
 
 export function SupportPage() {
   const { resetChats } = useNotifications();
@@ -31,6 +38,7 @@ export function SupportPage() {
   const { getMessages, loading: messagesLoading } = useFetchMessages();
   const { getChatSessions, loading } = useGetChatSessions();
   const { sendMessage, loading: sending } = useSendMessage();
+  const { hydrateChatSession } = useHydrateChatSession();
 
   useEffect(() => {
     selectedSessionRef.current = selectedSession;
@@ -135,7 +143,6 @@ export function SupportPage() {
             return exists ? prev : [...prev, newMessage];
           });
 
-          // mark THIS session as read
           setChatSessions((prev) =>
             prev.map((s) =>
               s.chat_id === selectedSession.chat_id
@@ -175,43 +182,89 @@ export function SupportPage() {
   }, [selectedSession?.chat_id]);
 
   useEffect(() => {
-    const channel = supabase
-      .channel('global:chat-session-sync')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'ChatSession',
-        },
-        (payload) => {
-          const updated = payload.new as ChatSessionWithPatient;
+    const unsubscribe = eventBus.on(
+      'chat:session-change',
+      async (payload: SessionChangePayload) => {
+        const { eventType, new: session, old } = payload;
 
-          setChatSessions((prev) =>
-            prev.map((s) =>
-              s.chat_id === updated.chat_id
+        if (eventType === 'INSERT' && session) {
+          const res = await hydrateChatSession(session.chat_id);
+
+          if (!res.success || !res.data) return;
+
+          const fullSession = res.data;
+
+          setChatSessions((prev) => {
+            const updated = [
+              {
+                ...fullSession,
+                has_unread: true,
+              },
+              ...prev,
+            ];
+
+            return updated.sort(
+              (a, b) =>
+                new Date(b.last_message_at).getTime() -
+                new Date(a.last_message_at).getTime(),
+            );
+          });
+
+          return;
+        }
+
+        if (eventType === 'UPDATE' && session) {
+          setChatSessions((prev) => {
+            const updated = prev.map((s) =>
+              s.chat_id === session.chat_id
                 ? {
                     ...s,
-                    chatbot_active: updated.chatbot_active,
-                    last_message_at:
-                      updated.last_message_at ?? s.last_message_at,
+                    chatbot_active: session.chatbot_active,
+                    last_message_at: session.last_message_at,
+                    patient: session.patient ?? s.patient,
                   }
                 : s,
-            ),
-          );
-        },
-      )
-      .subscribe();
+            );
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+            return updated.sort(
+              (a, b) =>
+                new Date(b.last_message_at).getTime() -
+                new Date(a.last_message_at).getTime(),
+            );
+          });
+
+          return;
+        }
+
+        if (eventType === 'DELETE' && old) {
+          setChatSessions((prev) =>
+            prev.filter((s) => s.chat_id !== old.chat_id),
+          );
+
+          if (selectedSessionRef.current?.chat_id === old.chat_id) {
+            setSelectedSession(null);
+            setMessages([]);
+            setBotActive(false);
+          }
+
+          return;
+        }
+      },
+    );
+
+    return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSessionSelect = (session: ChatSessionWithPatient) => {
     setShowDetails(false);
     setSelectedSession(session);
-    setBotActive(session.chatbot_active);
+
+    const latest = chatSessions.find((s) => s.chat_id === session.chat_id);
+
+    if (latest) {
+      setBotActive(latest.chatbot_active);
+    }
 
     setChatSessions((prev) =>
       prev.map((s) =>
