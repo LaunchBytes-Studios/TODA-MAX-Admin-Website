@@ -1,4 +1,9 @@
-import { AlertTriangle, Package, Clock, TrendingUp } from 'lucide-react';
+import {
+  AlertTriangle,
+  Package,
+  TrendingUp,
+  MessageSquareWarning,
+} from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { LowStockCard } from '../components/dashboard/LowStockCard';
 import { RegistrationCodes } from '../components/dashboard/RegistrationCodesCard';
@@ -7,8 +12,10 @@ import { useState, useEffect } from 'react';
 import { useAlertMedication } from '@/hooks/medication/useAlertMedication';
 import { useOrders } from '@/hooks/ordering/useOrders';
 import { DashboardSkeleton } from '../components/skeleton/DashboardSkeleton';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 export function DashboardPage() {
+  const { unreadChats } = useNotifications();
   const [loading, setLoading] = useState(true);
 
   const { medications, loading: medsLoading } = useAlertMedication();
@@ -55,11 +62,13 @@ export function DashboardPage() {
                     Unread Inquiries
                   </span>
                   <div className="bg-blue-50 p-3 rounded-lg">
-                    <Package className="h-6 w-6 text-blue-600" />
+                    <MessageSquareWarning className="h-6 w-6 text-blue-600" />
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-4xl font-bold text-blue-600">6</p>
+                  <p className="text-4xl font-bold text-blue-600">
+                    {unreadChats}
+                  </p>
                 </CardContent>
               </Card>
               <Card className="bg-white shadow-sm">
@@ -82,12 +91,12 @@ export function DashboardPage() {
                   <span className="text-xl font-xl font-semibold">
                     Current Orders
                   </span>
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <Clock className="h-6 w-6 text-blue-600" />
+                  <div className="bg-purple-50 p-3 rounded-lg">
+                    <Package className="h-6 w-6 text-purple-600" />
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-4xl font-bold text-blue-600">
+                  <p className="text-4xl font-bold text-purple-600">
                     {ordersLoading ? '...' : currentOrdersCount}
                   </p>
                 </CardContent>
