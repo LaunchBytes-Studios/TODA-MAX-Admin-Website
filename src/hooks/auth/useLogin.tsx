@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios, { AxiosError } from 'axios';
+import { supabase } from '@/lib/supabaseClient';
 
 interface LoginResponse {
   token: string;
@@ -41,9 +42,18 @@ export const useLogin = () => {
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
 
+      await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      const { data: supabasedata } = await supabase.auth.getUser();
+      console.log(supabasedata);
+
       setTimeout(() => {
         navigate('/dashboard');
       }, 500);
+
       return null;
     } catch (err) {
       const error = err as AxiosError<ErrorResponse>;

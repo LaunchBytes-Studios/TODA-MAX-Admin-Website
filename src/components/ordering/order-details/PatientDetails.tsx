@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { formatDiagnosis } from '@/lib/utils';
-import type { Order } from '@/hooks/ordering/useOrders';
+import type { Order } from '@/types/order';
 
 interface PatientDetailsProps {
   order: Order;

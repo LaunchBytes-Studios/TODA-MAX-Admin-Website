@@ -10,8 +10,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { CheckCircle, XCircle, Loader2, Truck } from 'lucide-react';
-import type { Order } from '@/hooks/ordering/useOrders';
-import type { OrderStatus } from '@/hooks/ordering/updateOrder';
+import type { Order, OrderStatus } from '@/types/order';
 
 interface OrderActionsProps {
   order: Order;

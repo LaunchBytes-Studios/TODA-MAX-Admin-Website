@@ -1,5 +1,5 @@
+import type { Order } from '@/types/order';
 import { Calendar } from 'lucide-react';
-import type { Order } from '@/hooks/ordering/useOrders';
 
 interface OrderHeaderProps {
   order: Order;
@@ -28,7 +28,7 @@ export function OrderHeader({ order }: OrderHeaderProps) {
           </h2>
           <div className="flex items-center gap-2 mt-1 text-blue-100">
             <Calendar className="w-4 h-4" />
-            <span>{formatOrderDate(order.created_at)}</span>
+            <span>{formatOrderDate(order.order_date)}</span>
           </div>
         </div>
       </div>

@@ -1,15 +1,6 @@
 import { api } from '@/api/client';
+import type { OrderStatus } from '@/types/order';
 
-export type OrderStatus =
-  | 'pending'
-  | 'preparing'
-  | 'ready'
-  | 'completed'
-  | 'rejected';
-
-/**
- * Updates the status of an order in the database
- */
 export async function updateOrderStatusApi(
   orderId: string,
   status: OrderStatus,

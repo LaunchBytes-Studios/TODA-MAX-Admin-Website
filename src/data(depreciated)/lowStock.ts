@@ -21,7 +21,7 @@ export const lowStockItems: LowStockItem[] = [
     category: 'Hypertension',
     current: 25,
     minStock: 80,
-    status: 'Very Low',
+    status: 'Low',
   },
   {
     medicine: 'Hydrochlorothiazide 25mg',
@@ -51,13 +51,13 @@ export const lowStockItems: LowStockItem[] = [
     category: 'Diabetes',
     current: 30,
     minStock: 60,
-    status: 'Very Low',
+    status: 'Low',
   },
   {
     medicine: 'Insulin Glargine',
     category: 'Diabetes',
     current: 15,
     minStock: 40,
-    status: 'Very Low',
+    status: 'Low',
   },
 ];

@@ -1,72 +1,44 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { OrderingPageSkeleton } from '@/components/skeleton/OrderingPageSkeleton';
 import { StatsCards } from '@/components/ordering/StatsCards';
 import { SearchAndFilterBar } from '@/components/ordering/SearchAndFilterBar';
 import { OrdersList } from '@/components/ordering/OrderList';
 import { OrderDetailsModal } from '@/components/ordering/OrderDetailsModal';
 import { useOrders } from '@/hooks/ordering/useOrders';
-import type { Order } from '@/hooks/ordering/useOrders';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { useNotifications } from '@/contexts/NotificationContext';
+import type { Order } from '@/types/order';
 
 export default function OrderingPage() {
-  const { orders, loading, error, handleUpdateStatus } = useOrders();
   const [activeTab, setActiveTab] = useState('pending');
   const [searchTerm, setSearchTerm] = useState('');
-  const [deliveryFilter, setDeliveryFilter] = useState('delivery');
+  const [deliveryFilter, setDeliveryFilter] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
-  // Dynamic stats based on live data
-  const stats = {
-    total: orders.filter((o) => o.status !== 'rejected').length,
-    newOrders: orders.filter((o) => o.status === 'pending').length,
-    preparing: orders.filter((o) => o.status === 'preparing').length,
-    ready: orders.filter((o) => o.status === 'ready').length,
-    completed: orders.filter((o) => o.status === 'completed').length,
-  };
+  const {
+    orders,
+    loading,
+    error,
+    handleUpdateStatus,
+    page,
+    setPage,
+    total,
+    limit,
+    stats,
+  } = useOrders(activeTab, deliveryFilter, searchTerm);
 
-  const filteredOrders = orders
-    .filter((order) => {
-      const statusMap: Record<string, string[]> = {
-        pending: ['pending'],
-        preparing: ['preparing'],
-        ready: ['ready'],
-        completed: ['completed'],
-        rejected: ['rejected'],
-      };
+  const totalPages = Math.ceil(total / limit);
 
-      const allowedStatuses = statusMap[activeTab] || [];
+  useEffect(() => {
+    setPage(1);
+  }, [activeTab, deliveryFilter, searchTerm, setPage]);
+  const { resetOrders } = useNotifications();
 
-      const matchesStatus = allowedStatuses.includes(
-        order.status?.toLowerCase().trim() ?? '',
-      );
-
-      const matchesDeliveryType = order.delivery_type === deliveryFilter;
-
-      const matchesSearch =
-        searchTerm === '' ||
-        order.patient_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.order_number.toLowerCase().includes(searchTerm.toLowerCase());
-
-      return matchesStatus && matchesDeliveryType && matchesSearch;
-    })
-    .sort(
-      (a, b) =>
-        new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
-    );
-
-  // Reset to page 1 when filters change
-  React.useEffect(() => {
-    setCurrentPage(1);
-  }, [activeTab, searchTerm, deliveryFilter]);
-
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
+  useEffect(() => {
+    resetOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (loading) return <OrderingPageSkeleton />;
   if (error) return <div className="text-red-500">Error: {error}</div>;
@@ -76,8 +48,8 @@ export default function OrderingPage() {
       <h1 className="text-3xl font-bold mb-6">Orders</h1>
 
       <StatsCards
-        total={stats.completed}
-        newOrders={stats.newOrders}
+        total={stats.total}
+        newOrders={stats.pending}
         preparing={stats.preparing}
         ready={stats.ready}
       />
@@ -92,7 +64,7 @@ export default function OrderingPage() {
       />
 
       <OrdersList
-        orders={paginatedOrders}
+        orders={orders}
         activeTab={activeTab}
         searchTerm={searchTerm}
         onViewDetails={(order) => {
@@ -104,41 +76,38 @@ export default function OrderingPage() {
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-6 px-4 py-3 bg-gray-50 rounded-lg">
           <div className="text-sm text-gray-600">
-            Showing {startIndex + 1} to{' '}
-            {Math.min(endIndex, filteredOrders.length)} of{' '}
-            {filteredOrders.length} orders
+            Page {page} of {totalPages} ({total} total orders)
           </div>
+
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-2 rounded border border-gray-300 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+              onClick={() => setPage(Math.max(1, page - 1))}
+              disabled={page === 1}
+              className="px-3 py-2 rounded border border-gray-300 disabled:opacity-50"
             >
               <ArrowLeft className="h-4 w-4" />
             </button>
-            <div className="flex items-center gap-1">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`w-8 h-8 rounded text-sm font-medium ${
-                      currentPage === page
-                        ? 'bg-blue-500 text-white'
-                        : 'border border-gray-300 text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ),
-              )}
-            </div>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .slice(Math.max(0, page - 3), page + 2)
+              .map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  className={`w-8 h-8 rounded ${
+                    page === p
+                      ? 'bg-blue-500 text-white'
+                      : 'border border-gray-300'
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+
             <button
-              onClick={() =>
-                setCurrentPage(Math.min(totalPages, currentPage + 1))
-              }
-              disabled={currentPage === totalPages}
-              className="px-3 py-2 rounded border border-gray-300 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+              onClick={() => setPage(Math.min(totalPages, page + 1))}
+              disabled={page === totalPages}
+              className="px-3 py-2 rounded border border-gray-300 disabled:opacity-50"
             >
               <ArrowRight className="h-4 w-4" />
             </button>

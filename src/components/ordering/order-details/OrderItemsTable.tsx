@@ -1,6 +1,6 @@
 import { Package } from 'lucide-react';
 import { formatMoney } from '@/lib/utils';
-import type { Order } from '@/hooks/ordering/useOrders';
+import type { Order } from '@/types/order';
 
 interface OrderItemsTableProps {
   order: Order;

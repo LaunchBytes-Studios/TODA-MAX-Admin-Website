@@ -5,16 +5,18 @@ import logo from '../../assets/logo.png';
 import NavItem from './NavItem';
 import { NAV_ITEMS, LOGOUT_ITEM } from '../../constants/navigation';
 import { toast } from 'sonner';
+import { useLogout } from '@/hooks/auth/useLogout';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 const Navbar: React.FC = () => {
+  const { unreadChats, newOrders } = useNotifications();
+  const { logout } = useLogout();
   const navigate = useNavigate();
   const location = useLocation();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  const handleLogout = async () => {
+    await logout();
 
     toast.success('Logged out successfully!', {
       style: {
@@ -23,8 +25,6 @@ const Navbar: React.FC = () => {
         border: '1px solid #bbf7d0',
       },
     });
-
-    navigate('/login');
     setShowLogoutConfirm(false);
   };
 
@@ -48,16 +48,23 @@ const Navbar: React.FC = () => {
 
             <div className="flex items-center">
               <div className="flex items-center space-x-1">
-                {NAV_ITEMS.map((item) => (
-                  <NavItem
-                    key={item.name}
-                    name={item.name}
-                    path={item.path}
-                    icon={item.icon}
-                    isActive={location.pathname.startsWith(item.path)}
-                    onClick={() => navigate(item.path)}
-                  />
-                ))}
+                {NAV_ITEMS.map((item) => {
+                  let badge = 0;
+
+                  if (item.path === '/chat') badge = unreadChats;
+                  if (item.path === '/orders') badge = newOrders;
+
+                  return (
+                    <NavItem
+                      key={item.name}
+                      name={item.name}
+                      icon={item.icon}
+                      isActive={location.pathname.startsWith(item.path)}
+                      onClick={() => navigate(item.path)}
+                      badge={badge}
+                    />
+                  );
+                })}
               </div>
 
               <div className="h-6 w-px bg-gray-300 mx-2"></div>

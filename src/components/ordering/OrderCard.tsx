@@ -2,7 +2,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatMoney } from '@/lib/utils';
-import type { Order } from '@/hooks/ordering/useOrders';
+import type { Order } from '@/types/order';
 
 interface OrderCardProps {
   order: Order; // Use the main Order interface
@@ -36,7 +36,7 @@ export function OrderCard({ order, onViewDetails }: OrderCardProps) {
             {order.patient_name || 'Unknown'}
           </p>
           <p className="text-sm text-muted-foreground">
-            {formatOrderDate(order.created_at)}
+            {formatOrderDate(order.order_date)}
           </p>
           {order.received_date && order.status === 'completed' && (
             <p className="text-sm text-green-600 font-medium">

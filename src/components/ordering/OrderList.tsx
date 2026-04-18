@@ -1,7 +1,7 @@
 import { OrderCard } from './OrderCard';
 import { Button } from '@/components/ui/button';
+import type { Order } from '@/types/order';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import type { Order } from '@/hooks/ordering/useOrders';
 
 interface PaginationInfo {
   currentPage: number;
@@ -41,7 +41,7 @@ export function OrdersList({
         <>
           {orders.map((order) => (
             <OrderCard
-              key={order.id}
+              key={order.order_id}
               order={order}
               onViewDetails={onViewDetails}
             />

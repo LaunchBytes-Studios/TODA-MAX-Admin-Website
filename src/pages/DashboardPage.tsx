@@ -1,4 +1,4 @@
-import { AlertTriangle, Package, Clock, TrendingUp } from 'lucide-react'; // or your icon library
+import { AlertTriangle, Package, Clock, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { LowStockCard } from '../components/dashboard/LowStockCard';
 import { RegistrationCodes } from '../components/dashboard/RegistrationCodesCard';
@@ -10,8 +10,10 @@ import { DashboardSkeleton } from '../components/skeleton/DashboardSkeleton';
 
 export function DashboardPage() {
   const [loading, setLoading] = useState(true);
+
   const { medications, loading: medsLoading } = useAlertMedication();
-  const { orders } = useOrders();
+
+  const { loading: ordersLoading, stats } = useOrders('all', 'all', '');
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
@@ -19,12 +21,8 @@ export function DashboardPage() {
   }, []);
 
   const lowStockCount = medications.length;
-  const currentOrdersCount = orders.filter((o) =>
-    ['pending', 'preparing', 'ready'].includes(o.status?.toLowerCase()),
-  ).length;
-  const outForDeliveryCount = orders.filter(
-    (o) => o.delivery_type === 'delivery' && o.status === 'ready',
-  ).length;
+  const currentOrdersCount = stats.pending + stats.preparing + stats.ready;
+  const outForDeliveryCount = stats.ready;
 
   return (
     <div className="container mx-auto p-6 h-screen overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
@@ -75,7 +73,7 @@ export function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-4xl font-bold text-green-600">
-                    {outForDeliveryCount}
+                    {ordersLoading ? '...' : outForDeliveryCount}
                   </p>
                 </CardContent>
               </Card>
@@ -90,7 +88,7 @@ export function DashboardPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-4xl font-bold text-blue-600">
-                    {currentOrdersCount}
+                    {ordersLoading ? '...' : currentOrdersCount}
                   </p>
                 </CardContent>
               </Card>
