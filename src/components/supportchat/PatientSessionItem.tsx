@@ -11,6 +11,34 @@ export function PatientSessionItem({
   selected,
   onClick,
 }: PatientSessionItemProps) {
+  function formatMessageDate(dateString: string | Date) {
+    const date = new Date(dateString);
+    const now = new Date();
+
+    const isToday = date.toDateString() === now.toDateString();
+
+    const yesterday = new Date();
+    yesterday.setDate(now.getDate() - 1);
+
+    const isYesterday = date.toDateString() === yesterday.toDateString();
+
+    if (isToday) {
+      return date.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    }
+
+    if (isYesterday) {
+      return 'Yesterday';
+    }
+
+    return date.toLocaleDateString([], {
+      month: 'short',
+      day: 'numeric',
+    }); // e.g. Apr 15
+  }
+
   const patient = session.patient;
 
   const name = patient
@@ -63,10 +91,7 @@ export function PatientSessionItem({
 
             {/* time */}
             <span className="text-[11px] text-gray-400 whitespace-nowrap">
-              {new Date(session.last_message_at).toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
+              {formatMessageDate(session.last_message_at)}
             </span>
           </div>
         </div>
