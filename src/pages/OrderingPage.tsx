@@ -33,12 +33,19 @@ export default function OrderingPage() {
   useEffect(() => {
     setPage(1);
   }, [activeTab, deliveryFilter, searchTerm, setPage]);
-  const { resetOrders } = useNotifications();
+  const { newOrders, updateNewOrders, resetOrders } = useNotifications();
 
   useEffect(() => {
     resetOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (stats && newOrders !== stats.pending) {
+      updateNewOrders(stats.pending);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stats]);
 
   if (loading) return <OrderingPageSkeleton />;
   if (error) return <div className="text-red-500">Error: {error}</div>;

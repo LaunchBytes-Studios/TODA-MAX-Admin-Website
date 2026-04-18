@@ -71,6 +71,7 @@ export function NotificationProvider({
         newOrders,
         resetChats: () => setUnreadChats(0),
         resetOrders: () => setNewOrders(0),
+        updateNewOrders: (newValue: number) => setNewOrders(newValue),
       }}
     >
       {children}

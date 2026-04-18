@@ -15,7 +15,7 @@ import { DashboardSkeleton } from '../components/skeleton/DashboardSkeleton';
 import { useNotifications } from '@/contexts/NotificationContext';
 
 export function DashboardPage() {
-  const { unreadChats } = useNotifications();
+  const { unreadChats, updateNewOrders } = useNotifications();
   const [loading, setLoading] = useState(true);
 
   const { medications, loading: medsLoading } = useAlertMedication();
@@ -26,6 +26,13 @@ export function DashboardPage() {
     const timer = setTimeout(() => setLoading(false), 1200);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (stats) {
+      updateNewOrders(stats.pending);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stats]);
 
   const lowStockCount = medications.length;
   const currentOrdersCount = stats.pending + stats.preparing + stats.ready;

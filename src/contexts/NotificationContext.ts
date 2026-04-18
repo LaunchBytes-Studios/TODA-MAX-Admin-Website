@@ -5,6 +5,7 @@ export interface NotificationContextType {
   newOrders: number;
   resetChats: () => void;
   resetOrders: () => void;
+  updateNewOrders: (newValue: number) => void;
 }
 
 export const NotificationContext =
