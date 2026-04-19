@@ -5,6 +5,7 @@ export interface ChatSession {
   patient_id: string;
   started_at: Date;
   last_message_at: Date;
+  last_read_at: Date;
   language: string;
   chatbot_active: boolean;
 }
@@ -21,4 +22,6 @@ export interface Message {
 export interface ChatSessionWithPatient extends ChatSession {
   patient: Patient;
   has_unread?: boolean;
+  unread_count: number;
+  unread_messages: Message | undefined;
 }

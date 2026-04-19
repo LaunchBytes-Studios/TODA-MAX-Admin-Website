@@ -19,7 +19,7 @@ type SessionChangePayload = {
 };
 
 export function SupportPage() {
-  const { resetChats } = useNotifications();
+  const { resetChats, syncUnreadChats } = useNotifications();
   const [showDetails, setShowDetails] = useState(false);
 
   const [chatSessions, setChatSessions] = useState<ChatSessionWithPatient[]>(
@@ -44,6 +44,24 @@ export function SupportPage() {
     selectedSessionRef.current = selectedSession;
   }, [selectedSession]);
 
+  const markAsRead = async (chatId: string) => {
+    await supabase
+      .from('ChatSession')
+      .update({ last_read_at: new Date().toISOString() })
+      .eq('chat_id', chatId);
+
+    setChatSessions((prev) => {
+      const updated = prev.map((s) =>
+        s.chat_id === chatId ? { ...s, has_unread: false, unread_count: 0 } : s,
+      );
+      return updated;
+    });
+
+    setTimeout(() => {
+      syncUnreadChats();
+    }, 500);
+  };
+
   useEffect(() => {
     resetChats();
     const fetchSessions = async () => {
@@ -52,19 +70,25 @@ export function SupportPage() {
       if (res.success) {
         const sessions = (res.data ?? []).map((s: ChatSessionWithPatient) => ({
           ...s,
-          has_unread: false,
+          has_unread: s.unread_count > 0,
         }));
 
         setChatSessions(sessions);
+        syncUnreadChats();
 
         if (sessions.length > 0) {
           setSelectedSession(sessions[0]);
           setBotActive(sessions[0].chatbot_active);
+
+          if (sessions[0].has_unread) {
+            markAsRead(sessions[0].chat_id);
+          }
         }
       }
     };
 
     fetchSessions();
+    syncUnreadChats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -85,6 +109,10 @@ export function SupportPage() {
 
     fetchMessages();
 
+    if (selectedSession?.chat_id) {
+      markAsRead(selectedSession.chat_id);
+    }
+
     return () => {
       alive = false;
     };
@@ -99,12 +127,14 @@ export function SupportPage() {
         const updated = prev.map((session) => {
           if (session.chat_id !== msg.chat_id) return session;
 
+          if (msg.role !== 'patient') return session;
+
           const isActive = session.chat_id === activeId;
 
           return {
             ...session,
             has_unread: !isActive,
-            last_message_at: msg.created_at,
+            unread_count: isActive ? 0 : (session.unread_count || 0) + 1, // Add this line
           };
         });
 
@@ -114,6 +144,17 @@ export function SupportPage() {
             new Date(a.last_message_at).getTime(),
         );
       });
+
+      // Mark as read immediately if message is for active session
+      if (
+        msg.chat_id === selectedSessionRef.current?.chat_id &&
+        msg.role === 'patient'
+      ) {
+        supabase
+          .from('ChatSession')
+          .update({ last_read_at: new Date().toISOString() })
+          .eq('chat_id', msg.chat_id);
+      }
     });
 
     return unsubscribe;
@@ -146,7 +187,7 @@ export function SupportPage() {
           setChatSessions((prev) =>
             prev.map((s) =>
               s.chat_id === selectedSession.chat_id
-                ? { ...s, has_unread: false }
+                ? { ...s, has_unread: false, unread_count: 0 }
                 : s,
             ),
           );
@@ -256,7 +297,7 @@ export function SupportPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSessionSelect = (session: ChatSessionWithPatient) => {
+  const handleSessionSelect = async (session: ChatSessionWithPatient) => {
     setShowDetails(false);
     setSelectedSession(session);
 
