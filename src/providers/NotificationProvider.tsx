@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { NotificationContext } from '@/contexts/NotificationContext';
 import type { Message } from '@/types/chat';
 import type { Order } from '@/types/order';
+import { supabase } from '@/lib/supabaseClient';
 
 export function NotificationProvider({
   children,
@@ -14,23 +15,23 @@ export function NotificationProvider({
   const [newOrders, setNewOrders] = useState(0);
 
   useEffect(() => {
-    console.log('NotificationProvider mounted');
+    const fetchUnreadChats = async () => {
+      const { data } = await supabase.rpc('get_total_unread');
+      setUnreadChats(data ?? 0);
+    };
 
+    fetchUnreadChats();
+  }, []);
+
+  useEffect(() => {
     const unsubChat = eventBus.on('chat:new-message', (msg: Message) => {
-      console.log('CHAT EVENT RECEIVED', msg);
+      if (msg.role !== 'patient') return;
 
-      if (msg.role !== 'patient') {
-        return;
-      }
       const isOnSupportPage = location.pathname.startsWith('/chat');
-      if (isOnSupportPage) {
-        setUnreadChats(0);
-        return;
-      }
 
-      setUnreadChats((prev) => {
-        return prev + 1;
-      });
+      if (isOnSupportPage) return;
+
+      setUnreadChats((prev) => prev + 1);
 
       toast.info('New Message', {
         description: msg.content
@@ -40,18 +41,11 @@ export function NotificationProvider({
     });
 
     const unsubOrder = eventBus.on('order:new', (order: Order) => {
-      console.log('ORDER EVENT RECEIVED', order);
-
       const isOnOrdersPage = location.pathname.startsWith('/orders');
-      if (isOnOrdersPage) {
-        setNewOrders(0);
-        return;
-      }
 
-      setNewOrders((prev) => {
-        console.log('prev orders:', prev);
-        return prev + 1;
-      });
+      if (isOnOrdersPage) return;
+
+      setNewOrders((prev) => prev + 1);
 
       toast.success('New Order', {
         description: `Order #${order.order_id?.slice(0, 8).toUpperCase()}`,
@@ -71,7 +65,9 @@ export function NotificationProvider({
         newOrders,
         resetChats: () => setUnreadChats(0),
         resetOrders: () => setNewOrders(0),
-        updateNewOrders: (newValue: number) => setNewOrders(newValue),
+
+        updateUnreadChats: (value: number) => setUnreadChats(value),
+        updateNewOrders: (value: number) => setNewOrders(value),
       }}
     >
       {children}

@@ -19,7 +19,7 @@ type SessionChangePayload = {
 };
 
 export function SupportPage() {
-  const { resetChats } = useNotifications();
+  const { resetChats, updateUnreadChats } = useNotifications();
   const [showDetails, setShowDetails] = useState(false);
 
   const [chatSessions, setChatSessions] = useState<ChatSessionWithPatient[]>(
@@ -52,10 +52,16 @@ export function SupportPage() {
       if (res.success) {
         const sessions = (res.data ?? []).map((s: ChatSessionWithPatient) => ({
           ...s,
-          has_unread: false,
+          has_unread: s.unread_count > 0,
         }));
 
         setChatSessions(sessions);
+
+        const totalUnread = sessions.reduce(
+          (sum, s) => sum + (s.unread_count ?? 0),
+          0,
+        );
+        updateUnreadChats(totalUnread);
 
         if (sessions.length > 0) {
           setSelectedSession(sessions[0]);
@@ -83,7 +89,34 @@ export function SupportPage() {
       }
     };
 
+    const markAsRead = async () => {
+      if (!selectedSession?.chat_id || !selectedSession.has_unread) return;
+
+      await supabase
+        .from('ChatSession')
+        .update({ last_read_at: new Date().toISOString() })
+        .eq('chat_id', selectedSession.chat_id);
+
+      setChatSessions((prev) => {
+        const updated = prev.map((s) =>
+          s.chat_id === selectedSession.chat_id
+            ? { ...s, has_unread: false, unread_count: 0 }
+            : s,
+        );
+
+        const totalUnread = updated.reduce(
+          (sum, s) => sum + (s.unread_count ?? 0),
+          0,
+        );
+
+        updateUnreadChats(totalUnread);
+
+        return updated;
+      });
+    };
+
     fetchMessages();
+    markAsRead();
 
     return () => {
       alive = false;
@@ -99,12 +132,13 @@ export function SupportPage() {
         const updated = prev.map((session) => {
           if (session.chat_id !== msg.chat_id) return session;
 
+          if (msg.role !== 'patient') return session;
+
           const isActive = session.chat_id === activeId;
 
           return {
             ...session,
             has_unread: !isActive,
-            last_message_at: msg.created_at,
           };
         });
 
@@ -256,7 +290,7 @@ export function SupportPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSessionSelect = (session: ChatSessionWithPatient) => {
+  const handleSessionSelect = async (session: ChatSessionWithPatient) => {
     setShowDetails(false);
     setSelectedSession(session);
 
