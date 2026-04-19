@@ -24,20 +24,15 @@ export function NotificationProvider({
   }, []);
 
   useEffect(() => {
-    const unsubChat = eventBus.on('chat:new-message', (msg: Message) => {
+    const unsubChat = eventBus.on('chat:new-message', async (msg: Message) => {
       if (msg.role !== 'patient') return;
 
       const isOnSupportPage = location.pathname.startsWith('/chat');
 
-      if (isOnSupportPage) return;
-
-      setUnreadChats((prev) => prev + 1);
-
-      toast.info('New Message', {
-        description: msg.content
-          ? `${msg.content.slice(0, 45)}${msg.content.length > 45 ? '...' : ''}`
-          : 'New message',
-      });
+      if (!isOnSupportPage) {
+        setUnreadChats((prev) => prev + 1);
+        toast.info('New Message', { description: msg.content });
+      }
     });
 
     const unsubOrder = eventBus.on('order:new', (order: Order) => {
@@ -58,6 +53,14 @@ export function NotificationProvider({
     };
   }, []);
 
+  const syncUnreadChats = async () => {
+    const { data, error } = await supabase.rpc('get_total_unread');
+
+    if (error) return;
+
+    setUnreadChats(data ?? 0);
+  };
+
   return (
     <NotificationContext.Provider
       value={{
@@ -68,6 +71,8 @@ export function NotificationProvider({
 
         updateUnreadChats: (value: number) => setUnreadChats(value),
         updateNewOrders: (value: number) => setNewOrders(value),
+
+        syncUnreadChats,
       }}
     >
       {children}
