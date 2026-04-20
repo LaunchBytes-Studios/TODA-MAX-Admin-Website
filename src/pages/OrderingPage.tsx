@@ -51,7 +51,7 @@ export default function OrderingPage() {
   useEffect(() => {
     const handler = setTimeout(() => {
       setSearchTerm(inputValue);
-    }, 300);
+    }, 1000);
 
     return () => clearTimeout(handler);
   }, [inputValue]);
