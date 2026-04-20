@@ -12,6 +12,7 @@ import type { Order } from '@/types/order';
 export default function OrderingPage() {
   const [activeTab, setActiveTab] = useState('pending');
   const [searchTerm, setSearchTerm] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const [deliveryFilter, setDeliveryFilter] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,6 +48,14 @@ export default function OrderingPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stats]);
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearchTerm(inputValue);
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [inputValue]);
+
   if (loading) return <OrderingPageSkeleton />;
   if (error) return <div className="text-red-500">Error: {error}</div>;
 
@@ -62,8 +71,8 @@ export default function OrderingPage() {
       />
 
       <SearchAndFilterBar
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
+        searchTerm={inputValue}
+        onSearchChange={setInputValue}
         activeTab={activeTab}
         onTabChange={setActiveTab}
         deliveryFilter={deliveryFilter}
