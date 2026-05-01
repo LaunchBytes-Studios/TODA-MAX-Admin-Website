@@ -1,6 +1,38 @@
 import { api } from '@/api/client';
 import type { OrderStatus } from '@/types/order';
 
+export async function updateOrderTypeApi(
+  orderId: string,
+  deliveryType: string,
+) {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await api.patch(
+      `/enavigator/orders/${orderId}/type`,
+      { delivery_type: deliveryType },
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+    return { success: true, data: response.data };
+  } catch (error: unknown) {
+    let errorMessage = 'Failed to update order type';
+
+    if (error instanceof Error) {
+      errorMessage = error.message;
+
+      if ('response' in error) {
+        const responseData = (error as Record<string, unknown>)
+          .response as Record<string, unknown>;
+        const message = responseData?.data as Record<string, unknown>;
+        if (message?.message) {
+          errorMessage = String(message.message);
+        }
+      }
+    }
+
+    return { success: false, data: { message: errorMessage } };
+  }
+}
+
 export async function updateOrderStatusApi(
   orderId: string,
   status: OrderStatus,

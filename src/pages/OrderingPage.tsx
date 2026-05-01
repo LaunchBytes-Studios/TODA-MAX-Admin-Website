@@ -22,6 +22,7 @@ export default function OrderingPage() {
     loading,
     error,
     handleUpdateStatus,
+    handleUpdateType,
     page,
     setPage,
     total,
@@ -136,6 +137,7 @@ export default function OrderingPage() {
         onClose={() => setIsModalOpen(false)}
         order={selectedOrder}
         onUpdateStatus={handleUpdateStatus}
+        onUpdateType={handleUpdateType}
       />
     </div>
   );

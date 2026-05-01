@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { api } from '@/api/client';
-import { updateOrderStatusApi } from '@/hooks/ordering/updateOrder';
+import {
+  updateOrderStatusApi,
+  updateOrderTypeApi,
+} from '@/hooks/ordering/updateOrder';
 import type { Order, OrderStatus } from '@/types/order';
 
 export function useOrders(
@@ -103,6 +106,17 @@ export function useOrders(
     }
   };
 
+  const handleUpdateType = async (orderId: string, newType: string) => {
+    const result = await updateOrderTypeApi(orderId, newType);
+
+    if (result.success) {
+      toast.success(`Order type updated to ${newType}`);
+      fetchOrders();
+    } else {
+      toast.error(result.data?.message || 'Update failed');
+    }
+  };
+
   return {
     orders,
     loading,
@@ -114,5 +128,6 @@ export function useOrders(
     stats,
     refresh: fetchOrders,
     handleUpdateStatus,
+    handleUpdateType,
   };
 }
