@@ -1,5 +1,31 @@
 import { Skeleton } from '../ui/skeleton';
 
+export function OrderListSkeleton() {
+  return (
+    <div className="space-y-4">
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="border rounded-lg p-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="w-full">
+              <Skeleton className="h-5 w-32 mb-2 rounded" />
+              <Skeleton className="h-6 w-40 mb-2 rounded" />
+              <Skeleton className="h-4 w-48 rounded" />
+            </div>
+            <div className="flex flex-col items-end gap-2 w-full sm:w-auto">
+              <Skeleton className="h-7 w-24 rounded" />
+              <div className="flex gap-2">
+                <Skeleton className="h-6 w-20 rounded" />
+                <Skeleton className="h-6 w-24 rounded" />
+                <Skeleton className="h-9 w-16 rounded" />
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function OrderingPageSkeleton() {
   return (
     <div className="container mx-auto p-6">
@@ -23,27 +49,7 @@ export function OrderingPageSkeleton() {
       </div>
 
       {/* Order List Skeleton */}
-      <div className="space-y-4">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="border rounded-lg p-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div className="w-full">
-                <Skeleton className="h-5 w-32 mb-2 rounded" />
-                <Skeleton className="h-6 w-40 mb-2 rounded" />
-                <Skeleton className="h-4 w-48 rounded" />
-              </div>
-              <div className="flex flex-col items-end gap-2 w-full sm:w-auto">
-                <Skeleton className="h-7 w-24 rounded" />
-                <div className="flex gap-2">
-                  <Skeleton className="h-6 w-20 rounded" />
-                  <Skeleton className="h-6 w-24 rounded" />
-                  <Skeleton className="h-9 w-16 rounded" />
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      <OrderListSkeleton />
     </div>
   );
 }

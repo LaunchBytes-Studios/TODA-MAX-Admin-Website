@@ -35,61 +35,70 @@ export function useOrders(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, deliveryFilter, searchTerm]);
 
-  const fetchOrders = useCallback(() => {
-    setLoading(true);
+  const fetchOrders = useCallback(
+    (silent = false) => {
+      if (!silent) {
+        setLoading(true);
+      }
 
-    const token = localStorage.getItem('token');
-    const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
-    const offset = (page - 1) * limit;
+      const offset = (page - 1) * limit;
 
-    api
-      .get(`/enavigator/orders`, {
-        headers,
-        params: {
-          limit,
-          offset,
-          status: activeTab !== 'all' ? activeTab : undefined,
-          delivery_type: deliveryFilter !== 'all' ? deliveryFilter : undefined,
-          search: searchTerm || undefined,
-        },
-      })
-      .then((res) => {
-        const formattedOrders = (res.data.data || []).map((order: Order) => ({
-          ...order,
-          patient_diagnosis: order.patient_diagnosis || 'No diagnosis provided',
-          status: order.status || 'pending',
-          delivery_type: order.delivery_type ?? null,
-          delivery_address: order.delivery_address || 'No address provided',
-        }));
-
-        setOrders(formattedOrders);
-        setTotal(res.data.pagination?.total || 0);
-        setStats(
-          res.data.stats ?? {
-            total: 0,
-            pending: 0,
-            preparing: 0,
-            ready: 0,
-            completed: 0,
+      api
+        .get(`/enavigator/orders`, {
+          headers,
+          params: {
+            limit,
+            offset,
+            status: activeTab !== 'all' ? activeTab : undefined,
+            delivery_type:
+              deliveryFilter !== 'all' ? deliveryFilter : undefined,
+            search: searchTerm || undefined,
           },
-        );
-        setError(null);
-      })
-      .catch((err) => {
-        const errorMsg =
-          err?.response?.data?.message ||
-          err?.message ||
-          'Failed to fetch orders';
+        })
+        .then((res) => {
+          const formattedOrders = (res.data.data || []).map((order: Order) => ({
+            ...order,
+            patient_diagnosis:
+              order.patient_diagnosis || 'No diagnosis provided',
+            status: order.status || 'pending',
+            delivery_type: order.delivery_type ?? null,
+            delivery_address: order.delivery_address || 'No address provided',
+          }));
 
-        setError(errorMsg);
-        setOrders([]);
-      })
-      .finally(() => setLoading(false));
-  }, [page, limit, activeTab, deliveryFilter, searchTerm]);
+          setOrders(formattedOrders);
+          setTotal(res.data.pagination?.total || 0);
+          setStats(
+            res.data.stats ?? {
+              total: 0,
+              pending: 0,
+              preparing: 0,
+              ready: 0,
+              completed: 0,
+            },
+          );
+          setError(null);
+        })
+        .catch((err) => {
+          const errorMsg =
+            err?.response?.data?.message ||
+            err?.message ||
+            'Failed to fetch orders';
+
+          setError(errorMsg);
+          setOrders([]);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    },
+    [page, limit, activeTab, deliveryFilter, searchTerm],
+  );
 
   useEffect(() => {
-    fetchOrders();
+    fetchOrders(false);
   }, [fetchOrders]);
 
   const handleUpdateStatus = async (
@@ -100,7 +109,7 @@ export function useOrders(
 
     if (result.success) {
       toast.success(`Order updated to ${newStatus}`);
-      fetchOrders();
+      fetchOrders(true);
     } else {
       toast.error(result.data?.message || 'Update failed');
     }
@@ -111,7 +120,7 @@ export function useOrders(
 
     if (result.success) {
       toast.success(`Order type updated to ${newType}`);
-      fetchOrders();
+      fetchOrders(true);
     } else {
       toast.error(result.data?.message || 'Update failed');
     }
