@@ -1,11 +1,11 @@
 import { Search, Plus } from 'lucide-react';
 import { Button } from '../ui/button';
-import type { Medicine } from '@/data(depreciated)/medicines';
 import MedicineCard from './MedicineCard';
 import MedicineCardSkeleton from '../skeleton/MedicineCardSkeleton';
+import type { FrontendMedicine } from '@/types/medication';
 
 interface MedicinesListProps {
-  medicines: Medicine[];
+  medicines: FrontendMedicine[];
   loading: boolean;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;

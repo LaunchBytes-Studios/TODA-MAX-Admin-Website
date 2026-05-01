@@ -14,6 +14,7 @@ interface Props {
   onClose: () => void;
   order: Order | null;
   onUpdateStatus: (id: string, status: OrderStatus) => Promise<void>;
+  onUpdateType: (id: string, type: string) => Promise<void>;
 }
 
 export function OrderDetailsModal({
@@ -21,6 +22,7 @@ export function OrderDetailsModal({
   onClose,
   order,
   onUpdateStatus,
+  onUpdateType,
 }: Props) {
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -86,7 +88,11 @@ export function OrderDetailsModal({
         <div className="p-6 space-y-6 bg-white">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <PatientDetails order={order} />
-            <DeliveryInfo order={order} isCompleted={isCompleted} />
+            <DeliveryInfo
+              order={order}
+              isCompleted={isCompleted}
+              onUpdateType={onUpdateType}
+            />
           </div>
 
           <OrderItemsTable order={order} />

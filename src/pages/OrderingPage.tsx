@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
-import { OrderingPageSkeleton } from '@/components/skeleton/OrderingPageSkeleton';
+import {
+  OrderingPageSkeleton,
+  OrderListSkeleton,
+} from '@/components/skeleton/OrderingPageSkeleton';
 import { StatsCards } from '@/components/ordering/StatsCards';
 import { SearchAndFilterBar } from '@/components/ordering/SearchAndFilterBar';
 import { OrdersList } from '@/components/ordering/OrderList';
@@ -12,6 +15,7 @@ import type { Order } from '@/types/order';
 export default function OrderingPage() {
   const [activeTab, setActiveTab] = useState('pending');
   const [searchTerm, setSearchTerm] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const [deliveryFilter, setDeliveryFilter] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,6 +25,7 @@ export default function OrderingPage() {
     loading,
     error,
     handleUpdateStatus,
+    handleUpdateType,
     page,
     setPage,
     total,
@@ -47,7 +52,23 @@ export default function OrderingPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stats]);
 
-  if (loading) return <OrderingPageSkeleton />;
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearchTerm(inputValue);
+    }, 1000);
+
+    return () => clearTimeout(handler);
+  }, [inputValue]);
+
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  useEffect(() => {
+    if (!loading && isInitialLoad) {
+      setIsInitialLoad(false);
+    }
+  }, [loading, isInitialLoad]);
+
+  if (loading && isInitialLoad) return <OrderingPageSkeleton />;
   if (error) return <div className="text-red-500">Error: {error}</div>;
 
   return (
@@ -62,23 +83,27 @@ export default function OrderingPage() {
       />
 
       <SearchAndFilterBar
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
+        searchTerm={inputValue}
+        onSearchChange={setInputValue}
         activeTab={activeTab}
         onTabChange={setActiveTab}
         deliveryFilter={deliveryFilter}
         onDeliveryFilterChange={setDeliveryFilter}
       />
 
-      <OrdersList
-        orders={orders}
-        activeTab={activeTab}
-        searchTerm={searchTerm}
-        onViewDetails={(order) => {
-          setSelectedOrder(order);
-          setIsModalOpen(true);
-        }}
-      />
+      {loading && !isInitialLoad ? (
+        <OrderListSkeleton />
+      ) : (
+        <OrdersList
+          orders={orders}
+          activeTab={activeTab}
+          searchTerm={searchTerm}
+          onViewDetails={(order) => {
+            setSelectedOrder(order);
+            setIsModalOpen(true);
+          }}
+        />
+      )}
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-6 px-4 py-3 bg-gray-50 rounded-lg">
@@ -127,6 +152,7 @@ export default function OrderingPage() {
         onClose={() => setIsModalOpen(false)}
         order={selectedOrder}
         onUpdateStatus={handleUpdateStatus}
+        onUpdateType={handleUpdateType}
       />
     </div>
   );

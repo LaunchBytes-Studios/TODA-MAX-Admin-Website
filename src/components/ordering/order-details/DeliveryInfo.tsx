@@ -1,13 +1,34 @@
 import { Badge } from '@/components/ui/badge';
 import type { Order } from '@/types/order';
-import { MapPin } from 'lucide-react';
+import { MapPin, Edit2 } from 'lucide-react';
+import { useState } from 'react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface DeliveryInfoProps {
   order: Order;
   isCompleted: boolean;
+  onUpdateType?: (id: string, type: string) => Promise<void>;
 }
 
-export function DeliveryInfo({ order, isCompleted }: DeliveryInfoProps) {
+export function DeliveryInfo({
+  order,
+  isCompleted,
+  onUpdateType,
+}: DeliveryInfoProps) {
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleUpdateType = async (type: string) => {
+    if (!onUpdateType || isUpdating || order.delivery_type === type) return;
+    setIsUpdating(true);
+    await onUpdateType(order.order_id, type);
+    setIsUpdating(false);
+  };
+
   return (
     <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
       <div className="flex items-start gap-2 mb-4">
@@ -21,19 +42,59 @@ export function DeliveryInfo({ order, isCompleted }: DeliveryInfoProps) {
           </p>
         </div>
       </div>
-      <div className="flex flex-wrap gap-2">
-        <Badge
-          variant={order.delivery_type === 'delivery' ? 'outline' : 'secondary'}
-          className={`px-3 py-1 capitalize ${
-            order.delivery_type === 'delivery'
-              ? 'bg-green-100 text-green-800'
-              : order.delivery_type === 'pickup'
-                ? 'bg-purple-100 text-purple-800'
-                : ''
-          }`}
-        >
-          {order.delivery_type === 'delivery' ? 'For Delivery' : 'For Pickup'}
-        </Badge>
+      <div className="flex flex-wrap gap-2 items-center">
+        {onUpdateType &&
+        order.status?.toLowerCase() !== 'completed' &&
+        order.status?.toLowerCase() !== 'rejected' &&
+        !isCompleted ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              disabled={isUpdating}
+              className="focus:outline-none"
+            >
+              <Badge
+                variant={
+                  order.delivery_type === 'delivery' ? 'outline' : 'secondary'
+                }
+                className={`px-3 py-1 capitalize cursor-pointer flex items-center gap-1 hover:opacity-80 transition-opacity ${
+                  order.delivery_type === 'delivery'
+                    ? 'bg-green-100 text-green-800'
+                    : order.delivery_type === 'pickup'
+                      ? 'bg-purple-100 text-purple-800'
+                      : ''
+                }`}
+              >
+                {order.delivery_type === 'delivery'
+                  ? 'For Delivery'
+                  : 'For Pickup'}
+                <Edit2 className="w-3 h-3 ml-1" />
+              </Badge>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem onClick={() => handleUpdateType('delivery')}>
+                Delivery
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleUpdateType('pickup')}>
+                Pickup
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Badge
+            variant={
+              order.delivery_type === 'delivery' ? 'outline' : 'secondary'
+            }
+            className={`px-3 py-1 capitalize ${
+              order.delivery_type === 'delivery'
+                ? 'bg-green-100 text-green-800'
+                : order.delivery_type === 'pickup'
+                  ? 'bg-purple-100 text-purple-800'
+                  : ''
+            }`}
+          >
+            {order.delivery_type === 'delivery' ? 'For Delivery' : 'For Pickup'}
+          </Badge>
+        )}
         <Badge
           className={`block w-fit text-xs py-1 px-2 capitalize ${
             isCompleted || order.status === 'completed'
