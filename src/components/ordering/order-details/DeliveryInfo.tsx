@@ -44,8 +44,9 @@ export function DeliveryInfo({
       </div>
       <div className="flex flex-wrap gap-2 items-center">
         {onUpdateType &&
-        order.status !== 'completed' &&
-        order.status !== 'rejected' ? (
+        order.status?.toLowerCase() !== 'completed' &&
+        order.status?.toLowerCase() !== 'rejected' &&
+        !isCompleted ? (
           <DropdownMenu>
             <DropdownMenuTrigger
               disabled={isUpdating}
