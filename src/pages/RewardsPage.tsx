@@ -13,7 +13,6 @@ import { useFetchRewards } from '@/hooks/rewards/useFetchRewards';
 import { REWARDS_FILTER_GROUPS } from '@/constants/tabs';
 import type { FrontendReward } from '@/types/reward';
 
-const GROUP_ALL_PREFIX = 'all:';
 const QUANTITY_FILTER_IDS = ['out-of-stock', 'low-stock', 'in-stock'];
 
 export function RewardsPage() {
@@ -55,19 +54,15 @@ export function RewardsPage() {
   const selectedCategoryFilters = useMemo(
     () =>
       selectedFilters.filter(
-        (filterId) =>
-          !filterId.startsWith(GROUP_ALL_PREFIX) &&
-          !QUANTITY_FILTER_IDS.includes(filterId),
+        (filterId) => !QUANTITY_FILTER_IDS.includes(filterId),
       ),
     [selectedFilters],
   );
 
   const selectedQuantityFilters = useMemo(
     () =>
-      selectedFilters.filter(
-        (filterId) =>
-          !filterId.startsWith(GROUP_ALL_PREFIX) &&
-          QUANTITY_FILTER_IDS.includes(filterId),
+      selectedFilters.filter((filterId) =>
+        QUANTITY_FILTER_IDS.includes(filterId),
       ),
     [selectedFilters],
   );

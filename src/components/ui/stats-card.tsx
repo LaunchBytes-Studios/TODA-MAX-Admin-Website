@@ -6,6 +6,7 @@ interface StatsCardProps {
   icon?: React.ReactNode;
   iconBgClassName?: string;
   iconColorClassName?: string;
+  valueClassName?: string;
   className?: string;
   description?: string;
   compact?: boolean;
@@ -18,6 +19,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
   icon,
   iconBgClassName = '',
   iconColorClassName = '',
+  valueClassName = 'text-gray-900',
   className = '',
   description,
   compact = false,
@@ -31,7 +33,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
       <div className={compact ? 'space-y-1.5' : 'space-y-2'}>
         <p className="text-sm text-gray-600">{title}</p>
         <p
-          className={`${compact ? 'text-2xl' : 'text-3xl'} font-bold text-gray-900`}
+          className={`${compact ? 'text-2xl' : 'text-3xl'} font-bold ${valueClassName}`}
         >
           {value}
         </p>

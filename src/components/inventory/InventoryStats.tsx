@@ -34,6 +34,7 @@ export function InventoryStats({ refreshTrigger }: InventoryStatsProps) {
         icon={<Package />}
         iconBgClassName="bg-blue-50"
         iconColorClassName="text-blue-500"
+        valueClassName="text-blue-600"
         description="Different types"
       />
       <StatsCard
@@ -42,6 +43,7 @@ export function InventoryStats({ refreshTrigger }: InventoryStatsProps) {
         icon={<AlertTriangle />}
         iconBgClassName="bg-orange-50"
         iconColorClassName="text-orange-500"
+        valueClassName="text-orange-600"
         description="Below threshold"
       />
       <StatsCard
@@ -50,6 +52,7 @@ export function InventoryStats({ refreshTrigger }: InventoryStatsProps) {
         icon={<AlertCircle />}
         iconBgClassName="bg-red-50"
         iconColorClassName="text-red-500"
+        valueClassName="text-red-600"
         description="Zero stock items"
       />
       <StatsCard
@@ -58,6 +61,7 @@ export function InventoryStats({ refreshTrigger }: InventoryStatsProps) {
         icon={<BoxesIcon />}
         iconBgClassName="bg-green-50"
         iconColorClassName="text-green-500"
+        valueClassName="text-green-600"
         description="Total units"
       />
     </div>
