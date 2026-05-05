@@ -93,6 +93,7 @@ const MedicineCard: React.FC<MedicineCardProps> = ({
             size="icon"
             onClick={() => onEdit(id)}
             className="hover:bg-blue-50 border-blue-200 text-blue-600 hover:text-blue-700"
+            aria-label={`Edit ${name}`}
           >
             <Pencil className="w-4 h-4" />
           </Button>
@@ -101,6 +102,7 @@ const MedicineCard: React.FC<MedicineCardProps> = ({
             size="icon"
             onClick={() => onDelete(id)}
             className="hover:bg-red-50 border-red-200 text-red-600 hover:text-red-700"
+            aria-label={`Delete ${name}`}
           >
             <Trash2 className="w-4 h-4" />
           </Button>

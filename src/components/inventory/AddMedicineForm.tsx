@@ -117,6 +117,7 @@ function AddMedicineForm({
                   <FormLabel>Name *</FormLabel>
                   <FormControl>
                     <Input
+                      data-cy="medicine-name-input"
                       placeholder="Enter medicine name"
                       {...field}
                       className={
@@ -140,6 +141,7 @@ function AddMedicineForm({
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea
+                      data-cy="medicine-description-input"
                       rows={2}
                       placeholder="Enter description"
                       {...field}
@@ -165,6 +167,7 @@ function AddMedicineForm({
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger
+                        data-cy="medicine-category-select"
                         className={
                           fieldState.invalid
                             ? 'border-red-500 focus:ring-red-500'
@@ -199,6 +202,7 @@ function AddMedicineForm({
                         type="number"
                         step="0.01"
                         min={0}
+                        data-cy="medicine-price-input"
                         placeholder="0"
                         {...field}
                         value={field.value ?? ''}
@@ -227,6 +231,7 @@ function AddMedicineForm({
                       <Input
                         type="number"
                         min={0}
+                        data-cy="medicine-stock-input"
                         placeholder="0"
                         {...field}
                         value={field.value ?? ''}
@@ -255,6 +260,7 @@ function AddMedicineForm({
                       <Input
                         type="number"
                         min={0}
+                        data-cy="medicine-threshold-input"
                         placeholder="10"
                         {...field}
                         value={field.value ?? ''}
@@ -283,6 +289,7 @@ function AddMedicineForm({
                       <Input
                         type="number"
                         min={0}
+                        data-cy="medicine-dosage-input"
                         placeholder="0"
                         {...field}
                         value={field.value ?? ''}
@@ -316,6 +323,7 @@ function AddMedicineForm({
                 type="submit"
                 className="bg-blue-600 hover:bg-blue-700 text-white"
                 disabled={isSubmitting}
+                data-cy="submit-add-medicine"
               >
                 {isSubmitting ? 'Saving...' : 'Add'}
               </Button>
