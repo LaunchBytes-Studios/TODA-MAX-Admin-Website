@@ -1,8 +1,11 @@
 import { defineConfig } from 'cypress';
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
+import crypto from 'node:crypto';
 
 dotenv.config({ path: '.env.test' });
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -15,6 +18,29 @@ export default defineConfig({
     allowCypressEnv: false,
     setupNodeEvents(on) {
       on('task', {
+        makeAuthToken({ userId, role, contact }) {
+          const encodeBase64Url = (value) =>
+            Buffer.from(JSON.stringify(value)).toString('base64url');
+
+          const header = { alg: 'HS256', typ: 'JWT' };
+          const payload = {
+            userId,
+            role,
+            contact,
+            iat: Math.floor(Date.now() / 1000),
+            exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 3,
+          };
+
+          const encodedHeader = encodeBase64Url(header);
+          const encodedPayload = encodeBase64Url(payload);
+          const signature = crypto
+            .createHmac('sha256', JWT_SECRET)
+            .update(`${encodedHeader}.${encodedPayload}`)
+            .digest('base64url');
+
+          return `${encodedHeader}.${encodedPayload}.${signature}`;
+        },
+
         async resetDb() {
           const tablesToClear = [
             { table: 'ChatMessages', key: 'message_id' },
@@ -48,6 +74,7 @@ export default defineConfig({
 
           return null;
         },
+
         async seedOrders() {
           try {
             // 1. Get or Create eNavigator
