@@ -158,7 +158,8 @@ const PrivacyPolicyPage: React.FC = () => {
             <h2 className="text-2xl font-bold mb-4">11. Contact Us</h2>
             <p className="text-gray-700 mb-4">
               If you have questions about this Privacy Policy, please contact us
-              through the in-app support chat.
+              through the in-app support chat or by emailing us at
+              pototanrhu@toda-max.com.
             </p>
           </section>
 

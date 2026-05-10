@@ -173,7 +173,8 @@ const TermsOfServicePage: React.FC = () => {
             <h2 className="text-2xl font-bold mb-4">14. Contact Information</h2>
             <p className="text-gray-700 mb-4">
               For questions or concerns about these Terms, please contact us
-              through the in-app support chat.
+              through the in-app support chat or by emailing us at
+              pototanrhu@toda-max.com.
             </p>
           </section>
 
