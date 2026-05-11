@@ -36,8 +36,22 @@ export function useFetchAnnouncement() {
       if (data && !Array.isArray(data)) {
         data = [data];
       }
-      setAnnouncements(data);
-      return data;
+      const sortedAnnouncements = Array.isArray(data)
+        ? [...data].sort((a, b) => {
+            const dateDifference =
+              new Date(b.announce_date).getTime() -
+              new Date(a.announce_date).getTime();
+
+            if (dateDifference !== 0) {
+              return dateDifference;
+            }
+
+            return Number(b.announce_id) - Number(a.announce_id);
+          })
+        : [];
+
+      setAnnouncements(sortedAnnouncements);
+      return sortedAnnouncements;
     } catch (err) {
       let message = 'Failed to fetch announcements.';
       if (isAxiosError(err)) {

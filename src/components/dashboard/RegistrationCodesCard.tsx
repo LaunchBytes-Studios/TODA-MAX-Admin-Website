@@ -53,7 +53,7 @@ const getEndOfDayExpiry = () => {
 };
 
 export interface RegistrationCodesProps {
-  id: string;
+  id: number;
   code: string;
   status: string;
   expires_at: Date;
