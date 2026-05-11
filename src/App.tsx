@@ -9,6 +9,8 @@ import MainLayout from './components/layout/MainLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import OrderingPage from './pages/OrderingPage';
 import { SupportPage } from './pages/SupportPage';
+import ResetPasswordPage from './pages/ResetPasswordPage.tsx';
+import ForgotPasswordPage from './pages/ForgotPasswordPage.tsx';
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/admin/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/admin/reset-password" element={<ResetPasswordPage />} />
 
         <Route
           element={
