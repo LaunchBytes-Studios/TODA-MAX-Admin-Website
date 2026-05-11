@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import { useLogin } from '../hooks/auth/useLogin';
 
 const LoginPage: React.FC = () => {
   const { isLoading, handleSubmit } = useLogin();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -73,7 +75,7 @@ const LoginPage: React.FC = () => {
         <div className="text-right">
           <button
             type="button"
-            onClick={() => alert('Forgot password feature coming soon')}
+            onClick={() => navigate('/admin/forgot-password')}
             className="text-blue-600 hover:text-blue-800 text-sm"
           >
             Forgot Password?

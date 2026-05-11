@@ -13,7 +13,7 @@ interface CreateMedicationData extends Omit<
   'id' | 'isLowStock'
 > {
   price: number;
-  dosage: number;
+  dosage: string;
 }
 
 export function useCreateMedication() {

@@ -68,7 +68,7 @@ function EditMedicineForm({
       price: undefined,
       stock: undefined,
       lowStockThreshold: undefined,
-      dosage: undefined,
+      dosage: '',
     },
   });
 
@@ -81,7 +81,7 @@ function EditMedicineForm({
         price: medicine.price || 0,
         stock: medicine.stock,
         lowStockThreshold: medicine.lowStockThreshold,
-        dosage: medicine.dosage,
+        dosage: medicine.dosage ?? '',
       });
     }
   }, [form, medicine]);
@@ -333,18 +333,13 @@ function EditMedicineForm({
                 name="dosage"
                 render={({ field, fieldState }) => (
                   <FormItem>
-                    <FormLabel>Dosage (mg)</FormLabel>
+                    <FormLabel>Dosage</FormLabel>
                     <FormControl>
                       <Input
-                        type="number"
-                        min={0}
+                        type="text"
                         data-cy="medicine-dosage-input"
-                        placeholder="0"
+                        placeholder="e.g. 500 mg"
                         {...field}
-                        value={field.value ?? ''}
-                        onChange={(e) =>
-                          field.onChange(parseNumberInput(e.target.value))
-                        }
                         className={
                           fieldState.invalid
                             ? 'border-red-500 focus:ring-red-500'

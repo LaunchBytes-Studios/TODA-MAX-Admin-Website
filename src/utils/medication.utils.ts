@@ -16,5 +16,5 @@ export const mapBackendToFrontend = (
     backendMed.stock_qty > 0 &&
     backendMed.stock_qty <= backendMed.threshold_qty,
   description: backendMed.description ?? '',
-  dosage: backendMed.dosage ?? 0,
+  dosage: backendMed.dosage != null ? String(backendMed.dosage) : '',
 });

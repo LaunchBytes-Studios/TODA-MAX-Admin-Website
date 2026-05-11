@@ -3,7 +3,7 @@ export interface Medicine {
   name: string;
   category: string;
   description?: string;
-  dosage?: number;
+  dosage?: string;
   stock: number;
   lowStockThreshold: number;
   isLowStock: boolean;
