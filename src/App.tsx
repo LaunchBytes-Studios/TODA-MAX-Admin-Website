@@ -11,6 +11,8 @@ import OrderingPage from './pages/OrderingPage';
 import { SupportPage } from './pages/SupportPage';
 import ResetPasswordPage from './pages/ResetPasswordPage.tsx';
 import ForgotPasswordPage from './pages/ForgotPasswordPage.tsx';
+import TermsOfServicePage from './pages/TermsOfServicePage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/admin/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/admin/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
 
         <Route
           element={

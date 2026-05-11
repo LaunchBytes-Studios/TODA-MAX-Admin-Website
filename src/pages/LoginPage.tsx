@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import { useLogin } from '../hooks/auth/useLogin';
 
@@ -93,6 +94,26 @@ const LoginPage: React.FC = () => {
           {isLoading ? 'Logging In...' : 'Log In'}
         </button>
       </form>
+
+      {/* Footer Links */}
+      <footer className="mt-12 text-center text-sm text-gray-600">
+        <div className="flex justify-center gap-6 mb-4">
+          <Link
+            to="/terms-of-service"
+            className="text-blue-600 hover:text-blue-800 underline"
+          >
+            Terms of Service
+          </Link>
+          <span>•</span>
+          <Link
+            to="/privacy-policy"
+            className="text-blue-600 hover:text-blue-800 underline"
+          >
+            Privacy Policy
+          </Link>
+        </div>
+        <p>&copy; 2026 Toda Max System. All rights reserved.</p>
+      </footer>
     </main>
   );
 };
