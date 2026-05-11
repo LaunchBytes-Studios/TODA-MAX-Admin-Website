@@ -135,7 +135,10 @@ export function RegistrationCodes() {
                       {code.code}
                     </span>
                     {expired && (
-                      <Badge variant="destructive" className="text-xs">
+                      <Badge
+                        variant="destructive"
+                        className="text-xs text-white"
+                      >
                         Expired
                       </Badge>
                     )}
@@ -186,7 +189,7 @@ export function RegistrationCodes() {
               <span className="text-muted-foreground">Expires in:</span>
               <Badge
                 variant={expiringSoon ? 'destructive' : 'secondary'}
-                className={cn(!expiringSoon && 'bg-green-100 text-green-800')}
+                className={cn('text-white', !expiringSoon && 'bg-green-600')}
               >
                 {timeRemaining}
               </Badge>
