@@ -34,7 +34,7 @@ export function useFetchRegistrationCodes() {
       const mappedCodes = Array.isArray(data)
         ? data.map(
             (item: {
-              code_id: string;
+              code_id: number;
               code: string;
               expires_at?: string;
               status?: string;
@@ -42,45 +42,37 @@ export function useFetchRegistrationCodes() {
               created_at?: string;
               used_at?: string;
             }) => {
-              const expiryTime = item.expires_at
-                ? String(new Date(item.expires_at).getTime())
-                : '';
-              const isExpired = expiryTime
-                ? Number(expiryTime) < Date.now()
-                : false;
+              const expiresAt = item.expires_at
+                ? new Date(item.expires_at)
+                : new Date(0);
+              const createdAt = item.created_at
+                ? new Date(item.created_at)
+                : new Date(0);
+              const usedAt = item.used_at ? new Date(item.used_at) : null;
+
               return {
                 id: item.code_id,
                 code: item.code,
-                expiryDate: item.expires_at
-                  ? new Date(item.expires_at).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                    })
-                  : '',
                 status: item.status ?? '',
-                enavId: item.enav_id,
-                createdAt: item.created_at,
-                usedAt: item.used_at,
-                expiryTime,
-                isExpired,
-                expires_at: item.expires_at
-                  ? new Date(item.expires_at)
-                  : new Date(0),
-                created_at: item.created_at
-                  ? new Date(item.created_at)
-                  : new Date(0),
-                used_at: item.used_at ? new Date(item.used_at) : null,
+                expires_at: expiresAt,
+                created_at: createdAt,
+                used_at: usedAt,
               };
             },
           )
         : [];
-      // Backend maintenance handles cleanup; filter defensively for display
+      //  filter defensively for display
       const activeUnusedCodes = mappedCodes.filter(
         (code) =>
-          code.status === 'active' && !code.isExpired && code.used_at === null,
+          code.status === 'active' &&
+          !isNaN(code.expires_at.getTime()) &&
+          code.expires_at.getTime() >= Date.now() &&
+          code.used_at === null,
       );
-      setCodes(activeUnusedCodes);
+      const sortedCodes = [...activeUnusedCodes].sort(
+        (a, b) => b.created_at.getTime() - a.created_at.getTime(),
+      );
+      setCodes(sortedCodes);
     } catch (err) {
       let message = 'Failed to fetch registration codes.';
       if (axios.isAxiosError(err)) {
