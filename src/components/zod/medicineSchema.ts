@@ -38,12 +38,11 @@ export const addMedicineSchema = z.object({
       .min(5, 'Low stock threshold must be at least 5')
       .max(10000, 'Low stock threshold is too high'),
   ),
-  dosage: requiredNumber('Dosage').pipe(
-    z
-      .number()
-      .min(1, 'Dosage must be greater than 0')
-      .max(10000, 'Dosage is too high'),
-  ),
+  dosage: z
+    .string()
+    .trim()
+    .min(1, 'Dosage is required')
+    .max(100, 'Dosage must be 100 characters or less'),
 });
 
 export type AddMedicineFormValues = z.infer<typeof addMedicineSchema>;

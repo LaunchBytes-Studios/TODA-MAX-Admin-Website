@@ -9,7 +9,7 @@ interface UpdateMedicationData {
   category?: string;
   stock?: number;
   lowStockThreshold?: number;
-  dosage?: number;
+  dosage?: string;
   price?: number;
   description?: string;
 }

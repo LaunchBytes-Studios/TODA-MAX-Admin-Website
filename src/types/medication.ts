@@ -8,7 +8,7 @@ export interface BackendMedication {
   enav_id?: string;
   created_at?: string;
   description?: string;
-  dosage?: number;
+  dosage?: string | null;
 }
 
 export interface FrontendMedicine {
@@ -20,7 +20,7 @@ export interface FrontendMedicine {
   lowStockThreshold: number;
   isLowStock: boolean;
   description: string;
-  dosage: number;
+  dosage: string;
 }
 
 export interface ApiResponse<T = unknown> {
