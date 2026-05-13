@@ -54,6 +54,7 @@ export function SearchAndFilterBar({
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2"
           onClick={onAddClick}
           disabled={isLoading}
+          data-cy="add-medicine-button"
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Medicine

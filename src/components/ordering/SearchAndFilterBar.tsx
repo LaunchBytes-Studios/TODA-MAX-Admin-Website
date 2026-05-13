@@ -33,29 +33,30 @@ export function SearchAndFilterBar({
 }: SearchAndFilterBarProps) {
   return (
     <div className="bg-white rounded-lg border p-4 mb-6">
-      <div className="flex flex-col md:flex-row md:items-center gap-4">
+      <div className="flex flex-col md:flex-row md:items-center gap-6">
         {/* Search Bar */}
         <div className="relative md:w-64 shrink-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
             placeholder="Search orders or patients..."
-            className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-2 bg-slate-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
           />
         </div>
 
-        {/* Delivery Type Filter */}
-        <div className="flex items-center gap-2 shrink-0">
+        {/* Delivery Type Filter (Segmented Control) */}
+        <div className="flex items-center shrink-0 bg-slate-100 p-1 rounded-lg">
           {DELIVERY_TYPES.map((type) => (
             <button
               key={type.id}
+              type="button"
               onClick={() => onDeliveryFilterChange(type.id)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`relative px-4 py-1.5 text-sm font-medium transition-all duration-200 rounded-md ${
                 deliveryFilter === type.id
-                  ? 'bg-green-100 text-green-700 border border-green-300'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-transparent'
+                  ? 'text-gray-900 bg-white shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               {type.label}
@@ -63,16 +64,17 @@ export function SearchAndFilterBar({
           ))}
         </div>
 
-        {/* Status Tabs */}
-        <div className="flex flex-wrap gap-2">
+        {/* Status Tabs (Segmented Control) */}
+        <div className="flex flex-wrap items-center bg-slate-100 p-1 rounded-lg">
           {TABS.map((tab) => (
             <button
               key={tab.id}
+              type="button"
               onClick={() => onTabChange(tab.id)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`relative px-4 py-1.5 text-sm font-medium transition-all duration-200 rounded-md ${
                 activeTab === tab.id
-                  ? 'bg-blue-100 text-blue-700 border border-blue-300'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-transparent'
+                  ? 'text-blue-700 bg-white shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               {tab.label}

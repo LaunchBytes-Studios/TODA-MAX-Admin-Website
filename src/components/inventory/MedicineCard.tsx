@@ -7,7 +7,7 @@ interface MedicineCardProps {
   name: string;
   category: string;
   description?: string;
-  dosage?: number;
+  dosage?: string;
   stock: number;
   isLowStock?: boolean;
   onEdit: (id: number) => void;
@@ -66,7 +66,13 @@ const MedicineCard: React.FC<MedicineCardProps> = ({
               Dosage
             </p>
             <p className="mt-1 font-medium text-gray-900">
-              {typeof dosage === 'number' ? `${dosage} mg` : 'N/A'}
+              {typeof dosage === 'string'
+                ? dosage.trim()
+                  ? dosage
+                  : 'N/A'
+                : dosage
+                  ? String(dosage)
+                  : 'N/A'}
             </p>
           </div>
           <div>
@@ -93,6 +99,7 @@ const MedicineCard: React.FC<MedicineCardProps> = ({
             size="icon"
             onClick={() => onEdit(id)}
             className="hover:bg-blue-50 border-blue-200 text-blue-600 hover:text-blue-700"
+            aria-label={`Edit ${name}`}
           >
             <Pencil className="w-4 h-4" />
           </Button>
@@ -101,6 +108,7 @@ const MedicineCard: React.FC<MedicineCardProps> = ({
             size="icon"
             onClick={() => onDelete(id)}
             className="hover:bg-red-50 border-red-200 text-red-600 hover:text-red-700"
+            aria-label={`Delete ${name}`}
           >
             <Trash2 className="w-4 h-4" />
           </Button>

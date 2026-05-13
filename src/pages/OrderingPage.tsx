@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
-import { OrderingPageSkeleton } from '@/components/skeleton/OrderingPageSkeleton';
+import {
+  OrderingPageSkeleton,
+  OrderListSkeleton,
+} from '@/components/skeleton/OrderingPageSkeleton';
 import { StatsCards } from '@/components/ordering/StatsCards';
 import { SearchAndFilterBar } from '@/components/ordering/SearchAndFilterBar';
 import { OrdersList } from '@/components/ordering/OrderList';
@@ -22,6 +25,7 @@ export default function OrderingPage() {
     loading,
     error,
     handleUpdateStatus,
+    handleUpdateType,
     page,
     setPage,
     total,
@@ -56,7 +60,15 @@ export default function OrderingPage() {
     return () => clearTimeout(handler);
   }, [inputValue]);
 
-  if (loading) return <OrderingPageSkeleton />;
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  useEffect(() => {
+    if (!loading && isInitialLoad) {
+      setIsInitialLoad(false);
+    }
+  }, [loading, isInitialLoad]);
+
+  if (loading && isInitialLoad) return <OrderingPageSkeleton />;
   if (error) return <div className="text-red-500">Error: {error}</div>;
 
   return (
@@ -79,15 +91,19 @@ export default function OrderingPage() {
         onDeliveryFilterChange={setDeliveryFilter}
       />
 
-      <OrdersList
-        orders={orders}
-        activeTab={activeTab}
-        searchTerm={searchTerm}
-        onViewDetails={(order) => {
-          setSelectedOrder(order);
-          setIsModalOpen(true);
-        }}
-      />
+      {loading && !isInitialLoad ? (
+        <OrderListSkeleton />
+      ) : (
+        <OrdersList
+          orders={orders}
+          activeTab={activeTab}
+          searchTerm={searchTerm}
+          onViewDetails={(order) => {
+            setSelectedOrder(order);
+            setIsModalOpen(true);
+          }}
+        />
+      )}
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-6 px-4 py-3 bg-gray-50 rounded-lg">
@@ -136,6 +152,7 @@ export default function OrderingPage() {
         onClose={() => setIsModalOpen(false)}
         order={selectedOrder}
         onUpdateStatus={handleUpdateStatus}
+        onUpdateType={handleUpdateType}
       />
     </div>
   );

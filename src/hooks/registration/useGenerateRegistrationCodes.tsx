@@ -22,16 +22,6 @@ export function useGenerateRegistrationCodes() {
       }
       const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
-      try {
-        await api.post(
-          `/enavigator/registrationCodes/maintenance`,
-          {},
-          { headers, params: { confirm: true } },
-        );
-      } catch (maintenanceErr) {
-        console.warn('Maintenance failed:', maintenanceErr);
-      }
-
       await api.post('/enavigator/registrationCodes/generate', {}, { headers });
       toast.success('Registration code generated successfully!');
 

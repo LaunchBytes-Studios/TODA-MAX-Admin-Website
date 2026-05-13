@@ -52,6 +52,7 @@ export function MedicinesList({
         <Button
           className="mt-4 bg-blue-600 hover:bg-blue-700"
           onClick={onAddClick}
+          data-cy="add-medicine-button"
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Medicine

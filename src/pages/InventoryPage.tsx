@@ -14,7 +14,6 @@ import { useFetchMedications } from '@/hooks/medications/useFetchMedications';
 import type { FrontendMedicine } from '@/types/medication';
 import { INVENTORY_FILTER_GROUPS } from '@/constants/tabs';
 
-const GROUP_ALL_PREFIX = 'all:';
 const QUANTITY_FILTER_IDS = ['out-of-stock', 'low-stock', 'in-stock'];
 
 export function InventoryPage() {
@@ -57,19 +56,15 @@ export function InventoryPage() {
   const selectedTypeFilters = useMemo(
     () =>
       selectedFilters.filter(
-        (filterId) =>
-          !filterId.startsWith(GROUP_ALL_PREFIX) &&
-          !QUANTITY_FILTER_IDS.includes(filterId),
+        (filterId) => !QUANTITY_FILTER_IDS.includes(filterId),
       ),
     [selectedFilters],
   );
 
   const selectedQuantityFilters = useMemo(
     () =>
-      selectedFilters.filter(
-        (filterId) =>
-          !filterId.startsWith(GROUP_ALL_PREFIX) &&
-          QUANTITY_FILTER_IDS.includes(filterId),
+      selectedFilters.filter((filterId) =>
+        QUANTITY_FILTER_IDS.includes(filterId),
       ),
     [selectedFilters],
   );

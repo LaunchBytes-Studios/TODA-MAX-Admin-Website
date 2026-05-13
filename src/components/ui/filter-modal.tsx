@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Funnel } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,12 +22,6 @@ export interface FilterOptionGroup {
   options: FilterOption[];
 }
 
-const GROUP_ALL_PREFIX = 'all:';
-
-const getGroupAllId = (groupId: string) => `${GROUP_ALL_PREFIX}${groupId}`;
-
-const isGroupAllValue = (value: string) => value.startsWith(GROUP_ALL_PREFIX);
-
 interface FilterModalProps {
   title: string;
   description?: string;
@@ -50,65 +44,32 @@ export function FilterModal({
   const [isOpen, setIsOpen] = useState(false);
   const [draftValues, setDraftValues] = useState<string[]>(selectedValues);
 
-  const selectedCount = useMemo(() => {
-    const expandedValues = new Set<string>();
-
-    selectedValues.forEach((value) => {
-      if (!isGroupAllValue(value)) {
-        expandedValues.add(value);
-        return;
-      }
-
-      const groupId = value.slice(GROUP_ALL_PREFIX.length);
-      const group = optionGroups.find(
-        (optionGroup) => optionGroup.id === groupId,
-      );
-
-      group?.options.forEach((option) => expandedValues.add(option.id));
-    });
-
-    return expandedValues.size;
-  }, [optionGroups, selectedValues]);
+  const selectedCount = new Set(selectedValues).size;
 
   const toggleGroupAll = (group: FilterOptionGroup) => {
     const groupOptionIds = group.options.map((option) => option.id);
-    const groupAllId = getGroupAllId(group.id);
+    const allSelected = groupOptionIds.every((optionId) =>
+      draftValues.includes(optionId),
+    );
 
     setDraftValues((previousValues) => {
-      const otherValues = previousValues.filter(
-        (value) => value !== groupAllId && !groupOptionIds.includes(value),
-      );
-      const isAllSelected = previousValues.includes(groupAllId);
+      if (allSelected) {
+        return previousValues.filter(
+          (value) => !groupOptionIds.includes(value),
+        );
+      }
 
-      return isAllSelected ? otherValues : [...otherValues, groupAllId];
+      return Array.from(new Set([...previousValues, ...groupOptionIds]));
     });
   };
 
-  const toggleValue = (group: FilterOptionGroup, value: string) => {
-    const groupOptionIds = group.options.map((option) => option.id);
-    const groupAllId = getGroupAllId(group.id);
-
+  const toggleValue = (value: string) => {
     setDraftValues((previousValues) => {
-      const otherValues = previousValues.filter(
-        (currentValue) =>
-          currentValue !== groupAllId && !groupOptionIds.includes(currentValue),
-      );
-
-      const currentGroupValues = previousValues.includes(groupAllId)
-        ? [...groupOptionIds]
-        : previousValues.filter((currentValue) =>
-            groupOptionIds.includes(currentValue),
-          );
-
-      const nextGroupValues = currentGroupValues.includes(value)
-        ? currentGroupValues.filter((currentValue) => currentValue !== value)
-        : [...currentGroupValues, value];
-
-      if (nextGroupValues.length === groupOptionIds.length) {
-        return [...otherValues, groupAllId];
+      if (previousValues.includes(value)) {
+        return previousValues.filter((currentValue) => currentValue !== value);
       }
 
-      return [...otherValues, ...nextGroupValues];
+      return [...previousValues, value];
     });
   };
 
@@ -133,7 +94,7 @@ export function FilterModal({
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
+          className="h-10 border-blue-600 bg-blue-600 px-4 text-white hover:bg-blue-700 hover:text-white"
           disabled={disabled}
         >
           <Funnel className="h-4 w-4" />
@@ -152,19 +113,23 @@ export function FilterModal({
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-5">
           {optionGroups.map((group) => (
             <div key={group.id} className="space-y-2">
               <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 {group.label}
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-3">
                 <button
                   type="button"
                   onClick={() => toggleGroupAll(group)}
-                  aria-pressed={draftValues.includes(getGroupAllId(group.id))}
-                  className={`px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors ${getBadgeClasses(
-                    draftValues.includes(getGroupAllId(group.id)),
+                  aria-pressed={group.options.every((option) =>
+                    draftValues.includes(option.id),
+                  )}
+                  className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${getBadgeClasses(
+                    group.options.every((option) =>
+                      draftValues.includes(option.id),
+                    ),
                   )}`}
                 >
                   All
@@ -176,9 +141,9 @@ export function FilterModal({
                     <button
                       type="button"
                       key={option.id}
-                      onClick={() => toggleValue(group, option.id)}
+                      onClick={() => toggleValue(option.id)}
                       aria-pressed={isChecked}
-                      className={`px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors ${getBadgeClasses(isChecked)}`}
+                      className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${getBadgeClasses(isChecked)}`}
                     >
                       {option.label}
                     </button>

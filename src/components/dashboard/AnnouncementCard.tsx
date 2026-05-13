@@ -37,12 +37,19 @@ export const AnnouncementCard = () => {
   const isOverCharLimit = charCount > CHAR_LIMIT;
 
   const handleBroadcast = async () => {
+    const trimmedMessage = message.trim();
+    if (!trimmedMessage) {
+      return;
+    }
+
     const result = await postAnnouncement(
-      message,
+      trimmedMessage,
       undefined,
-      fetchAnnouncements,
+      async () => {
+        await fetchAnnouncements();
+      },
     );
-    if (result) {
+    if (result !== null) {
       setMessage('');
     }
   };
